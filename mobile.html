@@ -1,0 +1,1926 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="영업일지">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#0f1f3d">
+<link rel="manifest" href="manifest-mobile.json">
+<link rel="apple-touch-icon" href="icon-180.png">
+<title>방문영업일지 · 모바일</title>
+<script src="companies-data.js"></script>
+<style>
+:root{
+  --navy:#0f1f3d; --navy2:#16294f; --gold:#c9a227; --gold-soft:#e9d9a8;
+  --bg:#f3f5f9; --card:#ffffff; --line:#e6e9f0; --text:#1b2434; --sub:#6b7280;
+  --blue:#2563eb; --teal:#0d9488; --green:#16a34a; --amber:#d97706; --amber-lt:#fef3c7;
+  --red:#dc2626; --gray-400:#9ca3af; --purple:#7c3aed;
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html,body{margin:0;padding:0;height:100%;background:var(--bg);color:var(--text);
+  font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+  overscroll-behavior:none;}
+#app{position:fixed;inset:0;display:flex;flex-direction:column;}
+
+/* ---------- Top bar ---------- */
+#topbar{padding:calc(10px + var(--safe-top)) 16px 10px;background:linear-gradient(135deg,var(--navy),var(--navy2));
+  color:#fff;display:flex;align-items:center;gap:10px;flex-shrink:0;position:relative;}
+#topbar .backbtn{display:none;background:rgba(255,255,255,.12);border:none;color:#fff;
+  width:34px;height:34px;border-radius:10px;font-size:18px;line-height:1;flex-shrink:0;}
+#topbar.hasback .backbtn{display:block;}
+#topbar .title{font-size:17px;font-weight:700;flex:1;}
+#topbar .sub{font-size:11px;color:var(--gold-soft);margin-top:1px;}
+
+/* ---------- Screens ---------- */
+#screens{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;position:relative;}
+.screen{display:none;padding:14px 14px calc(90px + var(--safe-bottom));min-height:100%;}
+.screen.active{display:block;}
+.sub-screen{display:none;position:absolute;inset:0;background:var(--bg);overflow-y:auto;
+  padding:14px 14px calc(30px + var(--safe-bottom));z-index:5;}
+.sub-screen.active{display:block;}
+
+/* ---------- Buttons / cards ---------- */
+.big-btn{width:100%;border:none;border-radius:16px;padding:20px 16px;margin-bottom:14px;
+  display:flex;align-items:center;gap:14px;font-size:16px;font-weight:700;text-align:left;
+  box-shadow:0 3px 10px rgba(20,30,60,.08);}
+.big-btn .ico{font-size:26px;width:40px;text-align:center;flex-shrink:0;}
+.big-btn .desc{font-weight:400;font-size:12px;opacity:.85;margin-top:2px;}
+.big-btn.primary{background:linear-gradient(135deg,var(--navy),var(--navy2));color:#fff;}
+.big-btn.gold{background:linear-gradient(135deg,#caa63a,#a9861d);color:#fff;}
+.big-btn.outline{background:#fff;color:var(--navy);border:1.5px solid var(--line);}
+.small-btn{width:100%;border:1.5px dashed #c7cede;background:#eef1f7;color:#556;
+  border-radius:12px;padding:12px;font-size:13px;font-weight:600;margin-top:6px;margin-bottom:20px;}
+
+.card{background:var(--card);border-radius:14px;padding:14px;margin-bottom:12px;
+  box-shadow:0 2px 8px rgba(20,30,60,.06);}
+.page-title{font-size:16px;font-weight:800;margin-bottom:12px;display:flex;align-items:center;gap:6px;}
+.section-title{font-size:13px;font-weight:700;color:var(--sub);margin:18px 0 8px;letter-spacing:.3px;}
+.section-title:first-child{margin-top:0;}
+
+/* ---------- Form ---------- */
+.field{margin-bottom:14px;}
+.field label{display:block;font-size:13px;font-weight:700;color:#39435a;margin-bottom:6px;}
+.field label .req{color:var(--red);margin-left:2px;}
+.field input[type=text], .field input[type=tel], .field input[type=number],
+.field input[type=date], .field input[type=time], .field textarea, .field select{
+  width:100%;padding:12px 12px;border:1.5px solid var(--line);border-radius:10px;
+  font-size:15px;background:#fff;color:var(--text);font-family:inherit;}
+.field textarea{resize:vertical;min-height:70px;}
+.row2{display:flex;gap:10px;}
+.row2 > div{flex:1;}
+.gps-row{display:flex;gap:8px;}
+.gps-row input{flex:1;}
+.gps-btn, .time-btn{flex-shrink:0;background:var(--navy);color:#fff;border:none;border-radius:10px;
+  padding:0 14px;font-size:13px;font-weight:700;white-space:nowrap;}
+.time-row{display:flex;gap:8px;align-items:stretch;}
+.time-row input{flex:1;}
+
+/* ---------- 칩(버튼형) 공통: PC버전 result-btn / priority-btn / picker-chip 스타일과 맞춤 ---------- */
+.chip-group{display:flex;flex-wrap:wrap;gap:8px;}
+.chip{padding:9px 14px;border-radius:10px;border:1.6px solid var(--line);background:#fff;
+  font-size:13px;font-weight:700;color:#556;}
+.chip.pill{border-radius:20px;font-weight:600;}
+.chip.sm{padding:6px 11px;font-size:12px;border-radius:16px;}
+/* 방문결과 - PC와 동일한 값별 색상 */
+.chip.result[data-v="완료"].on{background:var(--green);border-color:var(--green);color:#fff;}
+.chip.result[data-v="재방문필요"].on{background:var(--blue);border-color:var(--blue);color:#fff;}
+.chip.result[data-v="부재"].on{background:var(--amber);border-color:var(--amber);color:#fff;}
+.chip.result[data-v="거절"].on{background:var(--red);border-color:var(--red);color:#fff;}
+.chip.result[data-v="취소"].on{background:var(--gray-400);border-color:var(--gray-400);color:#fff;}
+.chip.result[data-v="가벼운터치"].on{background:var(--purple);border-color:var(--purple);color:#fff;}
+/* 우선순위 - PC와 동일하게 단일 amber 강조 */
+.chip.priority.on{background:var(--amber-lt);border-color:var(--amber);color:var(--amber);}
+/* 일반 선택형(단체보험/법인명의/리/근로자수 등) - PC picker-chip과 동일한 파란색 강조 */
+.chip.pick.on{background:var(--blue);border-color:var(--blue);color:#fff;}
+.chip.on{background:var(--navy);border-color:var(--navy);color:#fff;}
+
+.visit-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.visit-grid .field{margin-bottom:0;}
+
+.attach-box{border:1.5px dashed #c7cede;border-radius:12px;padding:14px;text-align:center;background:#fafbfd;}
+.attach-preview{max-width:100%;border-radius:10px;margin-top:10px;display:none;}
+.attach-preview.show{display:block;}
+
+.save-bar{position:sticky;bottom:0;background:linear-gradient(0deg,var(--bg) 60%,transparent);
+  padding:14px 0 4px;margin-top:6px;}
+.save-btn{width:100%;background:linear-gradient(135deg,var(--green),#128a45);color:#fff;border:none;
+  border-radius:14px;padding:16px;font-size:16px;font-weight:800;box-shadow:0 4px 14px rgba(22,163,74,.35);}
+
+/* ---------- 방문 기록 관리 (PC "📂 방문 기록 관리" 화면과 맞춤) ---------- */
+.stats-row{display:flex;gap:8px;margin-bottom:12px;}
+.stat-card{flex:1;text-align:center;background:#fff;border-radius:12px;padding:10px 4px;
+  border:2px solid transparent;box-shadow:0 2px 6px rgba(20,30,60,.05);}
+.stat-num{font-size:18px;font-weight:800;color:var(--navy);}
+.stat-label{font-size:10.5px;color:var(--sub);margin-top:2px;}
+.stat-card.active{border-color:var(--navy);}
+
+.filter-row-scroll{display:flex;gap:6px;overflow-x:auto;padding:2px 0 10px;margin-bottom:4px;}
+.filter-row-scroll .chip{white-space:nowrap;flex-shrink:0;}
+.filter-row-scroll .chip.on{background:var(--navy);border-color:var(--navy);color:#fff;}
+
+.tool-row{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;}
+.tool-row button{flex:1;min-width:calc(50% - 4px);padding:10px 6px;border-radius:10px;border:1.5px solid var(--line);
+  background:#fff;font-size:12.5px;font-weight:700;color:#39435a;}
+.tool-row button.on{background:var(--navy);color:#fff;border-color:var(--navy);}
+
+.j-card{background:#fff;border-radius:12px;padding:14px;margin-bottom:10px;border-left:5px solid var(--line);
+  box-shadow:0 2px 8px rgba(20,30,60,.06);position:relative;display:flex;gap:10px;align-items:flex-start;}
+.j-card.r-완료{border-left-color:var(--green);}
+.j-card.r-재방문필요{border-left-color:var(--blue);}
+.j-card.r-부재{border-left-color:var(--amber);}
+.j-card.r-거절{border-left-color:var(--red);}
+.j-card.r-취소{border-left-color:var(--gray-400);}
+.j-card.r-가벼운터치{border-left-color:var(--purple);}
+.j-card .chk{width:22px;height:22px;flex-shrink:0;margin-top:2px;}
+.j-card .ord{display:flex;flex-direction:column;gap:4px;flex-shrink:0;}
+.j-card .ord button{width:30px;height:26px;border:1px solid var(--line);background:#f4f6fa;border-radius:6px;font-size:12px;}
+.j-card .body{flex:1;min-width:0;}
+.j-card .top-row{display:flex;justify-content:space-between;align-items:flex-start;}
+.j-card .company{font-size:15px;font-weight:800;}
+.j-card .date{font-size:12px;color:var(--sub);margin-top:2px;}
+.j-card .tag{display:inline-block;font-size:11px;font-weight:700;padding:3px 9px;border-radius:8px;
+  background:#eef1f7;color:#39435a;margin-top:6px;margin-right:5px;}
+.j-card .snippet{font-size:13px;color:#4a5568;margin-top:8px;line-height:1.4;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+.empty-hint{text-align:center;color:var(--sub);font-size:13px;padding:40px 10px;}
+
+.bulk-bar{position:sticky;bottom:0;display:flex;gap:8px;padding:10px 0 4px;
+  background:linear-gradient(0deg,var(--bg) 65%,transparent);}
+.bulk-bar button{flex:1;border:none;border-radius:12px;padding:13px;font-weight:800;font-size:14px;}
+.bulk-bar .del{background:var(--red);color:#fff;}
+.bulk-bar .cancel{background:#eef1f7;color:#444;}
+
+/* ---------- 지역·조건으로 찾기 (PC picker-panel과 맞춤: 아이콘+타이틀 섹션 + 칩줄) ---------- */
+.picker-section{margin-bottom:16px;}
+.picker-section-title{display:flex;justify-content:space-between;align-items:center;font-size:13px;font-weight:700;color:#39435a;margin-bottom:8px;}
+.picker-reset-link{font-size:12px;color:var(--blue);font-weight:600;}
+.source-scroll{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;}
+.source-scroll .chip{white-space:nowrap;flex-shrink:0;}
+.result-count{font-size:13px;font-weight:700;color:var(--navy);margin:4px 0 10px;}
+
+.result-item{background:#fff;border-radius:12px;padding:12px 14px;margin-bottom:8px;
+  box-shadow:0 1px 6px rgba(20,30,60,.05);}
+.result-item .rname{font-weight:700;font-size:14px;}
+.result-item .raddr{font-size:12px;color:var(--sub);margin-top:3px;line-height:1.5;}
+
+/* ---------- 데이터관리 ---------- */
+.summary-row{display:flex;gap:8px;margin-bottom:14px;}
+.summary-box{flex:1;background:#fff;border-radius:12px;padding:12px 6px;text-align:center;box-shadow:0 2px 6px rgba(20,30,60,.05);}
+.summary-box .n{font-size:19px;font-weight:800;color:var(--navy);}
+.summary-box .l{font-size:11px;color:var(--sub);margin-top:2px;}
+.accordion{background:#fff;border-radius:12px;margin-bottom:8px;overflow:hidden;box-shadow:0 1px 6px rgba(20,30,60,.05);}
+.accordion .ahead{padding:13px 14px;display:flex;justify-content:space-between;align-items:center;font-weight:700;font-size:14px;}
+.accordion .abody{display:none;padding:0 14px 12px;}
+.accordion.open .abody{display:block;}
+.accordion .abody .arow{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-top:1px solid #f0f2f6;font-size:13px;}
+.accordion .abody .an{font-weight:600;}
+.accordion .abody .aa{font-size:11.5px;color:var(--sub);margin-top:2px;}
+.accordion .abody .adel{background:#fde8e8;color:var(--red);border:none;border-radius:8px;padding:5px 9px;font-size:11px;font-weight:700;flex-shrink:0;}
+.src-tag{display:inline-block;font-size:10px;background:#eef1f7;color:#556;padding:2px 7px;border-radius:6px;margin-left:6px;}
+
+/* ---------- Tab bar ---------- */
+#tabbar{display:flex;background:#fff;border-top:1px solid var(--line);
+  padding-bottom:var(--safe-bottom);flex-shrink:0;}
+#tabbar button{flex:1;background:none;border:none;padding:9px 0 8px;display:flex;
+  flex-direction:column;align-items:center;gap:2px;color:#9aa3b5;font-size:10.5px;font-weight:600;}
+#tabbar button .ic{font-size:19px;}
+#tabbar button.active{color:var(--navy);}
+
+/* ---------- Misc ---------- */
+.toast{position:fixed;left:50%;bottom:110px;transform:translateX(-50%);background:rgba(20,25,40,.92);
+  color:#fff;padding:10px 18px;border-radius:20px;font-size:13px;z-index:999;opacity:0;
+  transition:opacity .25s;pointer-events:none;max-width:85%;text-align:center;}
+.toast.show{opacity:1;}
+.hidden{display:none !important;}
+select{-webkit-appearance:none;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23888'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 12px center;}
+.detail-row{display:flex;padding:9px 0;border-bottom:1px solid #eef0f4;font-size:14px;}
+.detail-row .k{width:92px;flex-shrink:0;color:var(--sub);font-weight:600;font-size:12.5px;padding-top:1px;}
+.detail-row .v{flex:1;line-height:1.5;}
+.detail-actions{display:flex;gap:10px;margin-top:16px;}
+.detail-actions button{flex:1;border:none;border-radius:10px;padding:12px;font-weight:700;font-size:14px;}
+.btn-edit{background:var(--navy);color:#fff;}
+.btn-del{background:#fde8e8;color:var(--red);}
+.confirm-overlay{position:fixed;inset:0;background:rgba(10,14,25,.55);z-index:50;display:none;
+  align-items:flex-end;justify-content:center;}
+.confirm-overlay.show{display:flex;}
+.confirm-box{background:#fff;width:100%;max-width:480px;border-radius:18px 18px 0 0;padding:20px 20px calc(20px + var(--safe-bottom));}
+.confirm-box h3{margin:0 0 8px;font-size:16px;}
+.confirm-box p{margin:0 0 18px;font-size:13.5px;color:var(--sub);line-height:1.5;}
+.confirm-box .btns{display:flex;gap:10px;}
+.confirm-box .btns button{flex:1;padding:13px;border-radius:10px;border:none;font-weight:700;font-size:14px;}
+.confirm-box .btn-cancel{background:#eef1f7;color:#444;}
+.confirm-box .btn-ok{background:var(--red);color:#fff;}
+.hint-box{background:#fff8e6;border:1px solid var(--gold-soft);border-radius:10px;padding:10px 12px;font-size:12px;color:#7a5f10;margin-bottom:12px;line-height:1.5;}
+
+/* ---------- 데이터관리 (PC버전 데이터 소스 관리 스타일 이식) ---------- */
+.dm-section{background:#fff;border-radius:14px;margin-bottom:16px;overflow:hidden;box-shadow:0 2px 8px rgba(20,30,60,.06);}
+.dm-section-head{background:linear-gradient(135deg,#2b57c4,#3d6bd8);color:#fff;padding:13px 16px;font-size:15px;font-weight:800;display:flex;align-items:center;gap:8px;}
+.dm-section-body{padding:14px 14px 16px;}
+.dm-section-note{font-size:12.5px;color:var(--sub);line-height:1.55;margin-bottom:12px;}
+
+.dropzone{border:2px dashed #6a94f5;border-radius:12px;background:#f0f5ff;padding:26px 12px;text-align:center;color:#39435a;}
+.dropzone .ico{font-size:34px;margin-bottom:6px;}
+.dropzone .t{font-size:14px;font-weight:800;margin-bottom:4px;}
+.dropzone .s{font-size:11.5px;color:var(--sub);}
+
+.src-item{background:#f7f9fc;border-radius:12px;padding:14px;margin-bottom:10px;
+  border-left:5px solid var(--green);display:flex;flex-direction:column;gap:10px;}
+.src-item.off{border-left-color:#c9cfda;background:#fafbfd;}
+.src-item.builtin{border-left-color:#94a3b8;background:#f8fafc;}
+.src-top{display:flex;align-items:flex-start;gap:12px;}
+.src-toggle{width:44px;height:26px;border-radius:14px;background:#cbd2de;position:relative;flex-shrink:0;
+  cursor:pointer;transition:background .2s;border:none;padding:0;margin-top:2px;}
+.src-toggle::after{content:'';position:absolute;top:2px;left:2px;width:22px;height:22px;border-radius:50%;
+  background:#fff;transition:transform .2s;box-shadow:0 1px 3px rgba(0,0,0,.25);}
+.src-toggle.on{background:var(--green);}
+.src-toggle.on::after{transform:translateX(18px);}
+.src-info{flex:1;min-width:0;}
+.src-name{font-size:15px;font-weight:800;display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
+.src-cnt{background:#0f1f3d;color:#fff;font-size:11px;font-weight:700;padding:2px 9px;border-radius:10px;}
+.src-badge{font-size:10.5px;font-weight:700;padding:2px 8px;border-radius:8px;}
+.src-badge.builtin{background:#e0e7ff;color:#3b4d9a;}
+.src-badge.added{background:#dcfce7;color:#166534;}
+.src-badge.off{background:#e5e7eb;color:#6b7280;}
+.src-meta{font-size:11.5px;color:var(--sub);margin-top:3px;}
+.src-actions{display:flex;gap:6px;}
+.src-actions button{flex:1;border:1.5px solid var(--line);background:#fff;border-radius:9px;
+  padding:8px 4px;font-size:12px;font-weight:700;color:#39435a;}
+.src-actions .btn-del{border-color:#f5c6c6;color:var(--red);}
+.src-actions button:active{background:#eef1f7;}
+
+.backup-btns{display:flex;gap:8px;margin-top:4px;}
+.backup-btns button{flex:1;border:none;border-radius:10px;padding:13px 8px;font-size:13.5px;font-weight:800;}
+.backup-btns .b-dl{background:linear-gradient(135deg,var(--green),#128a45);color:#fff;}
+.backup-btns .b-up{background:#fff;color:var(--navy);border:1.5px solid var(--line);}
+.backup-warn{background:#fef3f3;border:1px solid #f5c6c6;border-radius:10px;padding:10px 12px;
+  font-size:11.5px;color:#8a2a2a;margin-top:10px;line-height:1.5;}
+.backup-steps{background:#f0f5ff;border-radius:10px;padding:10px 12px;font-size:12px;color:#39435a;
+  margin-bottom:12px;line-height:1.6;}
+</style>
+</head>
+<body>
+<div id="app">
+
+  <div id="topbar">
+    <button class="backbtn" id="backBtn" onclick="goBack()">‹</button>
+    <div>
+      <div class="title" id="topTitle">방문영업일지</div>
+      <div class="sub" id="topSub">오늘도 좋은 하루 되세요 · <span id="todayStr"></span></div>
+    </div>
+  </div>
+
+  <div id="screens">
+
+    <!-- ===================== HOME ===================== -->
+    <section class="screen active" id="screen-home">
+      <div class="section-title">방문 기록</div>
+      <button class="big-btn primary" onclick="openForm()">
+        <div class="ico">📝</div>
+        <div><div>직접입력</div><div class="desc">지금 방문 중인 업체를 바로 기록</div></div>
+      </button>
+      <button class="big-btn outline" onclick="openRegionSearch()">
+        <div class="ico">🎯</div>
+        <div><div>지역·조건으로 찾기</div><div class="desc">리(里)/보험가입여부/근로자수 등으로 찾기</div></div>
+      </button>
+      <button class="big-btn outline" onclick="openNameSearch()">
+        <div class="ico">🔍</div>
+        <div><div>업체명 검색</div><div class="desc">이름으로 바로 검색해서 선택</div></div>
+      </button>
+
+      <div class="section-title" id="recentTitle" style="display:none;">최근 방문 기록</div>
+      <div id="recentList"></div>
+
+      <button class="small-btn" onclick="switchTab('data')">
+        📊 엑셀로 업체 추가 / 데이터관리 바로가기
+      </button>
+    </section>
+
+    <!-- ===================== 방문기록(LIST) : PC "📂 방문 기록 관리" 와 동일 구성 ===================== -->
+    <section class="screen" id="screen-list">
+      <div class="page-title"><span>📂</span> 방문 기록 관리</div>
+      <div class="stats-row" id="statsRow"></div>
+      <div class="filter-row-scroll" id="resultFilterRow"></div>
+      <div class="tool-row">
+        <button id="btnOrderMode" onclick="toggleOrderMode()">🔀 순서변경</button>
+        <button id="btnSelectMode" onclick="toggleSelectMode()">☑️ 선택삭제</button>
+        <button onclick="exportExcel()">📥 엑셀 내보내기</button>
+        <button onclick="exportPDF()">🖨️ 인쇄 / PDF</button>
+      </div>
+      <div id="journalList"></div>
+      <div class="bulk-bar hidden" id="bulkBar">
+        <button class="cancel" onclick="toggleSelectMode()">취소</button>
+        <button class="del" onclick="bulkDelete()">선택 삭제 (<span id="selCount">0</span>)</button>
+      </div>
+    </section>
+
+    <!-- ===================== 데이터관리 ===================== -->
+    <section class="screen" id="screen-data">
+
+      <!-- ① 엑셀 파일 추가 -->
+      <div class="dm-section">
+        <div class="dm-section-head"><span>📥</span> 엑셀 파일 추가</div>
+        <div class="dm-section-body">
+          <div class="dropzone" onclick="document.getElementById('excelFile').click()">
+            <div class="ico">📁</div>
+            <div class="t">엑셀 파일을 탭하여 선택하세요</div>
+            <div class="s">지원 형식: .xlsx, .xls · 지역별로 저장되어 다음에 다시 첨부할 필요가 없어요</div>
+          </div>
+          <input type="file" id="excelFile" accept=".xlsx,.xls,.csv" class="hidden" onchange="importExcel(event)">
+        </div>
+      </div>
+
+      <!-- ② 현재 업체 데이터 소스 (지역별) -->
+      <div class="dm-section">
+        <div class="dm-section-head"><span>📁</span> 현재 업체 데이터 소스 (지역별) <span id="totalCompBadge" style="margin-left:auto;font-size:11.5px;background:rgba(255,255,255,.22);padding:3px 9px;border-radius:10px;font-weight:700;"></span></div>
+        <div class="dm-section-body">
+          <div class="dm-section-note">토글을 켜둔 지역만 검색·일지작성에 사용됩니다. 이름변경 버튼으로 지역명을 정해두면 다음에 다시 첨부하지 않아도 바로 전환해 쓸 수 있어요.</div>
+          <div id="srcList"></div>
+        </div>
+      </div>
+
+      <!-- ③ 전체 백업 / 복원 -->
+      <div class="dm-section">
+        <div class="dm-section-head"><span>💾</span> 전체 백업 / 복원 (기기 간 이동)</div>
+        <div class="dm-section-body">
+          <div class="backup-steps">
+            <strong>💡 사용법</strong><br>
+            ① 이 기기에서 "백업 파일 다운로드" 탭<br>
+            ② 카카오톡 나에게 보내기·이메일·구글드라이브로 파일 전송<br>
+            ③ PC나 다른 기기에서 "백업 파일로 복원"으로 불러오기
+          </div>
+          <div class="backup-btns">
+            <button class="b-dl" onclick="shareBackup()">📥 백업 파일 다운로드</button>
+            <button class="b-up" onclick="document.getElementById('restoreFile').click()">📤 백업 파일로 복원</button>
+          </div>
+          <input type="file" id="restoreFile" accept="application/json" class="hidden" onchange="importBackup(event)">
+          <div class="backup-warn">⚠️ 복원하면 지금 이 기기에 있는 방문일지·자료가 백업파일 내용으로 <strong>덮어씌워집니다</strong>. 파일명의 날짜를 꼭 확인하세요.</div>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ===================== SETTINGS ===================== -->
+    <section class="screen" id="screen-settings">
+      <div class="section-title">담당자 / 동행자 정보</div>
+      <div class="card">
+        <div class="field">
+          <label>담당자(방문자) 이름</label>
+          <input type="text" id="set-userName" placeholder="예: 홍기정" oninput="saveSettings()">
+        </div>
+        <div class="field"><label>동행 1</label><input type="text" id="set-companion1" placeholder="동행자 이름" oninput="saveSettings()"></div>
+        <div class="field"><label>동행 2</label><input type="text" id="set-companion2" placeholder="동행자 이름" oninput="saveSettings()"></div>
+        <div class="field" style="margin-bottom:0;"><label>동행 3</label><input type="text" id="set-companion3" placeholder="동행자 이름" oninput="saveSettings()"></div>
+      </div>
+      <div class="hint-box">여기에 입력해두면 직접입력 화면에서 방문자 기본값과 동행 선택 버튼으로 바로 사용됩니다.</div>
+
+      <div class="section-title">데이터 백업 · 업체 관리</div>
+      <div class="card" style="padding:16px;">
+        <div style="font-size:13px;color:var(--sub);line-height:1.6;">
+          카톡·이메일로 백업 공유, 지역별 엑셀 관리, 백업 파일 복원은 <b style="color:var(--navy);">데이터관리 탭</b>에서 진행하실 수 있습니다.
+        </div>
+        <button class="big-btn outline" style="margin-top:12px;margin-bottom:0;" onclick="switchTab('data')">
+          <div class="ico">🗂️</div>
+          <div><div>데이터관리 탭으로 이동</div><div class="desc">백업 · 복원 · 지역별 엑셀 소스 관리</div></div>
+        </button>
+      </div>
+
+      <div class="section-title">기타</div>
+      <div class="card">
+        <button class="big-btn outline" style="margin-bottom:0;color:var(--red);" onclick="confirmReset()">
+          <div class="ico">🗑️</div>
+          <div><div>전체 데이터 초기화</div><div class="desc">방문일지·추가업체 전체 삭제</div></div>
+        </button>
+      </div>
+      <div style="text-align:center;color:var(--sub);font-size:11px;margin-top:10px;">
+        방문영업일지 모바일 v3 · PC v39 데이터와 동일한 저장 방식 사용
+      </div>
+    </section>
+
+  </div><!-- /#screens -->
+
+  <!-- ===================== SUB SCREEN: 방문일지 작성 ===================== -->
+  <div class="sub-screen" id="screen-form">
+    <div class="section-title">기본 정보</div>
+    <div class="card">
+      <div class="row2">
+        <div class="field">
+          <label>방문일<span class="req">*</span></label>
+          <input type="date" id="f-date">
+        </div>
+        <div class="field">
+          <label>방문시각</label>
+          <div class="time-row">
+            <input type="time" id="f-time">
+            <button type="button" class="time-btn" onclick="setNowTime()">⏱ 지금</button>
+          </div>
+        </div>
+      </div>
+      <div class="field">
+        <label>방문자(담당자)</label>
+        <input type="text" id="f-visitor" placeholder="담당자 이름">
+      </div>
+      <div class="field" style="margin-bottom:0;">
+        <label>동행</label>
+        <div class="chip-group" id="chip-companion"></div>
+      </div>
+    </div>
+
+    <div class="section-title">업체 정보</div>
+    <div class="card">
+      <div class="field">
+        <label>기업명</label>
+        <input type="text" id="f-company" placeholder="기업명을 입력하세요 (미입력 저장 가능)">
+      </div>
+      <div class="field">
+        <label>주소</label>
+        <div class="gps-row">
+          <input type="text" id="f-address" placeholder="주소 입력 또는 현재위치 사용">
+          <button type="button" class="gps-btn" onclick="useGPS()">📍 현재위치</button>
+        </div>
+      </div>
+      <div class="row2">
+        <div class="field">
+          <label>전화번호</label>
+          <input type="tel" id="f-phone" placeholder="031-000-0000">
+        </div>
+        <div class="field">
+          <label>기업형태</label>
+          <select id="f-type">
+            <option value="">선택안함</option>
+            <option>개인기업</option>
+            <option>주식회사</option>
+            <option>유한회사</option>
+            <option>기타</option>
+          </select>
+        </div>
+      </div>
+      <div class="field" style="margin-bottom:0;">
+        <label>최신 근로자수</label>
+        <input type="number" id="f-employees" placeholder="예: 12" inputmode="numeric">
+      </div>
+    </div>
+
+    <div class="section-title">방문 내용</div>
+    <div class="card">
+      <div class="field">
+        <label>첫인상</label>
+        <div class="chip-group" id="chip-impression">
+          <div class="chip" data-v="매우좋음">😄 매우좋음</div>
+          <div class="chip" data-v="좋음">🙂 좋음</div>
+          <div class="chip" data-v="보통">😐 보통</div>
+          <div class="chip" data-v="경계함">😕 경계함</div>
+          <div class="chip" data-v="부재중">🚪 부재중</div>
+        </div>
+      </div>
+      <div class="field">
+        <label>방문결과</label>
+        <div class="chip-group" id="chip-result">
+          <div class="chip result" data-v="완료">✅ 완료</div>
+          <div class="chip result" data-v="재방문필요">🔄 재방문필요</div>
+          <div class="chip result" data-v="가벼운터치">👋 가벼운터치</div>
+          <div class="chip result" data-v="부재">🚪 부재</div>
+          <div class="chip result" data-v="거절">❌ 거절</div>
+          <div class="chip result" data-v="취소">🚫 취소</div>
+        </div>
+      </div>
+      <div class="field">
+        <label>우선순위</label>
+        <div class="chip-group" id="chip-priority">
+          <div class="chip priority" data-v="최우선">🔴 최우선</div>
+          <div class="chip priority" data-v="우선">🟡 우선</div>
+          <div class="chip priority" data-v="보통">🟢 보통</div>
+          <div class="chip priority" data-v="낮음">⚪ 낮음</div>
+        </div>
+      </div>
+      <div class="field">
+        <label>관심분야 <span style="font-weight:400;color:var(--sub);">(여러 개 선택 가능, PC버전과 동일 태그)</span></label>
+        <div class="chip-group" id="chip-interest"></div>
+        <input type="text" id="f-interest-text" placeholder="선택한 태그가 자동으로 채워집니다 (직접 수정 가능)" style="margin-top:8px;">
+      </div>
+      <div class="field">
+        <label>상담내용</label>
+        <textarea id="f-content" placeholder="상담 내용을 입력하세요"></textarea>
+      </div>
+      <div class="field">
+        <label>전달한 자료</label>
+        <div class="chip-group" id="chip-materials">
+          <div class="chip" data-v="회사소개서">회사소개서</div>
+          <div class="chip" data-v="보장분석표">보장분석표</div>
+          <div class="chip" data-v="CEO플랜 제안서">CEO플랜 제안서</div>
+          <div class="chip" data-v="명함">명함</div>
+          <div class="chip" data-v="기타자료">기타자료</div>
+        </div>
+      </div>
+      <div class="field" style="margin-bottom:0;">
+        <label>현재 가입 보험사</label>
+        <div class="chip-group" id="chip-insurers">
+          <div class="chip" data-v="삼성생명">삼성생명</div>
+          <div class="chip" data-v="한화생명">한화생명</div>
+          <div class="chip" data-v="교보생명">교보생명</div>
+          <div class="chip" data-v="신한라이프">신한라이프</div>
+          <div class="chip" data-v="미래에셋생명">미래에셋생명</div>
+          <div class="chip" data-v="없음">없음</div>
+          <div class="chip" data-v="확인필요">확인필요</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-title">차수별 방문일</div>
+    <div class="card">
+      <div class="visit-grid">
+        <div class="field"><label>1차</label><input type="date" id="f-visit1"></div>
+        <div class="field"><label>2차</label><input type="date" id="f-visit2"></div>
+        <div class="field"><label>3차</label><input type="date" id="f-visit3"></div>
+        <div class="field"><label>4차</label><input type="date" id="f-visit4"></div>
+      </div>
+    </div>
+
+    <div class="section-title">파일 첨부</div>
+    <div class="card">
+      <div class="attach-box" onclick="document.getElementById('f-attach').click()">
+        📷 사진 선택 / 촬영
+        <input type="file" id="f-attach" accept="image/*" class="hidden" onchange="handleAttach(event)">
+        <img id="attachPreview" class="attach-preview">
+      </div>
+    </div>
+
+    <div class="save-bar">
+      <button class="save-btn" onclick="saveJournal()">💾 저장하기</button>
+    </div>
+  </div>
+
+  <!-- ===================== SUB SCREEN: 지역 조건 검색 (PC "🎯 지역·조건으로 업체 찾기" 와 동일 구성) ===================== -->
+  <div class="sub-screen" id="screen-region">
+
+    <div class="picker-section">
+      <div class="picker-section-title"><span>📁 데이터 소스</span></div>
+      <div class="source-scroll" id="sourceChips"></div>
+    </div>
+
+    <div class="picker-section">
+      <div class="picker-section-title"><span>📍 지역 (주소의 "OO리")</span><span class="picker-reset-link" onclick="setRegionFilter('ri', null)">전체보기</span></div>
+      <div class="chip-group" id="chipRi"></div>
+    </div>
+
+    <div class="picker-section">
+      <div class="picker-section-title"><span>🛡️ 단체보험</span></div>
+      <div class="chip-group">
+        <div class="chip pick on" data-f="ins1" data-v="all" onclick="setRegionFilter('ins1','all')">전체</div>
+        <div class="chip pick" data-f="ins1" data-v="Y" onclick="setRegionFilter('ins1','Y')">가입</div>
+        <div class="chip pick" data-f="ins1" data-v="N" onclick="setRegionFilter('ins1','N')">미가입</div>
+      </div>
+    </div>
+
+    <div class="picker-section">
+      <div class="picker-section-title"><span>🏢 법인명의</span></div>
+      <div class="chip-group">
+        <div class="chip pick on" data-f="ins2" data-v="all" onclick="setRegionFilter('ins2','all')">전체</div>
+        <div class="chip pick" data-f="ins2" data-v="Y" onclick="setRegionFilter('ins2','Y')">가입</div>
+        <div class="chip pick" data-f="ins2" data-v="N" onclick="setRegionFilter('ins2','N')">미가입</div>
+      </div>
+    </div>
+
+    <div class="picker-section">
+      <div class="picker-section-title"><span>👷 근로자수</span></div>
+      <div class="chip-group">
+        <div class="chip pick on" data-f="worker" data-v="all" onclick="setRegionFilter('worker','all')">전체</div>
+        <div class="chip pick" data-f="worker" data-v="5" onclick="setRegionFilter('worker','5')">5인 이상</div>
+        <div class="chip pick" data-f="worker" data-v="10" onclick="setRegionFilter('worker','10')">10인 이상</div>
+        <div class="chip pick" data-f="worker" data-v="30" onclick="setRegionFilter('worker','30')">30인 이상</div>
+      </div>
+    </div>
+
+    <div class="picker-section">
+      <div class="picker-section-title"><span>🧾 사업자구분</span></div>
+      <div class="chip-group">
+        <div class="chip pick on" data-f="biz" data-v="all" onclick="setRegionFilter('biz','all')">전체</div>
+        <div class="chip pick" data-f="biz" data-v="개인" onclick="setRegionFilter('biz','개인')">개인사업자</div>
+        <div class="chip pick" data-f="biz" data-v="법인" onclick="setRegionFilter('biz','법인')">법인사업자</div>
+      </div>
+    </div>
+
+    <div class="picker-section">
+      <div class="picker-section-title"><span>💰 매출액</span></div>
+      <div class="hint-box" style="margin-bottom:8px;">엑셀에 매출액 정보가 없는 업체는 "전체"가 아닌 특정 구간을 선택하면 결과에서 제외됩니다.</div>
+      <div class="chip-group">
+        <div class="chip pick on" data-f="sales" data-v="all" onclick="setRegionFilter('sales','all')">전체</div>
+        <div class="chip pick" data-f="sales" data-v="0-1000" onclick="setRegionFilter('sales','0-1000')">10억 미만</div>
+        <div class="chip pick" data-f="sales" data-v="1000-3000" onclick="setRegionFilter('sales','1000-3000')">10~30억</div>
+        <div class="chip pick" data-f="sales" data-v="3000-5000" onclick="setRegionFilter('sales','3000-5000')">30~50억</div>
+        <div class="chip pick" data-f="sales" data-v="5000-10000" onclick="setRegionFilter('sales','5000-10000')">50~100억</div>
+        <div class="chip pick" data-f="sales" data-v="10000-" onclick="setRegionFilter('sales','10000-')">100억 이상</div>
+      </div>
+    </div>
+
+    <div class="picker-section">
+      <div class="picker-section-title"><span>📈 순이익</span></div>
+      <div class="hint-box" style="margin-bottom:8px;">엑셀에 순이익 정보가 없는 업체는 "전체"가 아닌 특정 구간을 선택하면 결과에서 제외됩니다.</div>
+      <div class="chip-group">
+        <div class="chip pick on" data-f="profit" data-v="all" onclick="setRegionFilter('profit','all')">전체</div>
+        <div class="chip pick" data-f="profit" data-v="0-100" onclick="setRegionFilter('profit','0-100')">1억 미만</div>
+        <div class="chip pick" data-f="profit" data-v="100-300" onclick="setRegionFilter('profit','100-300')">1~3억</div>
+        <div class="chip pick" data-f="profit" data-v="300-500" onclick="setRegionFilter('profit','300-500')">3~5억</div>
+        <div class="chip pick" data-f="profit" data-v="500-1000" onclick="setRegionFilter('profit','500-1000')">5~10억</div>
+        <div class="chip pick" data-f="profit" data-v="1000-" onclick="setRegionFilter('profit','1000-')">10억 이상</div>
+      </div>
+    </div>
+
+    <div class="picker-section">
+      <div class="picker-section-title"><span>🔎 업종/기업명 키워드</span></div>
+      <input type="text" id="region-kw" placeholder="예: 금속, 전자, 화학 등" oninput="runRegionSearch()">
+    </div>
+
+    <div class="picker-section" style="margin-bottom:0;">
+      <div class="picker-section-title"><span>결과</span><span class="picker-reset-link" onclick="resetRegionFilters()">필터 초기화</span></div>
+      <div class="result-count" id="regionCount"></div>
+      <div id="regionResults"></div>
+    </div>
+  </div>
+
+  <!-- ===================== SUB SCREEN: 업체명 검색 ===================== -->
+  <div class="sub-screen" id="screen-namesearch">
+    <div class="card">
+      <div class="field" style="margin-bottom:0;">
+        <label>업체명</label>
+        <input type="text" id="name-kw" placeholder="업체명을 입력하세요" oninput="runNameSearch()">
+      </div>
+    </div>
+    <div id="nameResults"></div>
+  </div>
+
+  <!-- ===================== SUB SCREEN: 상세보기 ===================== -->
+  <div class="sub-screen" id="screen-detail">
+    <div class="card" id="detailBody"></div>
+    <div class="detail-actions">
+      <button class="btn-edit" onclick="editFromDetail()">✏️ 수정</button>
+      <button class="btn-del" onclick="deleteFromDetail()">🗑️ 삭제</button>
+    </div>
+  </div>
+
+  <nav id="tabbar">
+    <button data-tab="home" onclick="switchTab('home')"><span class="ic">🏠</span>홈</button>
+    <button data-tab="list" onclick="switchTab('list')"><span class="ic">📂</span>방문기록</button>
+    <button data-tab="data" onclick="switchTab('data')"><span class="ic">🗂️</span>데이터관리</button>
+    <button data-tab="settings" onclick="switchTab('settings')"><span class="ic">⚙️</span>설정</button>
+  </nav>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<div class="confirm-overlay" id="confirmOverlay">
+  <div class="confirm-box">
+    <h3 id="confirmTitle">확인</h3>
+    <p id="confirmMsg"></p>
+    <div class="btns">
+      <button class="btn-cancel" onclick="closeConfirm()">취소</button>
+      <button class="btn-ok" id="confirmOkBtn">확인</button>
+    </div>
+  </div>
+</div>
+
+<div class="confirm-overlay" id="promptOverlay">
+  <div class="confirm-box">
+    <h3 id="promptTitle">이름 입력</h3>
+    <p id="promptMsg" style="margin-bottom:12px;"></p>
+    <input type="text" id="promptInput" style="width:100%;padding:12px;border:1.5px solid var(--line);border-radius:10px;font-size:15px;margin-bottom:16px;">
+    <div class="btns">
+      <button class="btn-cancel" onclick="closePrompt()">취소</button>
+      <button class="btn-ok" id="promptOkBtn" style="background:var(--navy);">확인</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* =========================================================
+   방문영업일지 모바일 v3 — v39 PC버전의 실제 방문결과/우선순위/지역 필터 값과
+   버튼 스타일을 그대로 이식하고, 모바일 화면에 맞춰 세로 배치로 재구성했습니다.
+   ========================================================= */
+const BACKUP_KEYS = ['visitJournals','extraSources','companyOverrides','manualCompanies',
+  'builtinDeleted','builtinActive','builtinName','riGeoCache','addrGeoCache','appSettings','companyMeta'];
+
+// PC버전과 동일한 "리(里)" 추출 로직
+const RI_FALSE_POSITIVE = /^(밸리|벨리|델리|캐리|배터리|메모리|시리즈|테크노벨리|테크노밸리)$/;
+function extractRi(addr){
+  if(!addr) return null;
+  const matches = String(addr).match(/[가-힣]{1,3}리(?=[\s0-9]|$)/g);
+  if(!matches) return null;
+  const valid = matches.find(m => !RI_FALSE_POSITIVE.test(m) && !/(밸리|벨리)$/.test(m));
+  return valid || null;
+}
+
+// PC버전과 동일한 관심분야 빠른 태그 18개
+const QUICK_TAGS = [
+  { label:'법인전환', text:'법인전환 관심' },{ label:'인증', text:'기업인증 관심' },
+  { label:'특허', text:'특허·지재권 상담' },{ label:'가업승계', text:'가업승계 검토' },
+  { label:'상속', text:'상속·승계 상담' },{ label:'퇴직금', text:'퇴직금제도 검토' },
+  { label:'산업재해', text:'산재보장 관심' },{ label:'수출', text:'수출지원 관심' },
+  { label:'자금난', text:'운영자금 상담' },{ label:'세액공제', text:'세액공제 문의' },
+  { label:'공장증설', text:'공장증설 검토' },{ label:'단체보험', text:'단체보험 검토' },
+  { label:'CEO보장', text:'CEO플랜 상담' },{ label:'정책자금', text:'정책자금 문의' },
+  { label:'기업대출', text:'기업대출 상담' },{ label:'절세', text:'절세방안 관심' },
+  { label:'세무', text:'세무상담 필요' },{ label:'노무', text:'노무상담 희망' },
+];
+
+// PC버전과 동일한 방문결과 값(순서/이모지 포함)
+const RESULT_DEFS = [
+  { v:'완료', label:'✅ 완료' },{ v:'재방문필요', label:'🔄 재방' },
+  { v:'부재', label:'🚪 부재' },{ v:'거절', label:'❌ 거절' },
+  { v:'취소', label:'🚫 취소' },{ v:'가벼운터치', label:'👋 터치' },
+];
+
+let journals = [];
+try { journals = JSON.parse(localStorage.getItem('visitJournals') || '[]'); } catch(e){ journals = []; }
+
+let manualCompanies = [];
+try { manualCompanies = JSON.parse(localStorage.getItem('manualCompanies') || '[]'); } catch(e){ manualCompanies = []; }
+
+let appSettings = {};
+try { appSettings = JSON.parse(localStorage.getItem('appSettings') || '{}'); } catch(e){ appSettings = {}; }
+
+let companyOverrides = {};
+try { companyOverrides = JSON.parse(localStorage.getItem('companyOverrides') || '{}'); } catch(e){ companyOverrides = {}; }
+
+// PC v39와 동일한 데이터 소스 모델
+let extraSources = [];
+try { extraSources = JSON.parse(localStorage.getItem('extraSources') || '[]'); } catch(e){ extraSources = []; }
+let builtinActive = true;
+try { builtinActive = localStorage.getItem('builtinActive') !== 'false'; } catch(e){}
+let builtinDeleted = false;
+try { builtinDeleted = localStorage.getItem('builtinDeleted') === 'true'; } catch(e){}
+function getBuiltinName(){
+  let name = '기본 데이터';
+  try { const n = localStorage.getItem('builtinName'); if(n) name = n; } catch(e){}
+  return name;
+}
+
+function persistJournals(){ localStorage.setItem('visitJournals', JSON.stringify(journals)); }
+function persistManual(){ localStorage.setItem('manualCompanies', JSON.stringify(manualCompanies)); }
+function persistSettings(){ localStorage.setItem('appSettings', JSON.stringify(appSettings)); }
+function persistExtraSources(){ localStorage.setItem('extraSources', JSON.stringify(extraSources)); }
+
+function getBaseCompanies(){ return (typeof COMPANIES !== 'undefined') ? COMPANIES : []; }
+
+// PC v39와 동일한 활성 소스 기반 통합 조회
+// - 기본 데이터: builtinActive && !builtinDeleted 일 때만 포함
+// - extraSources: active !== false 인 것만 포함
+// - manualCompanies: 레거시 호환용, 마이그레이션 전 데이터를 잃지 않기 위해 유지
+function getAllCompanies(){
+  let all = (builtinActive && !builtinDeleted) ? [...getBaseCompanies()] : [];
+  for(const s of extraSources){ if(s.active !== false) all = all.concat(s.data || []); }
+  if(Array.isArray(manualCompanies) && manualCompanies.length) all = all.concat(manualCompanies);
+  return all;
+}
+
+// 지역·조건찾기 데이터 소스 목록 (활성/비활성 무관 전체)
+function getAllSourceMetas(){
+  const list = [];
+  if(!builtinDeleted) list.push({ id:'builtin', name:getBuiltinName(), count:getBaseCompanies().length, active:builtinActive, builtin:true });
+  for(const s of extraSources){ list.push({ id:s.id, name:s.name, count:(s.data||[]).length, active:s.active!==false, builtin:false }); }
+  return list;
+}
+
+// 기존 manualCompanies 데이터를 _source 그룹별로 extraSources로 자동 이관
+function migrateManualToExtraSources(){
+  if(!Array.isArray(manualCompanies) || !manualCompanies.length) return;
+  const bySource = {};
+  manualCompanies.forEach(c=>{
+    const key = c._source || '엑셀추가';
+    (bySource[key] = bySource[key] || []).push(c);
+  });
+  Object.keys(bySource).forEach(name=>{
+    const cleanName = name.replace(/\.(xlsx|xls|csv)$/i, '');
+    const exists = extraSources.some(s=>s.name===cleanName);
+    if(exists) return;
+    extraSources.push({
+      id: 'src_' + Date.now() + '_' + Math.random().toString(36).slice(2,7),
+      name: cleanName,
+      data: bySource[name],
+      active: true,
+    });
+  });
+  manualCompanies = [];
+  persistManual();
+  persistExtraSources();
+}
+
+function applyOverride(c){ const ov = companyOverrides[c.기업명]; return ov ? Object.assign({}, c, ov) : c; }
+
+/* ---------------- Toast ---------------- */
+let toastTimer;
+function toast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=>t.classList.remove('show'), 2600);
+}
+
+/* ---------------- Prompt dialog (iOS PWA에서는 native prompt()가 막혀서 커스텀 모달 사용) ---------------- */
+function showPrompt(title, msg, defaultVal, onOk){
+  document.getElementById('promptTitle').textContent = title;
+  document.getElementById('promptMsg').textContent = msg || '';
+  const inp = document.getElementById('promptInput');
+  inp.value = defaultVal || '';
+  const ok = document.getElementById('promptOkBtn');
+  ok.onclick = function(){
+    const v = inp.value.trim();
+    if(!v){ toast('값을 입력해주세요.'); return; }
+    closePrompt();
+    onOk(v);
+  };
+  document.getElementById('promptOverlay').classList.add('show');
+  setTimeout(()=>inp.focus(), 100);
+}
+function closePrompt(){ document.getElementById('promptOverlay').classList.remove('show'); }
+
+/* ---------------- Confirm dialog ---------------- */
+function showConfirm(title, msg, onOk){
+  document.getElementById('confirmTitle').textContent = title;
+  document.getElementById('confirmMsg').textContent = msg;
+  const ok = document.getElementById('confirmOkBtn');
+  ok.onclick = function(){ closeConfirm(); onOk(); };
+  document.getElementById('confirmOverlay').classList.add('show');
+}
+function closeConfirm(){ document.getElementById('confirmOverlay').classList.remove('show'); }
+
+/* ---------------- Navigation (탭 + 뒤로가기 스택 + 하드웨어 뒤로가기 지원) ---------------- */
+let currentTab = 'home';
+let subStack = [];
+let cameFromList = false;
+
+function switchTab(tab){
+  subStack = [];
+  hideAllSub();
+  document.querySelectorAll('#screens > .screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('screen-'+tab).classList.add('active');
+  document.querySelectorAll('#tabbar button').forEach(b=>b.classList.toggle('active', b.dataset.tab===tab));
+  currentTab = tab;
+  document.getElementById('topbar').classList.remove('hasback');
+  document.getElementById('topTitle').textContent = '방문영업일지';
+  document.getElementById('topSub').style.display='';
+  document.getElementById('tabbar').style.display='flex';
+  if(tab==='home') renderHome();
+  if(tab==='list') renderList();
+  if(tab==='data') renderDataScreen();
+  if(tab==='settings') fillSettings();
+  history.replaceState({tab:tab, sub:null}, '');
+}
+
+function hideAllSub(){ document.querySelectorAll('.sub-screen').forEach(s=>s.classList.remove('active')); }
+
+function pushSub(id, title){
+  hideAllSub();
+  document.getElementById(id).classList.add('active');
+  subStack.push(id);
+  document.getElementById('topbar').classList.add('hasback');
+  document.getElementById('topTitle').textContent = title;
+  document.getElementById('topSub').style.display='none';
+  document.getElementById('tabbar').style.display='none';
+  history.pushState({tab:currentTab, sub:id}, '');
+}
+
+function goBack(){
+  if(history.state && history.state.sub !== undefined){
+    history.back();
+  } else {
+    applyBack();
+  }
+}
+
+function applyBack(){
+  subStack.pop();
+  if(subStack.length){
+    hideAllSub();
+    document.getElementById(subStack[subStack.length-1]).classList.add('active');
+  } else {
+    hideAllSub();
+    document.getElementById('topbar').classList.remove('hasback');
+    document.getElementById('topTitle').textContent = '방문영업일지';
+    document.getElementById('topSub').style.display='';
+    document.getElementById('tabbar').style.display='flex';
+    const target = (cameFromList) ? 'list' : currentTab;
+    document.querySelectorAll('#screens > .screen').forEach(s=>s.classList.remove('active'));
+    document.getElementById('screen-'+target).classList.add('active');
+    document.querySelectorAll('#tabbar button').forEach(b=>b.classList.toggle('active', b.dataset.tab===target));
+    currentTab = target;
+    if(target==='home') renderHome();
+    if(target==='list') renderList();
+    if(target==='data') renderDataScreen();
+  }
+}
+
+window.addEventListener('popstate', function(e){ applyBack(); });
+
+/* ---------------- Home ---------------- */
+function renderHome(){
+  const wrap = document.getElementById('recentList');
+  const titleEl = document.getElementById('recentTitle');
+  const recent = journals.slice(0,3);
+  if(!recent.length){ wrap.innerHTML=''; titleEl.style.display='none'; return; }
+  titleEl.style.display='';
+  wrap.innerHTML = recent.map(j => journalCardHTML(j, false)).join('');
+}
+
+/* ---------------- 방문 기록 관리 (PC "📂 방문 기록 관리"와 동일 로직) ---------------- */
+let selectMode = false;
+let orderMode = false;
+let selectedIds = new Set();
+let listResultFilter = '전체';
+
+function isUpcoming(j){
+  const today = new Date().toISOString().slice(0,10);
+  return ['visit1','visit2','visit3','visit4'].some(k => j[k] && j[k] >= today);
+}
+
+function renderList(){
+  const total = journals.length;
+  const done = journals.filter(j=>j.result==='완료').length;
+  const revisit = journals.filter(j=>j.result==='재방문필요').length;
+  const upcoming = journals.filter(isUpcoming).length;
+
+  document.getElementById('statsRow').innerHTML = `
+    <div class="stat-card"><div class="stat-num">${total}</div><div class="stat-label">전체 방문 기록</div></div>
+    <div class="stat-card"><div class="stat-num">${done}</div><div class="stat-label">완료</div></div>
+    <div class="stat-card"><div class="stat-num">${revisit}</div><div class="stat-label">재방문 필요</div></div>
+    <div class="stat-card"><div class="stat-num">${upcoming}</div><div class="stat-label">재방문 예정</div></div>`;
+
+  const wrap2 = document.getElementById('resultFilterRow');
+  const all = [{v:'전체', label:'전체'}].concat(RESULT_DEFS);
+  wrap2.innerHTML = all.map(r=>`<div class="chip ${listResultFilter===r.v?'on':''}" onclick="setListResultFilter('${r.v}')">${r.label}</div>`).join('');
+
+  let list = journals.map((j,idx)=>({j, idx}));
+  if(listResultFilter!=='전체') list = list.filter(x=>(x.j.result||'')===listResultFilter);
+
+  const wrap = document.getElementById('journalList');
+  if(!list.length){
+    wrap.innerHTML = '<div class="empty-hint">조건에 맞는 방문일지가 없습니다.</div>';
+  } else {
+    wrap.innerHTML = list.map(x => journalCardHTML(x.j, true, x.idx)).join('');
+  }
+  document.getElementById('bulkBar').classList.toggle('hidden', !selectMode);
+  document.getElementById('selCount').textContent = selectedIds.size;
+  document.getElementById('btnSelectMode').classList.toggle('on', selectMode);
+  document.getElementById('btnOrderMode').classList.toggle('on', orderMode);
+}
+function setListResultFilter(v){ listResultFilter = v; renderList(); }
+
+function toggleSelectMode(){
+  selectMode = !selectMode;
+  if(selectMode) orderMode = false;
+  selectedIds.clear();
+  renderList();
+}
+function toggleOrderMode(){
+  if(listResultFilter!=='전체'){
+    toast('순서변경은 결과 필터가 "전체"일 때만 가능합니다.');
+    return;
+  }
+  orderMode = !orderMode;
+  if(orderMode) selectMode = false;
+  renderList();
+}
+function toggleCheck(id){
+  if(selectedIds.has(id)) selectedIds.delete(id); else selectedIds.add(id);
+  document.getElementById('selCount').textContent = selectedIds.size;
+}
+function bulkDelete(){
+  if(!selectedIds.size){ toast('삭제할 항목을 선택해주세요.'); return; }
+  showConfirm('선택 항목 삭제', `${selectedIds.size}건의 방문일지를 삭제합니다. 되돌릴 수 없습니다.`, function(){
+    journals = journals.filter(j=>!selectedIds.has(j.id));
+    persistJournals();
+    selectedIds.clear();
+    selectMode = false;
+    toast('삭제되었습니다.');
+    renderList(); renderHome();
+  });
+}
+function moveJournal(idx, dir){
+  const newIdx = idx + dir;
+  if(newIdx<0 || newIdx>=journals.length) return;
+  const tmp = journals[idx]; journals[idx] = journals[newIdx]; journals[newIdx] = tmp;
+  persistJournals();
+  renderList();
+}
+
+function journalCardHTML(j, withTools, idx){
+  const checkbox = (withTools && selectMode) ? `<input type="checkbox" class="chk" onclick="event.stopPropagation();toggleCheck(${j.id})" ${selectedIds.has(j.id)?'checked':''}>` : '';
+  const orderBtns = (withTools && orderMode) ? `<div class="ord" onclick="event.stopPropagation();">
+      <button onclick="moveJournal(${idx},-1)">▲</button><button onclick="moveJournal(${idx},1)">▼</button>
+    </div>` : '';
+  const clickable = (selectMode) ? `onclick="toggleCheck(${j.id});renderList();"` : (orderMode ? '' : `onclick="openDetail(${j.id})"`);
+  const resultClass = j.result ? 'r-'+j.result : '';
+  return `<div class="j-card ${resultClass}" ${clickable}>
+    ${checkbox}${orderBtns}
+    <div class="body">
+      <div class="top-row">
+        <div>
+          <div class="company">${escapeHTML(j.companyName||'(기업명 없음)')}</div>
+          <div class="date">${j.visitDate||''} ${j.visitTime||''} · ${escapeHTML(j.visitor||'')}</div>
+        </div>
+      </div>
+      ${j.result ? `<span class="tag">${escapeHTML(j.result)}</span>` : ''}
+      ${j.priority ? `<span class="tag">${escapeHTML(j.priority)}</span>` : ''}
+      ${j.content ? `<div class="snippet">${escapeHTML(j.content)}</div>` : ''}
+    </div>
+  </div>`;
+}
+
+function escapeHTML(s){
+  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+function currentFilteredJournals(){
+  let list = journals.slice();
+  if(listResultFilter!=='전체') list = list.filter(j=>(j.result||'')===listResultFilter);
+  return list;
+}
+
+/* ---------------- 엑셀 / PDF 내보내기 ---------------- */
+const EXPORT_HEADERS = ['방문일','방문시각','방문자','기업명','주소','전화번호','기업형태','근로자수','첫인상','방문결과','우선순위','관심분야','상담내용','전달자료','가입보험사','1차방문','2차방문','3차방문','4차방문'];
+function journalToRow(j){
+  return [j.visitDate||'', j.visitTime||'', j.visitor||'', j.companyName||'', j.address||'', j.phone||'',
+    j.companyType||'', j.employees||'', j.firstImpression||'', j.result||'', j.priority||'', j.interest||'', j.content||'',
+    (j.materialsDelivered||[]).join(', '), (j.currentInsurers||[]).join(', '),
+    j.visit1||'', j.visit2||'', j.visit3||'', j.visit4||''];
+}
+
+function exportExcel(){
+  const list = currentFilteredJournals();
+  if(!list.length){ toast('내보낼 방문일지가 없습니다.'); return; }
+  ensureXLSX(function(){
+    const rows = [EXPORT_HEADERS].concat(list.map(journalToRow));
+    const ws = XLSX.utils.aoa_to_sheet(rows);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, '방문일지');
+    const ts = new Date().toISOString().slice(0,10);
+    XLSX.writeFile(wb, `방문일지_${ts}.xlsx`);
+    toast('엑셀 파일을 내보냈습니다.');
+  });
+}
+
+function exportPDF(){
+  const list = currentFilteredJournals();
+  if(!list.length){ toast('내보낼 방문일지가 없습니다.'); return; }
+  const rowsHtml = list.map(j => `<tr>
+    <td>${escapeHTML(j.visitDate||'')} ${escapeHTML(j.visitTime||'')}</td>
+    <td>${escapeHTML(j.companyName||'')}</td>
+    <td>${escapeHTML(j.visitor||'')}</td>
+    <td>${escapeHTML(j.result||'')}</td>
+    <td>${escapeHTML(j.priority||'')}</td>
+    <td>${escapeHTML(j.interest||'')}</td>
+    <td>${escapeHTML(j.content||'')}</td>
+  </tr>`).join('');
+  const html = `<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"><title>방문일지 내보내기</title>
+  <style>
+    body{font-family:'Malgun Gothic',sans-serif;padding:20px;color:#111;}
+    h2{margin-bottom:4px;} .meta{color:#666;font-size:12px;margin-bottom:16px;}
+    table{width:100%;border-collapse:collapse;font-size:12px;}
+    th,td{border:1px solid #ccc;padding:6px 8px;text-align:left;vertical-align:top;}
+    th{background:#f0f0f0;}
+    @media print{ body{padding:0;} }
+  </style></head><body>
+  <h2>방문영업일지</h2>
+  <div class="meta">내보낸 날짜: ${new Date().toLocaleString('ko-KR')} · 총 ${list.length}건</div>
+  <table><thead><tr><th>방문일시</th><th>기업명</th><th>방문자</th><th>결과</th><th>우선순위</th><th>관심분야</th><th>상담내용</th></tr></thead>
+  <tbody>${rowsHtml}</tbody></table>
+  <script>window.onload = function(){ window.print(); };<\/script>
+  </body></html>`;
+  const w = window.open('', '_blank');
+  if(!w){ toast('팝업이 차단되어 PDF 내보내기 창을 열 수 없습니다. 팝업 허용 후 다시 시도해주세요.'); return; }
+  w.document.open(); w.document.write(html); w.document.close();
+  toast('인쇄창에서 "PDF로 저장"을 선택하면 파일로 저장됩니다.');
+}
+
+/* ---------------- 데이터관리 (PC v39 데이터 소스 관리와 동일 구조) ---------------- */
+function escapeAttr(s){ return String(s).replace(/'/g,"\\'"); }
+
+function renderDataScreen(){
+  // 상단 총 업체수 배지 (헤더 오른쪽)
+  const totalNow = getAllCompanies().length;
+  const badge = document.getElementById('totalCompBadge');
+  if(badge) badge.textContent = totalNow.toLocaleString() + '개 활성';
+  renderSrcList();
+}
+
+function renderSrcList(){
+  const wrap = document.getElementById('srcList');
+  const metas = getAllSourceMetas();
+  if(!metas.length){
+    wrap.innerHTML = '<div class="empty-hint">등록된 데이터 소스가 없습니다.<br>위쪽에서 엑셀 파일을 추가해보세요.</div>';
+    return;
+  }
+  wrap.innerHTML = metas.map(m=>{
+    const activeCls = m.active ? '' : 'off';
+    const builtinCls = m.builtin ? 'builtin' : '';
+    const statusBadge = m.active
+      ? '<span class="src-badge added">사용중</span>'
+      : '<span class="src-badge off">꺼짐</span>';
+    const kindBadge = m.builtin ? '<span class="src-badge builtin">기본</span>' : '';
+    const metaLine = m.builtin
+      ? '시스템 내장 데이터 · 이름변경/삭제 가능'
+      : '지역 파일 · 이름을 눌러 지역명으로 바꿔두세요';
+    return `<div class="src-item ${activeCls} ${builtinCls}">
+      <div class="src-top">
+        <button class="src-toggle ${m.active?'on':''}" onclick="toggleSrcActive('${escapeAttr(m.id)}')" aria-label="사용여부 토글"></button>
+        <div class="src-info">
+          <div class="src-name">
+            <span onclick="renameSrc('${escapeAttr(m.id)}')" style="cursor:pointer;">${escapeHTML(m.name)}</span>
+            <span class="src-cnt">${m.count.toLocaleString()}개</span>
+            ${kindBadge}${statusBadge}
+          </div>
+          <div class="src-meta">${metaLine}</div>
+        </div>
+      </div>
+      <div class="src-actions">
+        <button onclick="renameSrc('${escapeAttr(m.id)}')">✏️ 이름변경</button>
+        <button onclick="saveSrcFile('${escapeAttr(m.id)}')">💾 파일저장</button>
+        <button class="btn-del" onclick="deleteSrc('${escapeAttr(m.id)}')">🗑️ 삭제</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function toggleSrcActive(id){
+  if(id === 'builtin'){
+    builtinActive = !builtinActive;
+    try{ localStorage.setItem('builtinActive', String(builtinActive)); }catch(e){}
+    toast(builtinActive ? '기본 데이터를 검색에 포함합니다.' : '기본 데이터를 검색에서 제외합니다.');
+  } else {
+    const s = extraSources.find(x=>x.id===id);
+    if(!s) return;
+    s.active = !(s.active !== false);
+    persistExtraSources();
+    toast(s.active ? `"${s.name}" 지역을 검색에 포함합니다.` : `"${s.name}" 지역을 검색에서 제외합니다.`);
+  }
+  renderDataScreen();
+}
+
+function renameSrc(id){
+  if(id === 'builtin'){
+    showPrompt('기본 데이터 이름 변경', '검색·목록에서 표시될 이름을 입력하세요.', getBuiltinName(), function(v){
+      try{ localStorage.setItem('builtinName', v); }catch(e){}
+      toast(`이름이 "${v}"(으)로 변경되었습니다.`);
+      renderDataScreen();
+    });
+    return;
+  }
+  const s = extraSources.find(x=>x.id===id);
+  if(!s) return;
+  showPrompt('지역(데이터 소스) 이름 변경', '예: 김포시_제조업_금속', s.name, function(v){
+    s.name = v;
+    persistExtraSources();
+    toast(`이름이 "${v}"(으)로 변경되었습니다.`);
+    renderDataScreen();
+  });
+}
+
+function deleteSrc(id){
+  if(id === 'builtin'){
+    showConfirm('기본 데이터 삭제', '기본 내장 데이터(493개)를 검색·목록에서 완전히 제거합니다. 나중에 앱을 다시 열어도 복구되지 않습니다. 계속하시겠습니까?', function(){
+      builtinDeleted = true;
+      try{ localStorage.setItem('builtinDeleted', 'true'); }catch(e){}
+      toast('기본 데이터를 삭제했습니다.');
+      renderDataScreen();
+    });
+    return;
+  }
+  const s = extraSources.find(x=>x.id===id);
+  if(!s) return;
+  showConfirm('지역 데이터 삭제', `"${s.name}" 지역(${(s.data||[]).length}개 업체)을 삭제합니다. 이 작업은 되돌릴 수 없습니다.`, function(){
+    extraSources = extraSources.filter(x=>x.id!==id);
+    persistExtraSources();
+    toast(`"${s.name}" 지역을 삭제했습니다.`);
+    renderDataScreen();
+  });
+}
+
+// 특정 소스만 별도 JSON 파일로 저장(공유)
+async function saveSrcFile(id){
+  let name, data;
+  if(id === 'builtin'){
+    name = getBuiltinName();
+    data = getBaseCompanies();
+  } else {
+    const s = extraSources.find(x=>x.id===id);
+    if(!s) return;
+    name = s.name; data = s.data || [];
+  }
+  const json = JSON.stringify({ _meta:{ kind:'gfc-source-single', savedAt:new Date().toISOString(), name:name }, companies:data });
+  const filename = `${name}_${data.length}개.json`;
+  const blob = new Blob([json], { type:'application/json' });
+  const file = new File([blob], filename, { type:'application/json' });
+  if(navigator.canShare && navigator.canShare({ files:[file] })){
+    try{
+      await navigator.share({ files:[file], title:name, text:`${name} 지역 데이터 (${data.length}개 업체)` });
+      toast('공유되었습니다.');
+      return;
+    }catch(e){}
+  }
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename; document.body.appendChild(a); a.click(); a.remove();
+  URL.revokeObjectURL(url);
+  toast(`"${filename}" 파일을 다운로드했습니다.`);
+}
+
+/* ---------------- 상세보기 ---------------- */
+let detailId = null;
+function openDetail(id){
+  cameFromList = (currentTab === 'list');
+  detailId = id;
+  const j = journals.find(x=>x.id===id);
+  if(!j) return;
+  const rows = [
+    ['방문일', (j.visitDate||'-') + (j.visitTime? ' '+j.visitTime : '')],
+    ['방문자', j.visitor||'-'],
+    ['동행', (j.companions||[]).join(', ')||'-'],
+    ['기업명', j.companyName||'-'],
+    ['주소', j.address||'-'],
+    ['전화번호', j.phone||'-'],
+    ['기업형태', j.companyType||'-'],
+    ['근로자수', j.employees||'-'],
+    ['첫인상', j.firstImpression||'-'],
+    ['방문결과', j.result||'-'],
+    ['우선순위', j.priority||'-'],
+    ['관심분야', j.interest||'-'],
+    ['상담내용', j.content||'-'],
+    ['전달자료', (j.materialsDelivered||[]).join(', ')||'-'],
+    ['가입보험사', (j.currentInsurers||[]).join(', ')||'-'],
+    ['1차 방문', j.visit1||'-'],['2차 방문', j.visit2||'-'],
+    ['3차 방문', j.visit3||'-'],['4차 방문', j.visit4||'-'],
+  ];
+  let html = rows.map(r => `<div class="detail-row"><div class="k">${r[0]}</div><div class="v">${escapeHTML(r[1])}</div></div>`).join('');
+  if(j.attachment){
+    html += `<div style="margin-top:12px;"><img src="${j.attachment}" style="max-width:100%;border-radius:10px;"></div>`;
+  }
+  document.getElementById('detailBody').innerHTML = html;
+  pushSub('screen-detail', '방문일지 상세');
+}
+
+function editFromDetail(){
+  const j = journals.find(x=>x.id===detailId);
+  if(!j) return;
+  openForm(j);
+}
+
+function deleteFromDetail(){
+  showConfirm('방문일지 삭제', '이 방문일지를 삭제하시겠습니까? 삭제 후에는 복구할 수 없습니다.', function(){
+    journals = journals.filter(x=>x.id!==detailId);
+    persistJournals();
+    toast('삭제되었습니다.');
+    history.back();
+    setTimeout(()=>{ renderList(); renderHome(); }, 50);
+  });
+}
+
+/* ---------------- Form ---------------- */
+let editingId = null;
+let selectedChips = { impression:'', result:'', priority:'', interest:[], materials:[], insurers:[], companion:[] };
+
+function resetForm(){
+  editingId = null;
+  selectedChips = { impression:'', result:'', priority:'', interest:[], materials:[], insurers:[], companion:[] };
+  const today = new Date();
+  document.getElementById('f-date').value = today.toISOString().slice(0,10);
+  document.getElementById('f-time').value = today.toTimeString().slice(0,5);
+  document.getElementById('f-visitor').value = appSettings.userName || '';
+  document.getElementById('f-company').value = '';
+  document.getElementById('f-address').value = '';
+  document.getElementById('f-phone').value = '';
+  document.getElementById('f-type').value = '';
+  document.getElementById('f-employees').value = '';
+  document.getElementById('f-content').value = '';
+  document.getElementById('f-interest-text').value = '';
+  document.getElementById('f-visit1').value = '';
+  document.getElementById('f-visit2').value = '';
+  document.getElementById('f-visit3').value = '';
+  document.getElementById('f-visit4').value = '';
+  document.getElementById('attachPreview').src = '';
+  document.getElementById('attachPreview').classList.remove('show');
+  pendingAttachment = null;
+  renderCompanionChips();
+  renderInterestChips();
+  renderChips();
+}
+
+function setNowTime(){
+  document.getElementById('f-time').value = new Date().toTimeString().slice(0,5);
+  toast('현재 시각으로 입력했습니다.');
+}
+
+function renderCompanionChips(){
+  const names = [appSettings.companion1, appSettings.companion2, appSettings.companion3].filter(Boolean);
+  const wrap = document.getElementById('chip-companion');
+  if(!names.length){ wrap.innerHTML = '<span style="font-size:12px;color:var(--sub);">설정 탭에서 동행자 이름을 등록하면 여기에 표시됩니다.</span>'; return; }
+  wrap.innerHTML = names.map(n=>`<div class="chip" data-v="${escapeAttr(n)}">${escapeHTML(n)}</div>`).join('');
+  wrap.querySelectorAll('.chip').forEach(c=>{
+    c.onclick = ()=>{
+      const v=c.dataset.v; const i=selectedChips.companion.indexOf(v);
+      if(i>-1) selectedChips.companion.splice(i,1); else selectedChips.companion.push(v);
+      renderChips();
+    };
+  });
+}
+
+function renderInterestChips(){
+  const wrap = document.getElementById('chip-interest');
+  wrap.innerHTML = QUICK_TAGS.map(t=>`<div class="chip sm" data-v="${escapeAttr(t.text)}">${escapeHTML(t.label)}</div>`).join('');
+  wrap.querySelectorAll('.chip').forEach(c=>{
+    c.onclick = ()=>{
+      const v=c.dataset.v; const i=selectedChips.interest.indexOf(v);
+      if(i>-1) selectedChips.interest.splice(i,1); else selectedChips.interest.push(v);
+      document.getElementById('f-interest-text').value = selectedChips.interest.join(', ');
+      renderChips();
+    };
+  });
+}
+
+function renderChips(){
+  document.querySelectorAll('#chip-impression .chip').forEach(c=>c.classList.toggle('on', c.dataset.v===selectedChips.impression));
+  document.querySelectorAll('#chip-result .chip').forEach(c=>c.classList.toggle('on', c.dataset.v===selectedChips.result));
+  document.querySelectorAll('#chip-priority .chip').forEach(c=>c.classList.toggle('on', c.dataset.v===selectedChips.priority));
+  document.querySelectorAll('#chip-interest .chip').forEach(c=>c.classList.toggle('on', selectedChips.interest.includes(c.dataset.v)));
+  document.querySelectorAll('#chip-materials .chip').forEach(c=>c.classList.toggle('on', selectedChips.materials.includes(c.dataset.v)));
+  document.querySelectorAll('#chip-insurers .chip').forEach(c=>c.classList.toggle('on', selectedChips.insurers.includes(c.dataset.v)));
+  document.querySelectorAll('#chip-companion .chip').forEach(c=>c.classList.toggle('on', selectedChips.companion.includes(c.dataset.v)));
+}
+
+function setupChipHandlers(){
+  document.querySelectorAll('#chip-impression .chip').forEach(c=>{
+    c.onclick = ()=>{ selectedChips.impression = (selectedChips.impression===c.dataset.v)?'':c.dataset.v; renderChips(); };
+  });
+  document.querySelectorAll('#chip-result .chip').forEach(c=>{
+    c.onclick = ()=>{ selectedChips.result = (selectedChips.result===c.dataset.v)?'':c.dataset.v; renderChips(); };
+  });
+  document.querySelectorAll('#chip-priority .chip').forEach(c=>{
+    c.onclick = ()=>{ selectedChips.priority = (selectedChips.priority===c.dataset.v)?'':c.dataset.v; renderChips(); };
+  });
+  document.querySelectorAll('#chip-materials .chip').forEach(c=>{
+    c.onclick = ()=>{
+      const v=c.dataset.v; const i=selectedChips.materials.indexOf(v);
+      if(i>-1) selectedChips.materials.splice(i,1); else selectedChips.materials.push(v);
+      renderChips();
+    };
+  });
+  document.querySelectorAll('#chip-insurers .chip').forEach(c=>{
+    c.onclick = ()=>{
+      const v=c.dataset.v; const i=selectedChips.insurers.indexOf(v);
+      if(i>-1) selectedChips.insurers.splice(i,1); else selectedChips.insurers.push(v);
+      renderChips();
+    };
+  });
+}
+
+function openForm(prefillOrJournal){
+  resetForm();
+  if(prefillOrJournal && prefillOrJournal.id){
+    const j = prefillOrJournal;
+    editingId = j.id;
+    document.getElementById('f-date').value = j.visitDate || '';
+    document.getElementById('f-time').value = j.visitTime || '';
+    document.getElementById('f-visitor').value = j.visitor || '';
+    document.getElementById('f-company').value = j.companyName || '';
+    document.getElementById('f-address').value = j.address || '';
+    document.getElementById('f-phone').value = j.phone || '';
+    document.getElementById('f-type').value = j.companyType || '';
+    document.getElementById('f-employees').value = j.employees || '';
+    document.getElementById('f-content').value = j.content || '';
+    document.getElementById('f-interest-text').value = j.interest || '';
+    document.getElementById('f-visit1').value = j.visit1 || '';
+    document.getElementById('f-visit2').value = j.visit2 || '';
+    document.getElementById('f-visit3').value = j.visit3 || '';
+    document.getElementById('f-visit4').value = j.visit4 || '';
+    selectedChips.impression = j.firstImpression || '';
+    selectedChips.result = j.result || '';
+    selectedChips.priority = j.priority || '';
+    selectedChips.interest = (j.interest||'').split(',').map(s=>s.trim()).filter(Boolean);
+    selectedChips.materials = (j.materialsDelivered||[]).slice();
+    selectedChips.insurers = (j.currentInsurers||[]).slice();
+    selectedChips.companion = (j.companions||[]).slice();
+    if(j.attachment){
+      pendingAttachment = j.attachment;
+      const p = document.getElementById('attachPreview');
+      p.src = j.attachment; p.classList.add('show');
+    }
+    renderChips();
+  } else if(prefillOrJournal && prefillOrJournal.기업명){
+    const c = applyOverride(prefillOrJournal);
+    document.getElementById('f-company').value = c.기업명 || '';
+    document.getElementById('f-address').value = c.통합주소 || '';
+    document.getElementById('f-phone').value = c.본사전화번호 || '';
+    document.getElementById('f-type').value = c.기업형태 || '';
+    document.getElementById('f-employees').value = c.최신근로자수 || '';
+  }
+  pushSub('screen-form', editingId ? '방문일지 수정' : '직접입력');
+}
+
+let pendingAttachment = null;
+function handleAttach(e){
+  const file = e.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = function(ev){
+    const img = new Image();
+    img.onload = function(){
+      const maxW = 900;
+      const scale = Math.min(1, maxW / img.width);
+      const canvas = document.createElement('canvas');
+      canvas.width = img.width * scale;
+      canvas.height = img.height * scale;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+      pendingAttachment = canvas.toDataURL('image/jpeg', 0.6);
+      const p = document.getElementById('attachPreview');
+      p.src = pendingAttachment; p.classList.add('show');
+    };
+    img.src = ev.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+/* 외국식 주소를 한국식 순서(시/도 → 구/군 → 동/로 → 번지)로 재조합 (Nominatim 결과 기준, 추정 조합이므로 필요시 수동 수정 가능) */
+function formatKoreanAddress(addr){
+  if(!addr) return '';
+  const parts = [];
+  const push = (v)=>{ if(v && !parts.includes(v)) parts.push(v); };
+  push(addr.state);
+  push(addr.city && addr.city !== addr.state ? addr.city : null);
+  push(addr.city_district || addr.county);
+  push(addr.borough);
+  push(addr.suburb || addr.village || addr.town || addr.quarter);
+  push(addr.road);
+  if(addr.house_number) parts.push(addr.house_number);
+  return parts.join(' ').trim();
+}
+
+function useGPS(){
+  if(!navigator.geolocation){ toast('이 기기에서는 위치 기능을 사용할 수 없습니다.'); return; }
+  toast('현재 위치를 확인하는 중...');
+  navigator.geolocation.getCurrentPosition(async function(pos){
+    const lat = pos.coords.latitude, lon = pos.coords.longitude;
+    try{
+      const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lon}&accept-language=ko`);
+      const data = await res.json();
+      const korean = formatKoreanAddress(data.address);
+      document.getElementById('f-address').value = korean || data.display_name || `${lat.toFixed(6)}, ${lon.toFixed(6)}`;
+      toast('현재 위치로 주소를 채웠습니다. (자동조합 결과이므로 필요시 수정해주세요)');
+    }catch(e){
+      document.getElementById('f-address').value = `${lat.toFixed(6)}, ${lon.toFixed(6)}`;
+      toast('주소 변환에 실패해 좌표로 입력했습니다.');
+    }
+  }, function(){
+    toast('위치 권한이 없어 현재위치를 가져올 수 없습니다.');
+  }, { enableHighAccuracy:true, timeout:8000 });
+}
+
+function saveJournal(){
+  const companyName = document.getElementById('f-company').value.trim();
+  const visitDate = document.getElementById('f-date').value || new Date().toISOString().slice(0,10);
+
+  const interestText = document.getElementById('f-interest-text').value.trim();
+
+  const j = {
+    id: editingId || Date.now(),
+    companyName: companyName,
+    visitDate: visitDate,
+    visitTime: document.getElementById('f-time').value,
+    visitor: document.getElementById('f-visitor').value.trim(),
+    companions: selectedChips.companion.slice(),
+    address: document.getElementById('f-address').value.trim(),
+    phone: document.getElementById('f-phone').value.trim(),
+    companyType: document.getElementById('f-type').value,
+    employees: document.getElementById('f-employees').value,
+    firstImpression: selectedChips.impression,
+    result: selectedChips.result || '',
+    priority: selectedChips.priority || '',
+    interest: interestText,
+    content: document.getElementById('f-content').value.trim(),
+    materialsDelivered: selectedChips.materials.slice(),
+    currentInsurers: selectedChips.insurers.slice(),
+    visit1: document.getElementById('f-visit1').value,
+    visit2: document.getElementById('f-visit2').value,
+    visit3: document.getElementById('f-visit3').value,
+    visit4: document.getElementById('f-visit4').value,
+    attachment: pendingAttachment || null,
+    savedAt: new Date().toISOString(),
+  };
+
+  if(editingId){
+    const idx = journals.findIndex(x=>x.id===editingId);
+    if(idx>-1) journals[idx] = j;
+  } else {
+    journals.unshift(j);
+  }
+  persistJournals();
+  toast(`${companyName || '방문일지'}가 저장되었습니다.`);
+  history.back();
+  setTimeout(()=>switchTab('list'), 60);
+}
+
+/* ---------------- 지역·조건 검색 (PC 지역·조건 패널과 동일 필터 값) ---------------- */
+// 지역·조건찾기에서 볼 소스 범위 : 'active' = 데이터관리에서 켠 소스만, 그 외 = 특정 소스 id
+let regionSourceFilter = 'active';
+let pickerFilters = { ri:null, ins1:'all', ins2:'all', worker:'all', biz:'all', sales:'all', profit:'all' };
+
+function openRegionSearch(){
+  buildSourceChips();
+  document.getElementById('region-kw').value = '';
+  pickerFilters = { ri:null, ins1:'all', ins2:'all', worker:'all', biz:'all', sales:'all', profit:'all' };
+  syncFilterChipsUI();
+  buildRiChips();
+  runRegionSearch();
+  pushSub('screen-region', '지역·조건으로 찾기');
+}
+
+function buildSourceChips(){
+  const wrap = document.getElementById('sourceChips');
+  // '데이터관리 활성 소스' + 개별 소스 각각을 골라볼 수 있게 표시
+  const chips = [{ id:'active', label:'📁 데이터관리 활성 전체' }];
+  const metas = getAllSourceMetas();
+  metas.forEach(m=>{
+    const stateEmoji = m.active ? '✅' : '⛔';
+    chips.push({ id:m.id, label:`${stateEmoji} ${m.name} (${m.count.toLocaleString()})` });
+  });
+  wrap.innerHTML = chips.map(c=>`<div class="chip pill ${regionSourceFilter===c.id?'on':''}" data-s="${escapeAttr(c.id)}">${escapeHTML(c.label)}</div>`).join('');
+  wrap.querySelectorAll('.chip').forEach(c=>{
+    c.onclick = ()=>{ regionSourceFilter = c.dataset.s; buildSourceChips(); buildRiChips(); runRegionSearch(); };
+  });
+}
+
+function sourceFilteredCompanies(){
+  if(regionSourceFilter === 'active') return getAllCompanies();
+  if(regionSourceFilter === 'builtin') return getBaseCompanies();
+  const s = extraSources.find(x=>x.id===regionSourceFilter);
+  return s ? (s.data || []) : [];
+}
+
+function buildRiChips(){
+  const pool = sourceFilteredCompanies();
+  const riCount = {};
+  pool.forEach(c=>{ const ri = extractRi(c.통합주소); if(ri) riCount[ri]=(riCount[ri]||0)+1; });
+  const riList = Object.keys(riCount).sort((a,b)=>riCount[b]-riCount[a]);
+  const wrap = document.getElementById('chipRi');
+  if(!riList.length){
+    wrap.innerHTML = '<span style="font-size:12px;color:var(--sub);">주소에서 "OO리" 형태를 찾지 못했습니다.</span>';
+    return;
+  }
+  wrap.innerHTML = riList.map(ri=>`<div class="chip pick sm ${pickerFilters.ri===ri?'on':''}" data-ri="${escapeAttr(ri)}">${escapeHTML(ri)} <span style="opacity:.7;">${riCount[ri]}</span></div>`).join('');
+  wrap.querySelectorAll('.chip').forEach(c=>{
+    c.onclick = ()=>{ setRegionFilter('ri', c.dataset.ri); };
+  });
+}
+
+function setRegionFilter(field, value){
+  if(field==='ri'){
+    pickerFilters.ri = (pickerFilters.ri === value) ? null : value;
+    buildRiChips();
+  } else {
+    pickerFilters[field] = value;
+    document.querySelectorAll(`.chip[data-f="${field}"]`).forEach(b=>{
+      b.classList.toggle('on', b.dataset.v === value);
+    });
+  }
+  runRegionSearch();
+}
+
+function syncFilterChipsUI(){
+  ['ins1','ins2','worker','biz','sales','profit'].forEach(f=>{
+    document.querySelectorAll(`.chip[data-f="${f}"]`).forEach(b=>{
+      b.classList.toggle('on', b.dataset.v === pickerFilters[f]);
+    });
+  });
+}
+
+function resetRegionFilters(){
+  regionSourceFilter = 'active';
+  pickerFilters = { ri:null, ins1:'all', ins2:'all', worker:'all', biz:'all', sales:'all', profit:'all' };
+  document.getElementById('region-kw').value = '';
+  buildSourceChips();
+  syncFilterChipsUI();
+  buildRiChips();
+  runRegionSearch();
+}
+
+function inRange(val, rangeStr){
+  if(!rangeStr || rangeStr==='all') return true;
+  const num = parseFloat(val);
+  if(isNaN(num)) return false;
+  const [lo, hi] = rangeStr.split('-');
+  if(lo !== '' && num < parseFloat(lo)) return false;
+  if(hi !== '' && hi !== undefined && num > parseFloat(hi)) return false;
+  return true;
+}
+function bizTypeGroup(t){
+  if(!t) return '';
+  if(t.includes('개인')) return '개인';
+  if(t.includes('주식회사') || t.includes('유한회사')) return '법인';
+  return '기타';
+}
+
+function runRegionSearch(){
+  const kw = document.getElementById('region-kw').value.trim();
+  let list = sourceFilteredCompanies();
+  if(pickerFilters.ri) list = list.filter(c=>extractRi(c.통합주소)===pickerFilters.ri);
+  if(pickerFilters.ins1 !== 'all') list = list.filter(c => (c.단체보험가입여부 === 'Y') === (pickerFilters.ins1 === 'Y'));
+  if(pickerFilters.ins2 !== 'all') list = list.filter(c => (c.법인명의가입여부 === 'Y') === (pickerFilters.ins2 === 'Y'));
+  if(pickerFilters.worker !== 'all'){
+    const min = Number(pickerFilters.worker);
+    list = list.filter(c => Number(String(c.최신근로자수||'').replace(/[^0-9]/g,'')) >= min);
+  }
+  if(pickerFilters.biz !== 'all') list = list.filter(c=>bizTypeGroup(c.기업형태)===pickerFilters.biz);
+  if(pickerFilters.sales !== 'all') list = list.filter(c=>inRange(c.매출, pickerFilters.sales));
+  if(pickerFilters.profit !== 'all') list = list.filter(c=>inRange(c.순이익, pickerFilters.profit));
+  if(kw) list = list.filter(c => (c.기업명&&c.기업명.includes(kw)) || (c.업종세부분류&&c.업종세부분류.includes(kw)));
+
+  const countEl = document.getElementById('regionCount');
+  countEl.textContent = list.length.toLocaleString() + '개 업체';
+  const shown = list.slice(0,200);
+  const wrap = document.getElementById('regionResults');
+  if(!list.length){ wrap.innerHTML = '<div class="empty-hint">조건에 맞는 업체가 없습니다.<br>필터를 조정해보세요.</div>'; return; }
+  wrap.innerHTML = shown.map(c => resultItemHTML(c)).join('') +
+    (list.length > 200 ? `<div class="empty-hint">그 외 ${(list.length-200).toLocaleString()}개 더 있음 · 조건을 좁혀보세요</div>` : '');
+}
+
+function resultItemHTML(c){
+  const c2 = applyOverride(c);
+  return `<div class="result-item" onclick='selectCompanyFromSearch(${JSON.stringify(c2.기업명)})'>
+    <div class="rname">${escapeHTML(c2.기업명||'')}</div>
+    <div class="raddr">${escapeHTML(c2.통합주소||'-')}<br>${escapeHTML(c2.본사전화번호||'-')} · 근로자 ${c2.최신근로자수?escapeHTML(c2.최신근로자수)+'명':'-'} · 단체보험 ${escapeHTML(c2.단체보험가입여부||'-')} · 법인명의 ${escapeHTML(c2.법인명의가입여부||'-')}</div>
+  </div>`;
+}
+
+function selectCompanyFromSearch(name){
+  const c = getAllCompanies().find(x=>x.기업명===name);
+  if(!c) return;
+  openForm(c);
+}
+
+/* ---------------- 업체명 검색 ---------------- */
+function openNameSearch(){
+  document.getElementById('name-kw').value = '';
+  document.getElementById('nameResults').innerHTML = '<div class="empty-hint">업체명을 입력해주세요.</div>';
+  pushSub('screen-namesearch', '업체명 검색');
+  setTimeout(()=>document.getElementById('name-kw').focus(), 250);
+}
+
+function runNameSearch(){
+  const kw = document.getElementById('name-kw').value.trim();
+  const wrap = document.getElementById('nameResults');
+  if(!kw){ wrap.innerHTML = '<div class="empty-hint">업체명을 입력해주세요.</div>'; return; }
+  const list = getAllCompanies().filter(c=>c.기업명 && c.기업명.includes(kw)).slice(0,30);
+  if(!list.length){
+    wrap.innerHTML = `<div class="empty-hint">"${escapeHTML(kw)}" 검색 결과가 없습니다.<br>직접입력으로 새로 기록할 수 있습니다.</div>
+      <button class="big-btn primary" onclick='openForm({"기업명":${JSON.stringify(kw)}})'>
+        <div class="ico">📝</div><div><div>"${escapeHTML(kw)}" 직접 입력하기</div></div>
+      </button>`;
+    return;
+  }
+  wrap.innerHTML = list.map(c => resultItemHTML(c)).join('');
+}
+
+/* ---------------- 설정 ---------------- */
+function fillSettings(){
+  document.getElementById('set-userName').value = appSettings.userName || '';
+  document.getElementById('set-companion1').value = appSettings.companion1 || '';
+  document.getElementById('set-companion2').value = appSettings.companion2 || '';
+  document.getElementById('set-companion3').value = appSettings.companion3 || '';
+}
+function saveSettings(){
+  appSettings.userName = document.getElementById('set-userName').value;
+  appSettings.companion1 = document.getElementById('set-companion1').value;
+  appSettings.companion2 = document.getElementById('set-companion2').value;
+  appSettings.companion3 = document.getElementById('set-companion3').value;
+  persistSettings();
+}
+
+/* ---------------- Backup export / share ---------------- */
+function buildBackupJSON(){
+  const backup = { _meta: { app: 'gfc-visit-log-backup', exportedAt: new Date().toISOString() } };
+  BACKUP_KEYS.forEach(k=>{
+    const v = localStorage.getItem(k);
+    if(v !== null) backup[k] = v;
+  });
+  return JSON.stringify(backup);
+}
+
+async function shareBackup(){
+  const json = buildBackupJSON();
+  const ts = new Date().toISOString().slice(0,10);
+  const filename = `방문영업일지_백업_${ts}.json`;
+  const blob = new Blob([json], { type:'application/json' });
+  const file = new File([blob], filename, { type:'application/json' });
+
+  if(navigator.canShare && navigator.canShare({ files:[file] })){
+    try{
+      await navigator.share({ files:[file], title:'방문영업일지 백업', text:'방문영업일지 백업 파일입니다. 카카오톡으로 보내려면 공유 목록에서 카카오톡을 선택해주세요.' });
+      toast('공유되었습니다.');
+      return;
+    }catch(e){ /* 사용자가 취소했거나 실패 -> 다운로드로 대체 */ }
+  }
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click(); a.remove();
+  URL.revokeObjectURL(url);
+  toast('이 브라우저는 공유창을 지원하지 않아 파일을 다운로드했습니다. 카카오톡 앱에서 "파일" 첨부로 보내주세요.');
+}
+
+function importBackup(e){
+  const file = e.target.files[0];
+  e.target.value = '';
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = function(ev){
+    let data;
+    try{ data = JSON.parse(ev.target.result); }
+    catch(err){ toast('백업 파일을 읽지 못했습니다.'); return; }
+    let restored = 0;
+    BACKUP_KEYS.forEach(k=>{
+      if(Object.prototype.hasOwnProperty.call(data, k)){
+        try{ localStorage.setItem(k, data[k]); restored++; }catch(err){}
+      }
+    });
+    if(!restored){ toast('복원할 데이터를 찾지 못했습니다.'); return; }
+    toast(`복원 완료 (${restored}개 항목). 새로고침합니다...`);
+    setTimeout(()=>location.reload(), 1200);
+  };
+  reader.onerror = function(){ toast('파일을 읽는 중 오류가 발생했습니다.'); };
+  reader.readAsText(file);
+}
+
+/* ---------------- Excel import (SheetJS) ---------------- */
+let xlsxLoaded = false;
+function ensureXLSX(cb){
+  if(xlsxLoaded && window.XLSX){ cb(); return; }
+  const s = document.createElement('script');
+  s.src = 'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';
+  s.onload = function(){ xlsxLoaded = true; cb(); };
+  s.onerror = function(){ toast('엑셀 라이브러리를 불러오지 못했습니다. 인터넷 연결을 확인해주세요.'); };
+  document.head.appendChild(s);
+}
+
+function importExcel(e){
+  const file = e.target.files[0];
+  e.target.value = '';
+  if(!file) return;
+  ensureXLSX(function(){
+    const reader = new FileReader();
+    reader.onload = function(ev){
+      try{
+        const wb = XLSX.read(ev.target.result, { type:'binary' });
+
+        // 인식할 헤더 후보 정의 (모두 공백/괄호/특수문자 제거 후 비교)
+        const NAME_KEYS   = ['기업명','업체명','상호','상호명','회사명','거래처명','사업장명','법인명','업체','회사','기업'];
+        const ZONE_KEYS   = ['구역','지역','읍면동','지구','행정동'];
+        const ADDR_KEYS   = ['통합주소','주소','지번주소','도로명주소','사업장주소','소재지','사업장소재지'];
+        const PHONE_KEYS  = ['본사전화번호','전화번호','연락처','TEL','전화','대표전화','휴대폰'];
+        const TYPE_KEYS   = ['기업형태','법인구분','사업자구분','기업구분','회사형태'];
+        const WORKER_KEYS = ['최신근로자수','근로자수','직원수','종업원수','인원수','상시근로자수'];
+        const IND_KEYS    = ['업종세부분류','업종','업태','업종분류','주업종'];
+        const SALES_KEYS  = ['매출','매출액','당기매출','매출액백만원','연매출'];
+        const PROFIT_KEYS = ['순이익','당기순이익','순수익','영업이익'];
+        const INS1_KEYS   = ['단체보험가입여부','단체보험'];
+        const INS2_KEYS   = ['법인명의가입여부','법인명의'];
+
+        // 헤더명 정규화 (공백/괄호/특수문자 제거, 소문자화)
+        const norm = (s) => String(s||'').replace(/[\s()（）\[\]【】·・,.\/\\\-_'"]/g,'').toLowerCase();
+        const normalizedNameKeys = NAME_KEYS.map(norm);
+
+        // 여러 시트를 훑으며, 각 시트에서 헤더 행을 자동으로 찾아 데이터를 추출한다.
+        let allRows = [];
+        let detectedHeaders = []; // 실패 시 사용자에게 보여줄 실제 감지 헤더
+        let usedSheet = '', usedHeaderRow = -1;
+
+        for(const sn of wb.SheetNames){
+          const sheet = wb.Sheets[sn];
+          // 시트를 배열의 배열로 읽어옴 (헤더 행 위치를 우리가 결정하기 위해)
+          const aoa = XLSX.utils.sheet_to_json(sheet, { header:1, defval:'', blankrows:false });
+          if(!aoa.length) continue;
+
+          // 첫 20행을 스캔해서 "기업명" 계열이 들어있는 행을 헤더로 판정
+          let headerRowIdx = -1;
+          const scanLimit = Math.min(20, aoa.length);
+          for(let i=0; i<scanLimit; i++){
+            const row = aoa[i];
+            if(!Array.isArray(row)) continue;
+            const hasName = row.some(cell => {
+              const nc = norm(cell);
+              if(!nc) return false;
+              return normalizedNameKeys.some(k => nc === k || nc.includes(k));
+            });
+            if(hasName){ headerRowIdx = i; break; }
+          }
+
+          if(headerRowIdx < 0){
+            // 이 시트의 첫 행 헤더 후보만 저장(실패 안내용)
+            if(!detectedHeaders.length && aoa[0]) detectedHeaders = aoa[0].filter(x => String(x).trim() !== '');
+            continue;
+          }
+
+          // 헤더 행 확정 → 그 행을 기준으로 다시 읽는다 (헤더 위 행들은 range로 스킵)
+          const rows = XLSX.utils.sheet_to_json(sheet, { defval:'', range:headerRowIdx });
+          allRows = allRows.concat(rows);
+          if(usedSheet === ''){ usedSheet = sn; usedHeaderRow = headerRowIdx + 1; }
+        }
+
+        // 매칭 로직: 각 행에서 열 제목을 정규화해서 후보 키 중 하나와 일치하는 값을 반환
+        const pickNorm = (row, candidates) => {
+          const candNorm = candidates.map(norm);
+          for(const key of Object.keys(row)){
+            const kn = norm(key);
+            if(!kn) continue;
+            const hit = candNorm.some(cn => kn === cn || kn.includes(cn));
+            if(hit){
+              const v = row[key];
+              if(v !== undefined && v !== null && String(v).trim() !== '') return String(v).trim();
+            }
+          }
+          return '';
+        };
+
+        const newData = [];
+        let skippedNoName = 0;
+        allRows.forEach(r=>{
+          const name = pickNorm(r, NAME_KEYS);
+          if(!name){ skippedNoName++; return; }
+          newData.push({
+            기업명: name,
+            구역: pickNorm(r, ZONE_KEYS) || '',
+            통합주소: pickNorm(r, ADDR_KEYS),
+            본사전화번호: pickNorm(r, PHONE_KEYS),
+            기업형태: pickNorm(r, TYPE_KEYS),
+            최신근로자수: pickNorm(r, WORKER_KEYS),
+            업종세부분류: pickNorm(r, IND_KEYS),
+            매출: pickNorm(r, SALES_KEYS),
+            순이익: pickNorm(r, PROFIT_KEYS),
+            단체보험가입여부: pickNorm(r, INS1_KEYS) || 'N',
+            법인명의가입여부: pickNorm(r, INS2_KEYS) || 'N',
+          });
+        });
+
+        if(!newData.length){
+          // 실패 시 실제로 감지된 헤더를 화면 하단에 알려준다
+          const hint = detectedHeaders.length
+            ? `엑셀 첫 행에서 감지된 열 제목: [${detectedHeaders.slice(0,10).map(h=>'"'+String(h).trim()+'"').join(', ')}]. 이 중 업체명 열이 있으면 그 열의 제목을 "기업명"으로 바꾸신 후 다시 시도해보세요.`
+            : '엑셀에서 데이터를 찾지 못했습니다. 시트에 데이터가 있는지, 첫 20행 내에 헤더가 있는지 확인해주세요.';
+          toast(hint);
+          return;
+        }
+
+        // PC v39와 동일하게: 엑셀파일명 → 하나의 지역 소스로 저장
+        const cleanName = file.name.replace(/\.(xlsx|xls|csv)$/i, '');
+        const src = {
+          id: 'src_' + Date.now() + '_' + Math.random().toString(36).slice(2,7),
+          name: cleanName,
+          data: newData,
+          active: true,
+        };
+        extraSources.push(src);
+        persistExtraSources();
+
+        const headerNote = usedHeaderRow > 1 ? ` (${usedSheet} 시트의 ${usedHeaderRow}번째 행을 헤더로 감지)` : '';
+        toast(`✅ "${cleanName}" ${newData.length.toLocaleString()}개 업체 저장 완료${headerNote}${skippedNoName?`, ${skippedNoName}건은 업체명이 비어 제외됨`:''}`);
+        renderDataScreen();
+      }catch(err){
+        toast('엑셀 파일을 읽는 중 오류가 발생했습니다: ' + (err.message || err));
+      }
+    };
+    reader.readAsBinaryString(file);
+  });
+}
+
+/* ---------------- Reset ---------------- */
+function confirmReset(){
+  showConfirm('전체 데이터 초기화', '저장된 방문일지와 추가한 업체 데이터가 모두 삭제됩니다. 이 작업은 되돌릴 수 없습니다. 계속하시겠습니까?', function(){
+    localStorage.removeItem('visitJournals');
+    localStorage.removeItem('manualCompanies');
+    toast('초기화되었습니다.');
+    setTimeout(()=>location.reload(), 800);
+  });
+}
+
+/* ---------------- Init ---------------- */
+function init(){
+  // 이전 버전에서 manualCompanies에 저장된 엑셀 데이터가 있으면 extraSources로 자동 이관
+  migrateManualToExtraSources();
+  fillSettings();
+  const today = new Date();
+  document.getElementById('todayStr').textContent = `${today.getMonth()+1}월 ${today.getDate()}일`;
+  setupChipHandlers();
+  renderHome();
+  history.replaceState({tab:'home', sub:null}, '');
+
+  if('serviceWorker' in navigator){
+    navigator.serviceWorker.register('sw-mobile.js').catch(()=>{});
+  }
+}
+init();
+</script>
+</body>
+</html>
