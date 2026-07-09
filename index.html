@@ -5,12 +5,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="영업일지">
+<meta name="apple-mobile-web-app-title" content="세일즈맵">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#0f1f3d">
 <link rel="manifest" href="manifest-mobile.json">
 <link rel="apple-touch-icon" href="icon-180.png">
-<title>방문영업일지 · 모바일</title>
+<title>세일즈맵 · 방문영업 CRM</title>
 <script src="companies-data.js"></script>
 <style>
 :root{
@@ -20,6 +20,7 @@
   --red:#dc2626; --gray-400:#9ca3af; --purple:#7c3aed;
   --safe-top: env(safe-area-inset-top, 0px);
   --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --print-th-bg: #1B3A6B; --print-th-text: #ffffff;
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
 html,body{margin:0;padding:0;height:100%;background:var(--bg);color:var(--text);
@@ -277,11 +278,14 @@ select{-webkit-appearance:none;appearance:none;background-image:url("data:image/
 .quick-nav-row button .qn-ic{font-size:18px;line-height:1;}
 .quick-nav-row button.qn-primary{background:linear-gradient(135deg,var(--navy),var(--navy2));color:#fff;border:none;}
 .quick-nav-row button:active{opacity:.75;}
-.home-print-row{margin-bottom:14px;}
-.home-print-row button{width:100%;background:#fff;border:1.5px solid var(--line);border-radius:12px;
-  padding:12px 14px;font-size:13.5px;font-weight:800;color:var(--navy);
-  display:flex;align-items:center;gap:10px;}
-.home-print-row button .qn-ic{font-size:19px;}
+.home-print-row{margin-bottom:14px;background:#fff;border:1.5px solid var(--line);border-radius:14px;padding:14px;}
+.hp-print-btn{width:100%;border:none;border-radius:12px;padding:13px 14px;font-size:14px;font-weight:800;
+  color:#fff;background:linear-gradient(135deg,var(--navy),var(--navy2));}
+
+/* ---------- 지역·조건찾기 결과 개수 — 스크롤 없이 상단에 항상 보이도록 sticky 처리 ---------- */
+.region-live-count{position:sticky;top:0;z-index:8;background:#eef1f7;border:1.5px solid var(--line);
+  border-radius:10px;padding:10px 12px;margin-bottom:12px;font-size:13px;font-weight:800;color:var(--navy);
+  box-shadow:0 2px 8px rgba(20,30,60,.08);}
 
 /* ---------- 업체 목록 인쇄/PDF 미리보기 (목록형·가로형 전용) ---------- */
 .pp-overlay{position:fixed;inset:0;background:rgba(15,22,40,.55);z-index:200;display:none;
@@ -296,9 +300,10 @@ select{-webkit-appearance:none;appearance:none;background-image:url("data:image/
 .pp-scroll{flex:1;overflow:auto;-webkit-overflow-scrolling:touch;padding:12px 12px 4px;}
 .pp-print-head{margin-bottom:8px;}
 .pp-print-title{font-size:14px;font-weight:800;color:var(--navy);}
+.pp-print-org{font-size:11.5px;color:var(--navy);font-weight:700;margin-top:2px;}
 .pp-print-meta{font-size:11px;color:var(--sub);margin-top:2px;}
 .pp-table{border-collapse:collapse;font-size:11px;white-space:nowrap;min-width:900px;}
-.pp-table th{background:#1B3A6B;color:#fff;padding:7px 8px;text-align:left;font-weight:700;
+.pp-table th{background:var(--print-th-bg);color:var(--print-th-text);padding:7px 8px;text-align:left;font-weight:700;
   position:sticky;top:0;}
 .pp-table td{padding:6px 8px;border-bottom:1px solid var(--line);color:var(--text);}
 .pp-table tr:nth-child(even) td{background:#f7f9fc;}
@@ -316,6 +321,46 @@ select{-webkit-appearance:none;appearance:none;background-image:url("data:image/
   .pp-topbar, .pp-actions, #tabbar, #topbar{display:none !important;}
   @page{ size: landscape; margin:10mm; }
 }
+
+/* ---------------- 인쇄 설정 모달 (PC v47 "업체 리스트 인쇄" 화면과 동일 구성) ---------------- */
+.ps-overlay{position:fixed;inset:0;background:rgba(15,22,40,.55);z-index:220;display:none;}
+.ps-overlay.show{display:flex;}
+.ps-sheet{margin:auto 0 0;width:100%;max-height:94vh;background:#fff;border-radius:18px 18px 0 0;
+  display:flex;flex-direction:column;overflow:hidden;}
+.ps-header{background:linear-gradient(135deg,var(--navy),var(--navy2));color:#fff;
+  padding:calc(14px + var(--safe-top)) 16px 14px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+.ps-header-title{font-size:17px;font-weight:800;display:flex;align-items:center;gap:8px;}
+.ps-close{background:rgba(255,255,255,.15);border:none;color:#fff;width:32px;height:32px;border-radius:10px;font-size:16px;flex-shrink:0;}
+.ps-scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:16px 16px 10px;}
+.ps-section{margin-bottom:20px;}
+.ps-label{font-size:13.5px;font-weight:800;color:var(--navy);margin-bottom:10px;}
+.ps-src-list{display:flex;flex-direction:column;gap:10px;}
+.ps-src-check{display:flex;align-items:center;gap:10px;font-size:14.5px;color:var(--text);}
+.ps-src-check input{width:19px;height:19px;flex-shrink:0;accent-color:var(--blue);}
+.ps-src-check .pc-cnt2{color:var(--sub);font-size:13px;}
+.ps-filter-row{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:12px;}
+.ps-filter-label{font-size:13.5px;font-weight:700;color:var(--text);min-width:78px;}
+.ps-filter-row .chip-group{margin:0;}
+.ps-footer{display:flex;align-items:center;justify-content:space-between;gap:10px;
+  padding:12px 16px;background:#eef1f7;border-top:1px solid var(--line);flex-shrink:0;}
+.ps-footer-count{font-size:14px;font-weight:800;color:var(--navy);}
+.ps-footer-count b{color:var(--blue);font-size:16px;}
+.ps-reset-link{background:none;border:none;color:var(--sub);font-size:12.5px;text-decoration:underline;flex-shrink:0;}
+.ps-actions{padding:10px 16px calc(12px + var(--safe-bottom));flex-shrink:0;background:#fff;}
+.ps-generate-btn{width:100%;border:none;border-radius:12px;padding:14px;font-size:15px;font-weight:800;
+  color:#fff;background:linear-gradient(135deg,var(--green),#128a45);}
+
+/* 인쇄 헤더 색상 스와치 (설정 화면) */
+.print-swatch-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:6px;}
+.print-swatch{width:34px;height:34px;border-radius:50%;border:3px solid transparent;position:relative;flex-shrink:0;}
+.print-swatch.light-swatch{box-shadow:inset 0 0 0 1.5px var(--line);}
+.print-swatch.active{border-color:var(--navy);}
+.print-swatch.active::after{content:'✓';position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  color:#fff;font-weight:800;font-size:15px;text-shadow:0 1px 2px rgba(0,0,0,.5);}
+.print-swatch.light-swatch.active::after{color:#111827;text-shadow:none;}
+.print-header-preview{border:1px solid var(--line);border-radius:10px;overflow:hidden;margin-top:10px;}
+.print-header-preview .php-row{background:var(--print-th-bg);color:var(--print-th-text);padding:9px 12px;
+  font-size:12.5px;font-weight:700;display:flex;gap:16px;}
 </style>
 </head>
 <body>
@@ -324,7 +369,7 @@ select{-webkit-appearance:none;appearance:none;background-image:url("data:image/
   <div id="topbar">
     <button class="backbtn" id="backBtn" onclick="goBack()">‹</button>
     <div>
-      <div class="title" id="topTitle">방문영업일지</div>
+      <div class="title" id="topTitle">세일즈맵</div>
       <div class="sub" id="topSub">오늘도 좋은 하루 되세요 · <span id="todayStr"></span></div>
     </div>
   </div>
@@ -334,9 +379,7 @@ select{-webkit-appearance:none;appearance:none;background-image:url("data:image/
     <!-- ===================== HOME ===================== -->
     <section class="screen active" id="screen-home">
       <div class="home-print-row">
-        <button onclick="openPrintPreview(getAllCompanies(), '전체 업체 목록')">
-          <span class="qn-ic">🖨️</span> 업체 목록 인쇄 / PDF저장
-        </button>
+        <button class="hp-print-btn" onclick="openPrintSetup()">🖨️ 업체 목록 인쇄 / PDF저장</button>
       </div>
       <div class="section-title">방문 기록</div>
       <button class="big-btn primary" onclick="openForm()">
@@ -384,7 +427,7 @@ select{-webkit-appearance:none;appearance:none;background-image:url("data:image/
       <div class="quick-nav-row">
         <button onclick="switchTab('home')"><span class="qn-ic">🏠</span>홈</button>
         <button onclick="switchTab('settings')"><span class="qn-ic">⚙️</span>설정</button>
-        <button class="qn-primary" onclick="openPrintPreview(getAllCompanies(), '전체 업체 목록')"><span class="qn-ic">🖨️</span>인쇄/PDF</button>
+        <button class="qn-primary" onclick="openPrintSetup()"><span class="qn-ic">🖨️</span>인쇄/PDF</button>
       </div>
 
       <!-- ① 엑셀 파일 추가 -->
@@ -444,6 +487,39 @@ select{-webkit-appearance:none;appearance:none;background-image:url("data:image/
       </div>
       <div class="hint-box">여기에 입력해두면 직접입력 화면에서 방문자 기본값과 동행 선택 버튼으로 바로 사용됩니다.</div>
 
+      <div class="section-title">📞 인쇄물 상단 정보</div>
+      <div class="card">
+        <div class="field">
+          <label>부서명 / 소속</label>
+          <input type="text" id="set-deptName" placeholder="예: 삼성생명GFC 경인금융법인지점" oninput="saveSettings()">
+        </div>
+        <div class="field">
+          <label>직함 (선택)</label>
+          <input type="text" id="set-printTitle" placeholder="예: GFC 컨설턴트" oninput="saveSettings()">
+        </div>
+        <div class="field" style="margin-bottom:0;">
+          <label>연락처 (선택)</label>
+          <input type="text" id="set-printPhone" placeholder="예: 010-0000-0000" oninput="saveSettings()">
+        </div>
+      </div>
+      <div class="hint-box">업체 목록 인쇄물 상단에 부서명·직함·연락처가 함께 표시됩니다. 비워두면 표시되지 않습니다.</div>
+
+      <div class="section-title">🎨 인쇄물 상단메뉴 색상</div>
+      <div class="card">
+        <div class="field">
+          <label>제목행 배경색</label>
+          <div class="print-swatch-row" id="printBgSwatches"></div>
+        </div>
+        <div class="field" style="margin-bottom:0;">
+          <label>제목행 글자색</label>
+          <div class="print-swatch-row" id="printTextSwatches"></div>
+        </div>
+      </div>
+      <div class="print-header-preview">
+        <div class="php-row"><span>NO</span><span>기업명</span><span>주소</span><span>전화번호</span></div>
+      </div>
+      <div class="hint-box">🖨️ 업체 리스트 인쇄물 맨 위 제목행의 배경색·글자색을 바꿀 수 있어요. 미리보기에서 바로 확인하며 고르실 수 있습니다.</div>
+
       <div class="section-title">데이터 백업 · 업체 관리</div>
       <div class="card" style="padding:16px;">
         <div style="font-size:13px;color:var(--sub);line-height:1.6;">
@@ -463,7 +539,7 @@ select{-webkit-appearance:none;appearance:none;background-image:url("data:image/
         </button>
       </div>
       <div style="text-align:center;color:var(--sub);font-size:11px;margin-top:10px;">
-        방문영업일지 모바일 v4 · PC v47 데이터와 동일한 저장 방식 사용
+        세일즈맵 모바일 v4 · PC v47 데이터와 동일한 저장 방식 사용
       </div>
     </section>
 
@@ -626,8 +702,10 @@ select{-webkit-appearance:none;appearance:none;background-image:url("data:image/
     <div class="quick-nav-row">
       <button onclick="switchTab('home')"><span class="qn-ic">🏠</span>홈</button>
       <button onclick="switchTab('settings')"><span class="qn-ic">⚙️</span>설정</button>
-      <button class="qn-primary" onclick="openPrintPreview(lastRegionFullList, '지역·조건 검색 결과')"><span class="qn-ic">🖨️</span>인쇄/PDF</button>
+      <button class="qn-primary" onclick="openPrintSetup()"><span class="qn-ic">🖨️</span>인쇄/PDF</button>
     </div>
+
+    <div class="region-live-count" id="regionLiveCount">🔍 검색결과: 0개 업체</div>
 
     <div class="picker-section">
       <div class="picker-section-title">
@@ -760,6 +838,71 @@ select{-webkit-appearance:none;appearance:none;background-image:url("data:image/
 <div class="toast" id="toast"></div>
 
 <!-- ===================== 업체 목록 인쇄/PDF 미리보기 (목록형·가로형) ===================== -->
+<!-- ===================== 인쇄 설정 모달 (PC "업체 리스트 인쇄" 화면과 동일 구성) ===================== -->
+<div class="ps-overlay" id="printSetupOverlay">
+  <div class="ps-sheet">
+    <div class="ps-header">
+      <div class="ps-header-title">🖨️ 업체 리스트 인쇄</div>
+      <button class="ps-close" onclick="closePrintSetup()">✕</button>
+    </div>
+    <div class="ps-scroll">
+      <div class="ps-section">
+        <div class="ps-label">포함할 지역(데이터 소스)</div>
+        <div class="ps-src-list" id="psSrcList"></div>
+      </div>
+
+      <div class="ps-section">
+        <div class="ps-label">📍 지역으로 찾기 — 다중선택 가능 (동/리는 여러 개 선택돼요)</div>
+        <div class="mode-tabs" id="psModeTabs">
+          <button type="button" class="mode-tab active" data-m="dong" onclick="setPsRegionMode('dong')">🏡 동별로 찾기</button>
+          <button type="button" class="mode-tab" data-m="ri" onclick="setPsRegionMode('ri')">🌾 "리"별로 찾기</button>
+        </div>
+        <div class="chip-group" id="psRegionChips"></div>
+        <div id="psRoadWrap" style="display:none;margin-top:10px;">
+          <div class="hint-box" style="margin-bottom:8px;">🛣️ 도로명으로 더 좁히기 (선택사항 — 한 동이 넓을 때 사용, 다중선택 가능)</div>
+          <div class="chip-group" id="psRoadChips"></div>
+        </div>
+      </div>
+
+      <div class="ps-section" style="margin-bottom:8px;">
+        <div class="ps-filter-row">
+          <span class="ps-filter-label">🛡️ 단체보험</span>
+          <div class="chip-group">
+            <div class="chip pick on" data-pf="ins1" data-pv="all" onclick="setPsFilter('ins1','all')">전체</div>
+            <div class="chip pick" data-pf="ins1" data-pv="Y" onclick="setPsFilter('ins1','Y')">가입</div>
+            <div class="chip pick" data-pf="ins1" data-pv="N" onclick="setPsFilter('ins1','N')">미가입</div>
+          </div>
+        </div>
+        <div class="ps-filter-row">
+          <span class="ps-filter-label">🏢 법인명의</span>
+          <div class="chip-group">
+            <div class="chip pick on" data-pf="ins2" data-pv="all" onclick="setPsFilter('ins2','all')">전체</div>
+            <div class="chip pick" data-pf="ins2" data-pv="Y" onclick="setPsFilter('ins2','Y')">가입</div>
+            <div class="chip pick" data-pf="ins2" data-pv="N" onclick="setPsFilter('ins2','N')">미가입</div>
+          </div>
+        </div>
+        <div class="ps-filter-row" style="margin-bottom:0;">
+          <span class="ps-filter-label">👷 근로자수</span>
+          <div class="chip-group">
+            <div class="chip pick on" data-pf="worker" data-pv="all" onclick="setPsFilter('worker','all')">전체</div>
+            <div class="chip pick" data-pf="worker" data-pv="5" onclick="setPsFilter('worker','5')">5인 이상</div>
+            <div class="chip pick" data-pf="worker" data-pv="10" onclick="setPsFilter('worker','10')">10인 이상</div>
+            <div class="chip pick" data-pf="worker" data-pv="30" onclick="setPsFilter('worker','30')">30인 이상</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="ps-footer">
+      <div class="ps-footer-count">✅ 인쇄 대상: <b id="psFilterCount">0</b> 개 업체</div>
+      <button type="button" class="ps-reset-link" onclick="resetPsFilters()">필터 초기화</button>
+    </div>
+    <div class="ps-actions">
+      <button class="ps-generate-btn" onclick="generatePrintFromSetup()">✅ 인쇄물 만들기</button>
+    </div>
+  </div>
+</div>
+
 <div class="pp-overlay" id="ppOverlay">
   <div class="pp-sheet">
     <div class="pp-topbar">
@@ -772,6 +915,7 @@ select{-webkit-appearance:none;appearance:none;background-image:url("data:image/
       <div class="pp-print-area" id="ppPrintArea">
         <div class="pp-print-head">
           <div class="pp-print-title" id="ppPrintTitle"></div>
+          <div class="pp-print-org" id="ppPrintOrg" style="display:none;"></div>
           <div class="pp-print-meta" id="ppPrintMeta"></div>
         </div>
         <table class="pp-table" id="ppTable"><thead></thead><tbody></tbody></table>
@@ -854,6 +998,7 @@ try { manualCompanies = JSON.parse(localStorage.getItem('manualCompanies') || '[
 
 let appSettings = {};
 try { appSettings = JSON.parse(localStorage.getItem('appSettings') || '{}'); } catch(e){ appSettings = {}; }
+applyPrintHeaderColors();
 
 let companyOverrides = {};
 try { companyOverrides = JSON.parse(localStorage.getItem('companyOverrides') || '{}'); } catch(e){ companyOverrides = {}; }
@@ -973,7 +1118,7 @@ function switchTab(tab){
   document.querySelectorAll('#tabbar button').forEach(b=>b.classList.toggle('active', b.dataset.tab===tab));
   currentTab = tab;
   document.getElementById('topbar').classList.remove('hasback');
-  document.getElementById('topTitle').textContent = '방문영업일지';
+  document.getElementById('topTitle').textContent = '세일즈맵';
   document.getElementById('topSub').style.display='';
   document.getElementById('tabbar').style.display='flex';
   if(tab==='home') renderHome();
@@ -1012,7 +1157,7 @@ function applyBack(){
   } else {
     hideAllSub();
     document.getElementById('topbar').classList.remove('hasback');
-    document.getElementById('topTitle').textContent = '방문영업일지';
+    document.getElementById('topTitle').textContent = '세일즈맵';
     document.getElementById('topSub').style.display='';
     document.getElementById('tabbar').style.display='flex';
     const target = (cameFromList) ? 'list' : currentTab;
@@ -1152,99 +1297,154 @@ function currentFilteredJournals(){
   return list;
 }
 
-/* ---------------- 엑셀 / PDF 내보내기 ---------------- */
-const EXPORT_HEADERS = ['방문일','방문시각','방문자','기업명','주소','전화번호','기업형태','근로자수','첫인상','방문결과','우선순위','관심분야','상담내용','전달자료','가입보험사','1차방문','2차방문','3차방문','4차방문'];
-function journalToRow(j){
-  return [j.visitDate||'', j.visitTime||'', j.visitor||'', j.companyName||'', j.address||'', j.phone||'',
-    j.companyType||'', j.employees||'', j.firstImpression||'', j.result||'', j.priority||'', j.interest||'', j.content||'',
-    (j.materialsDelivered||[]).join(', '), (j.currentInsurers||[]).join(', '),
-    j.visit1||'', j.visit2||'', j.visit3||'', j.visit4||''];
-}
-
+/* ---------------- 엑셀 / PDF 내보내기 (업체 기본정보 포함 · 가로형 인쇄물 미리보기로 통일) ---------------- */
 function exportExcel(){
-  const list = currentFilteredJournals();
-  if(!list.length){ toast('내보낼 방문일지가 없습니다.'); return; }
-  ensureXLSX(function(){
-    const rows = [EXPORT_HEADERS].concat(list.map(journalToRow));
-    const ws = XLSX.utils.aoa_to_sheet(rows);
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, '방문일지');
-    const ts = new Date().toISOString().slice(0,10);
-    XLSX.writeFile(wb, `방문일지_${ts}.xlsx`);
-    toast('엑셀 파일을 내보냈습니다.');
-  });
+  openJournalPrintPreview(currentFilteredJournals());
 }
 
 function exportPDF(){
-  const list = currentFilteredJournals();
-  if(!list.length){ toast('내보낼 방문일지가 없습니다.'); return; }
-  const rowsHtml = list.map(j => `<tr>
-    <td>${escapeHTML(j.visitDate||'')} ${escapeHTML(j.visitTime||'')}</td>
-    <td>${escapeHTML(j.companyName||'')}</td>
-    <td>${escapeHTML(j.visitor||'')}</td>
-    <td>${escapeHTML(j.result||'')}</td>
-    <td>${escapeHTML(j.priority||'')}</td>
-    <td>${escapeHTML(j.interest||'')}</td>
-    <td>${escapeHTML(j.content||'')}</td>
-  </tr>`).join('');
-  const html = `<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"><title>방문일지 내보내기</title>
-  <style>
-    body{font-family:'Malgun Gothic',sans-serif;padding:20px;color:#111;}
-    h2{margin-bottom:4px;} .meta{color:#666;font-size:12px;margin-bottom:16px;}
-    table{width:100%;border-collapse:collapse;font-size:12px;}
-    th,td{border:1px solid #ccc;padding:6px 8px;text-align:left;vertical-align:top;}
-    th{background:#f0f0f0;}
-    @media print{ body{padding:0;} }
-  </style></head><body>
-  <h2>방문영업일지</h2>
-  <div class="meta">내보낸 날짜: ${new Date().toLocaleString('ko-KR')} · 총 ${list.length}건</div>
-  <table><thead><tr><th>방문일시</th><th>기업명</th><th>방문자</th><th>결과</th><th>우선순위</th><th>관심분야</th><th>상담내용</th></tr></thead>
-  <tbody>${rowsHtml}</tbody></table>
-  <script>window.onload = function(){ window.print(); };<\/script>
-  </body></html>`;
-  const w = window.open('', '_blank');
-  if(!w){ toast('팝업이 차단되어 PDF 내보내기 창을 열 수 없습니다. 팝업 허용 후 다시 시도해주세요.'); return; }
-  w.document.open(); w.document.write(html); w.document.close();
-  toast('인쇄창에서 "PDF로 저장"을 선택하면 파일로 저장됩니다.');
+  openJournalPrintPreview(currentFilteredJournals());
 }
 
 /* ---------------- 업체 목록 인쇄/PDF 미리보기 (목록형·가로형 전용) ----------------
    PC v47 패키지의 "인쇄 결과물: 목록형" 표를 모바일에 맞춰 이식한 버전.
-   상세형(카드형) 인쇄는 지원하지 않고, 목록형(표) 인쇄만 제공합니다. */
+   상세형(카드형) 인쇄는 지원하지 않고, 목록형(표) 인쇄만 제공합니다.
+   PC v47 패키지의 업체정보 필드(대표자이름/성별/나이, 사업자번호, 설립년도)를 추가로 반영. */
 const PP_COLS = [
-  { key:'기업명',           label:'기업명',      width:'14%' },
-  { key:'통합주소',         label:'주소',        width:'26%' },
-  { key:'본사전화번호',     label:'전화번호',    width:'11%' },
-  { key:'최신근로자수',     label:'근로자수',    width:'7%'  },
-  { key:'단체보험가입여부', label:'단체보험',    width:'8%'  },
-  { key:'법인명의가입여부', label:'법인명의',    width:'8%'  },
-  { key:'매출',             label:'매출(백만)',  width:'8%'  },
-  { key:'순이익',           label:'순이익(백만)',width:'8%'  },
+  { key:'기업명',           label:'기업명' },
+  { key:'대표자',           label:'대표자(성별/나이)' },
+  { key:'통합주소',         label:'주소' },
+  { key:'본사전화번호',     label:'전화번호' },
+  { key:'최신근로자수',     label:'근로자수' },
+  { key:'단체보험가입여부', label:'단체보험' },
+  { key:'법인명의가입여부', label:'법인명의' },
+  { key:'사업자번호',       label:'사업자번호' },
+  { key:'설립년도',         label:'설립년도' },
+  { key:'매출',             label:'매출(백만)' },
+  { key:'순이익',           label:'순이익(백만)' },
 ];
+
+// 방문일지 목록 인쇄/엑셀 전용 컬럼 — 방문기록 정보 + 업체 기본정보(대표자·사업자번호·매출·순이익 등)를 함께 출력
+const JOURNAL_PP_COLS = [
+  { key:'방문일시',   label:'방문일시' },
+  { key:'담당자',     label:'담당자' },
+  { key:'동행',       label:'동행' },
+  { key:'기업명',     label:'기업명' },
+  { key:'대표자',     label:'대표자(성별/나이)' },
+  { key:'사업자번호', label:'사업자번호' },
+  { key:'주소',       label:'주소' },
+  { key:'전화번호',   label:'전화번호' },
+  { key:'기업형태',   label:'기업형태' },
+  { key:'근로자수',   label:'근로자수' },
+  { key:'매출',       label:'매출(백만)' },
+  { key:'순이익',     label:'순이익(백만)' },
+  { key:'첫인상',     label:'첫인상' },
+  { key:'방문결과',   label:'방문결과' },
+  { key:'우선순위',   label:'우선순위' },
+  { key:'관심분야',   label:'관심분야' },
+  { key:'상담내용',   label:'상담내용' },
+  { key:'전달자료',   label:'전달자료' },
+  { key:'가입보험사', label:'가입보험사' },
+  { key:'1차방문',    label:'1차방문' },
+  { key:'2차방문',    label:'2차방문' },
+  { key:'3차방문',    label:'3차방문' },
+  { key:'4차방문',    label:'4차방문' },
+];
+
 let ppCurrentList = [];
+let ppMode = 'company';       // 'company' | 'journal'
+let ppActiveCols = PP_COLS;
+
+// 사업자번호를 "357-13-01128" 형식으로 표시 (PC v47과 동일 로직)
+function formatBizNo(v){
+  const digits = String(v || '').replace(/[^0-9]/g, '');
+  if(digits.length === 10) return digits.slice(0,3) + '-' + digits.slice(3,5) + '-' + digits.slice(5);
+  return v || '-';
+}
 
 function ppFieldValue(c2, key){
-  let v = c2[key];
+  if(key === '대표자'){
+    const name = c2.대표자이름 || '';
+    if(!name) return '-';
+    const gender = c2.대표자성별 || '-';
+    const age = c2.대표자나이 || '-';
+    return `${name} (${gender}, ${age})`;
+  }
+  if(key === '사업자번호') return formatBizNo(c2.사업자번호);
+  if(key === '설립년도') return c2.설립년도 ? `${c2.설립년도}년` : '-';
   if(key==='단체보험가입여부' || key==='법인명의가입여부'){
+    const v = c2[key];
     return v==='Y' ? '가입' : (v==='N' ? '미가입' : '-');
   }
+  const v = c2[key];
   return (v===undefined || v===null || v==='') ? '-' : v;
 }
 
-function openPrintPreview(list, title){
-  if(!list || !list.length){ toast('인쇄할 업체가 없습니다.'); return; }
+// 방문일지 한 건(+미리 매칭해둔 업체정보 _co)을 인쇄/엑셀 컬럼값으로 변환
+function journalCellValue(j, key){
+  const co = j._co || null;
+  switch(key){
+    case '방문일시': { const s = `${j.visitDate||''} ${j.visitTime||''}`.trim(); return s || '-'; }
+    case '담당자': return j.visitor || '-';
+    case '동행': return (j.companions && j.companions.length) ? j.companions.join(', ') : '-';
+    case '기업명': return j.companyName || '-';
+    case '대표자': {
+      const name = co && co.대표자이름 ? co.대표자이름 : '';
+      if(!name) return '-';
+      return `${name} (${co.대표자성별||'-'}, ${co.대표자나이||'-'})`;
+    }
+    case '사업자번호': return co ? formatBizNo(co.사업자번호) : '-';
+    case '주소': return j.address || (co && co.통합주소) || '-';
+    case '전화번호': return j.phone || (co && co.본사전화번호) || '-';
+    case '기업형태': return j.companyType || (co && co.기업형태) || '-';
+    case '근로자수': { const v = j.employees || (co && co.최신근로자수); return v || '-'; }
+    case '매출': return (co && co.매출) ? co.매출 : '-';
+    case '순이익': return (co && co.순이익) ? co.순이익 : '-';
+    case '첫인상': return j.firstImpression || '-';
+    case '방문결과': return j.result || '-';
+    case '우선순위': return j.priority || '-';
+    case '관심분야': return j.interest || '-';
+    case '상담내용': return j.content || '-';
+    case '전달자료': return (j.materialsDelivered && j.materialsDelivered.length) ? j.materialsDelivered.join(', ') : '-';
+    case '가입보험사': return (j.currentInsurers && j.currentInsurers.length) ? j.currentInsurers.join(', ') : '-';
+    case '1차방문': return j.visit1 || '-';
+    case '2차방문': return j.visit2 || '-';
+    case '3차방문': return j.visit3 || '-';
+    case '4차방문': return j.visit4 || '-';
+    default: return '-';
+  }
+}
+
+// 현재 모드(업체 목록/방문일지 목록)에 맞춰 셀 값을 계산하는 공용 함수
+function ppCellValue(item, key){
+  if(ppMode === 'journal') return journalCellValue(item, key);
+  return ppFieldValue(applyOverride(item), key);
+}
+
+function openPrintPreview(list, title, opts){
+  opts = opts || {};
+  if(!list || !list.length){ toast(opts.mode==='journal' ? '인쇄할 방문일지가 없습니다.' : '인쇄할 업체가 없습니다.'); return; }
+  ppMode = opts.mode || 'company';
+  ppActiveCols = opts.cols || PP_COLS;
   ppCurrentList = list;
+  const unit = ppMode === 'journal' ? '건' : '개';
   document.getElementById('ppTitle').textContent = title;
-  document.getElementById('ppCount').textContent = list.length.toLocaleString() + '개';
+  document.getElementById('ppCount').textContent = list.length.toLocaleString() + unit;
   document.getElementById('ppPrintTitle').textContent = '📋 ' + title;
   const who = appSettings.userName ? (appSettings.userName + ' · ') : '';
   document.getElementById('ppPrintMeta').textContent =
-    who + new Date().toLocaleDateString('ko-KR') + ' · 총 ' + list.length.toLocaleString() + '개 업체';
+    who + new Date().toLocaleDateString('ko-KR') + ' · 총 ' + list.length.toLocaleString() + unit;
 
-  const theadHtml = '<tr>' + PP_COLS.map(c=>`<th style="width:${c.width}">${c.label}</th>`).join('') + '</tr>';
-  const tbodyHtml = list.map(c=>{
-    const c2 = applyOverride(c);
-    return '<tr>' + PP_COLS.map(col=>`<td>${escapeHTML(String(ppFieldValue(c2, col.key)))}</td>`).join('') + '</tr>';
+  const orgBits = [appSettings.deptName, appSettings.printTitle, appSettings.printPhone].filter(Boolean);
+  const orgEl = document.getElementById('ppPrintOrg');
+  if(orgEl){
+    orgEl.textContent = orgBits.join(' · ');
+    orgEl.style.display = orgBits.length ? '' : 'none';
+  }
+
+  const theadHtml = '<tr>' + ppActiveCols.map(c=>`<th>${c.label}</th>`).join('') + '</tr>';
+  const tbodyHtml = list.map(item=>{
+    return '<tr>' + ppActiveCols.map(col=>`<td>${escapeHTML(String(ppCellValue(item, col.key)))}</td>`).join('') + '</tr>';
   }).join('');
   document.querySelector('#ppTable thead').innerHTML = theadHtml;
   document.querySelector('#ppTable tbody').innerHTML = tbodyHtml;
@@ -1253,30 +1453,232 @@ function openPrintPreview(list, title){
   document.getElementById('ppScroll').scrollTop = 0;
 }
 
+// 방문일지 목록을 업체 기본정보(대표자·사업자번호·매출·순이익 등)와 함께 인쇄/엑셀 미리보기로 열기
+function openJournalPrintPreview(list){
+  if(!list || !list.length){ toast('내보낼 방문일지가 없습니다.'); return; }
+  const all = getAllCompanies();
+  const printList = list.map(j => Object.assign({}, j, {
+    _co: j.companyName ? all.find(c => c.기업명 === j.companyName) || null : null
+  }));
+  openPrintPreview(printList, '방문일지 목록', { mode:'journal', cols:JOURNAL_PP_COLS });
+}
+
 function closePrintPreview(){
   document.getElementById('ppOverlay').classList.remove('show');
 }
 
 function ppPrintNow(){
-  if(!ppCurrentList.length){ toast('인쇄할 업체가 없습니다.'); return; }
+  if(!ppCurrentList.length){ toast('인쇄할 내용이 없습니다.'); return; }
   window.print();
 }
 
 function ppExportExcel(){
-  if(!ppCurrentList.length){ toast('내보낼 업체가 없습니다.'); return; }
+  if(!ppCurrentList.length){ toast('내보낼 내용이 없습니다.'); return; }
   ensureXLSX(function(){
-    const headers = PP_COLS.map(c=>c.label);
-    const rows = [headers].concat(ppCurrentList.map(c=>{
-      const c2 = applyOverride(c);
-      return PP_COLS.map(col=>ppFieldValue(c2, col.key));
-    }));
+    const headers = ppActiveCols.map(c=>c.label);
+    const rows = [headers].concat(ppCurrentList.map(item=>ppActiveCols.map(col=>ppCellValue(item, col.key))));
     const ws = XLSX.utils.aoa_to_sheet(rows);
     const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, '업체목록');
+    const sheetName = ppMode === 'journal' ? '방문일지' : '업체목록';
+    XLSX.utils.book_append_sheet(wb, ws, sheetName);
     const ts = new Date().toISOString().slice(0,10);
-    XLSX.writeFile(wb, `업체목록_${ts}.xlsx`);
+    XLSX.writeFile(wb, `${sheetName}_${ts}.xlsx`);
     toast('엑셀 파일을 내보냈습니다.');
   });
+}
+
+// 선택된 소스 id 집합에 해당하는 업체 목록만 모아서 반환
+function companiesForSourceIds(idSet){
+  let all = [];
+
+  if(idSet.has('builtin') && !builtinDeleted) all = all.concat(getBaseCompanies());
+  for(const s of extraSources){ if(idSet.has(s.id)) all = all.concat(s.data || []); }
+  return all;
+}
+
+/* ---------------- 인쇄 설정 모달 (PC v47 "업체 리스트 인쇄" 화면과 동일 구성) ----------------
+   홈/데이터관리/지역·조건찾기 어디서 열어도 항상 같은 모달이 뜹니다(상단 헤더 포함 공통 컴포넌트). */
+let psSelectedSrcIds = new Set();
+let psFilters = { mode:'dong', ri:new Set(), dong:new Set(), road:new Set(), ins1:'all', ins2:'all', worker:'all' };
+
+function openPrintSetup(){
+  const metas = getAllSourceMetas();
+  if(!psSelectedSrcIds.size){
+    metas.forEach(m => { if(m.active) psSelectedSrcIds.add(m.id); });
+  }
+  renderPsSrcList();
+  const keepMode = psFilters.mode;
+  psFilters = { mode:keepMode, ri:new Set(), dong:new Set(), road:new Set(), ins1:'all', ins2:'all', worker:'all' };
+  document.querySelectorAll('#printSetupOverlay .chip[data-pf]').forEach(b=>{
+    b.classList.toggle('on', b.dataset.pv === 'all');
+  });
+  document.querySelectorAll('#psModeTabs .mode-tab').forEach(b=>b.classList.toggle('active', b.dataset.m===keepMode));
+  renderPsRegionChips();
+  renderPsRoadChips();
+  updatePsFilterCount();
+  document.getElementById('printSetupOverlay').classList.add('show');
+}
+
+function closePrintSetup(){
+  document.getElementById('printSetupOverlay').classList.remove('show');
+}
+
+function renderPsSrcList(){
+  const wrap = document.getElementById('psSrcList');
+  const metas = getAllSourceMetas();
+  if(!metas.length){
+    wrap.innerHTML = '<div class="empty-hint" style="padding:6px 2px;">먼저 데이터관리에서 엑셀 파일을 추가해주세요.</div>';
+    return;
+  }
+  wrap.innerHTML = metas.map(m=>{
+    const on = psSelectedSrcIds.has(m.id);
+    return `<label class="ps-src-check">
+      <input type="checkbox" ${on?'checked':''} onchange="onPsSrcChange('${escapeAttr(m.id)}')">
+      ${escapeHTML(m.name)} <span class="pc-cnt2">(${m.count.toLocaleString()}개)</span>
+    </label>`;
+  }).join('');
+}
+
+function onPsSrcChange(id){
+  if(psSelectedSrcIds.has(id)) psSelectedSrcIds.delete(id);
+  else psSelectedSrcIds.add(id);
+  // 소스가 바뀌면 존재하지 않는 동/리/도로명 선택은 자동 해제
+  const scope = psScopeCompanies();
+  const validDong = new Set(scope.map(c=>extractDong(c.통합주소)).filter(Boolean));
+  const validRi = new Set(scope.map(c=>extractRiV47(c.통합주소)).filter(Boolean));
+  const validRoad = new Set(scope.map(c=>extractRoad(c.통합주소)).filter(Boolean));
+  psFilters.dong = new Set([...psFilters.dong].filter(v=>validDong.has(v)));
+  psFilters.ri = new Set([...psFilters.ri].filter(v=>validRi.has(v)));
+  psFilters.road = new Set([...psFilters.road].filter(v=>validRoad.has(v)));
+  renderPsRegionChips();
+  renderPsRoadChips();
+  updatePsFilterCount();
+}
+
+function psScopeCompanies(){ return companiesForSourceIds(psSelectedSrcIds); }
+
+function psDongScopedCompanies(){
+  let list = psScopeCompanies();
+  if(psFilters.mode==='dong' && psFilters.dong.size>0) list = list.filter(c=>psFilters.dong.has(extractDong(c.통합주소)));
+  return list;
+}
+
+function applyPsFilters(companies){
+  let list = companies;
+  if(psFilters.mode==='dong'){
+    if(psFilters.dong.size>0) list = list.filter(c=>psFilters.dong.has(extractDong(c.통합주소)));
+    if(psFilters.road.size>0) list = list.filter(c=>psFilters.road.has(extractRoad(c.통합주소)));
+  } else {
+    if(psFilters.ri.size>0) list = list.filter(c=>psFilters.ri.has(extractRiV47(c.통합주소)));
+  }
+  if(psFilters.ins1!=='all') list = list.filter(c=>(c.단체보험가입여부==='Y')===(psFilters.ins1==='Y'));
+  if(psFilters.ins2!=='all') list = list.filter(c=>(c.법인명의가입여부==='Y')===(psFilters.ins2==='Y'));
+  if(psFilters.worker!=='all'){
+    const min = Number(psFilters.worker);
+    list = list.filter(c=>Number(String(c.최신근로자수||'').replace(/[^0-9]/g,''))>=min);
+  }
+  if(psFilters.mode==='dong' && psFilters.road.size>0){
+    const order = [...psFilters.road];
+    list = [...list].sort((a,b)=>order.indexOf(extractRoad(a.통합주소))-order.indexOf(extractRoad(b.통합주소)));
+  }
+  return list;
+}
+
+function renderPsRegionChips(){
+  const wrap = document.getElementById('psRegionChips');
+  const mode = psFilters.mode;
+  const all = psScopeCompanies();
+  const count = {};
+  all.forEach(c=>{
+    const v = extractRegionAny(c.통합주소, mode);
+    if(v) count[v] = (count[v]||0)+1;
+  });
+  const list = Object.keys(count).sort((a,b)=>count[b]-count[a]);
+  const activeSet = mode==='dong' ? psFilters.dong : psFilters.ri;
+  const label = mode==='dong' ? '"OO동"' : '"OO마을(리)"';
+  if(!list.length){
+    wrap.innerHTML = `<span class="empty-hint" style="padding:6px 2px;">선택한 데이터 소스에서 ${label} 주소를 찾지 못했어요. (전체 인쇄됩니다)</span>`;
+    return;
+  }
+  wrap.innerHTML = list.map(v=>{
+    const active = activeSet.has(v);
+    return `<div class="chip pick sm ${active?'on':''}" onclick="togglePsRegion('${escapeAttr(v)}')">${escapeHTML(v)} <span style="opacity:.7;">${count[v]}</span></div>`;
+  }).join('');
+}
+
+function togglePsRegion(v){
+  const activeSet = psFilters.mode==='dong' ? psFilters.dong : psFilters.ri;
+  if(activeSet.has(v)) activeSet.delete(v); else activeSet.add(v);
+  renderPsRegionChips();
+  if(psFilters.mode==='dong') renderPsRoadChips();
+  updatePsFilterCount();
+}
+
+function renderPsRoadChips(){
+  const roadWrap = document.getElementById('psRoadWrap');
+  if(psFilters.mode!=='dong'){ roadWrap.style.display='none'; return; }
+  const scoped = psDongScopedCompanies();
+  const count = {};
+  scoped.forEach(c=>{
+    const v = extractRoad(c.통합주소);
+    if(v) count[v] = (count[v]||0)+1;
+  });
+  const list = Object.keys(count).sort((a,b)=>count[b]-count[a]);
+  if(list.length<2){ roadWrap.style.display='none'; psFilters.road = new Set(); return; }
+  roadWrap.style.display = '';
+  const chipsEl = document.getElementById('psRoadChips');
+  chipsEl.innerHTML = list.map(v=>{
+    const active = psFilters.road.has(v);
+    return `<div class="chip pick sm ${active?'on':''}" onclick="togglePsRoad('${escapeAttr(v)}')">${escapeHTML(v)} <span style="opacity:.7;">${count[v]}</span></div>`;
+  }).join('');
+}
+
+function togglePsRoad(v){
+  if(psFilters.road.has(v)) psFilters.road.delete(v); else psFilters.road.add(v);
+  renderPsRoadChips();
+  updatePsFilterCount();
+}
+
+function setPsRegionMode(mode){
+  psFilters.mode = mode;
+  document.querySelectorAll('#psModeTabs .mode-tab').forEach(b=>b.classList.toggle('active', b.dataset.m===mode));
+  renderPsRegionChips();
+  renderPsRoadChips();
+  updatePsFilterCount();
+}
+
+function setPsFilter(field, value){
+  psFilters[field] = value;
+  document.querySelectorAll(`#printSetupOverlay .chip[data-pf="${field}"]`).forEach(b=>{
+    b.classList.toggle('on', b.dataset.pv === value);
+  });
+  updatePsFilterCount();
+}
+
+function resetPsFilters(){
+  const mode = psFilters.mode;
+  psFilters = { mode, ri:new Set(), dong:new Set(), road:new Set(), ins1:'all', ins2:'all', worker:'all' };
+  document.querySelectorAll('#printSetupOverlay .chip[data-pf]').forEach(b=>{
+    b.classList.toggle('on', b.dataset.pv === 'all');
+  });
+  renderPsRegionChips();
+  renderPsRoadChips();
+  updatePsFilterCount();
+}
+
+function updatePsFilterCount(){
+  const el = document.getElementById('psFilterCount');
+  if(!el) return;
+  el.textContent = applyPsFilters(psScopeCompanies()).length.toLocaleString();
+}
+
+function generatePrintFromSetup(){
+  const list = applyPsFilters(psScopeCompanies());
+  if(!list.length){ toast('인쇄 대상 업체가 없습니다. 필터를 확인해주세요.'); return; }
+  const metas = getAllSourceMetas().filter(m=>psSelectedSrcIds.has(m.id));
+  const title = metas.length === 1 ? metas[0].name : `업체 리스트 (${metas.length}개 소스)`;
+  closePrintSetup();
+  openPrintPreview(list, title);
 }
 
 /* ---------------- 데이터관리 (PC v39 데이터 소스 관리와 동일 구조) ---------------- */
@@ -1504,7 +1906,16 @@ function renderCompanionChips(){
   wrap.querySelectorAll('.chip').forEach(c=>{
     c.onclick = ()=>{
       const v=c.dataset.v; const i=selectedChips.companion.indexOf(v);
-      if(i>-1) selectedChips.companion.splice(i,1); else selectedChips.companion.push(v);
+      const visitorInput = document.getElementById('f-visitor');
+      if(i>-1){
+        selectedChips.companion.splice(i,1);
+        // 담당자란이 이 동행자 이름으로 채워져 있었다면 다시 눌렀을 때 지워줌
+        if(visitorInput.value === v) visitorInput.value = '';
+      } else {
+        selectedChips.companion.push(v);
+        // 동행자를 누르면 담당자(방문자)란에 바로 채워줌
+        visitorInput.value = v;
+      }
       renderChips();
     };
   });
@@ -1993,6 +2404,8 @@ function runRegionSearch(){
   lastRegionFullList = list;
   const countEl = document.getElementById('regionCount');
   countEl.textContent = list.length.toLocaleString() + '개 업체';
+  const liveEl = document.getElementById('regionLiveCount');
+  if(liveEl) liveEl.textContent = '🔍 검색결과: ' + list.length.toLocaleString() + '개 업체';
   const shown = list.slice(0,200);
   const wrap = document.getElementById('regionResults');
   if(!list.length){ wrap.innerHTML = '<div class="empty-hint">조건에 맞는 업체가 없습니다.<br>데이터 소스나 지역 필터를 조정해보세요.</div>'; return; }
@@ -2043,13 +2456,66 @@ function fillSettings(){
   document.getElementById('set-companion1').value = appSettings.companion1 || '';
   document.getElementById('set-companion2').value = appSettings.companion2 || '';
   document.getElementById('set-companion3').value = appSettings.companion3 || '';
+  document.getElementById('set-deptName').value = appSettings.deptName || '';
+  document.getElementById('set-printTitle').value = appSettings.printTitle || '';
+  document.getElementById('set-printPhone').value = appSettings.printPhone || '';
+  renderPrintSwatches();
 }
 function saveSettings(){
   appSettings.userName = document.getElementById('set-userName').value;
   appSettings.companion1 = document.getElementById('set-companion1').value;
   appSettings.companion2 = document.getElementById('set-companion2').value;
   appSettings.companion3 = document.getElementById('set-companion3').value;
+  appSettings.deptName = document.getElementById('set-deptName').value;
+  appSettings.printTitle = document.getElementById('set-printTitle').value;
+  appSettings.printPhone = document.getElementById('set-printPhone').value;
   persistSettings();
+}
+
+/* ---------------- 인쇄물 상단메뉴(제목행) 색상 — PC v47과 동일 프리셋 구조(모바일은 5색) ---------------- */
+const PRINT_BG_PRESETS = [
+  { name:'남색(기본)', hex:'#1B3A6B' },
+  { name:'파랑',       hex:'#2563EB' },
+  { name:'초록',       hex:'#16A34A' },
+  { name:'보라',       hex:'#7C3AED' },
+  { name:'주황',       hex:'#D97706' },
+];
+const PRINT_TEXT_PRESETS = [
+  { name:'흰색(기본)', hex:'#FFFFFF', light:false },
+  { name:'검정',       hex:'#111827', light:true },
+  { name:'연노랑',     hex:'#FEF08A', light:true },
+  { name:'연하늘',     hex:'#BFDBFE', light:true },
+  { name:'아이보리',   hex:'#FEF3C7', light:true },
+];
+
+function applyPrintHeaderColors(){
+  const bg = appSettings.printBgColor || '#1B3A6B';
+  const tx = appSettings.printTextColor || '#FFFFFF';
+  document.documentElement.style.setProperty('--print-th-bg', bg);
+  document.documentElement.style.setProperty('--print-th-text', tx);
+}
+
+function renderPrintSwatches(){
+  const bgWrap = document.getElementById('printBgSwatches');
+  const txWrap = document.getElementById('printTextSwatches');
+  if(!bgWrap || !txWrap) return;
+  const curBg = (appSettings.printBgColor || PRINT_BG_PRESETS[0].hex).toUpperCase();
+  const curTx = (appSettings.printTextColor || PRINT_TEXT_PRESETS[0].hex).toUpperCase();
+  bgWrap.innerHTML = PRINT_BG_PRESETS.map(p=>`<button type="button" class="print-swatch ${curBg===p.hex?'active':''}" style="background:${p.hex};" title="${p.name}" onclick="selectPrintBg('${p.hex}')"></button>`).join('');
+  txWrap.innerHTML = PRINT_TEXT_PRESETS.map(p=>`<button type="button" class="print-swatch ${p.light?'light-swatch':''} ${curTx===p.hex?'active':''}" style="background:${p.hex};" title="${p.name}" onclick="selectPrintText('${p.hex}')"></button>`).join('');
+}
+
+function selectPrintBg(hex){
+  appSettings.printBgColor = hex;
+  persistSettings();
+  applyPrintHeaderColors();
+  renderPrintSwatches();
+}
+function selectPrintText(hex){
+  appSettings.printTextColor = hex;
+  persistSettings();
+  applyPrintHeaderColors();
+  renderPrintSwatches();
 }
 
 /* ---------------- Backup export / share ---------------- */
@@ -2065,13 +2531,13 @@ function buildBackupJSON(){
 async function shareBackup(){
   const json = buildBackupJSON();
   const ts = new Date().toISOString().slice(0,10);
-  const filename = `방문영업일지_백업_${ts}.json`;
+  const filename = `세일즈맵_백업_${ts}.json`;
   const blob = new Blob([json], { type:'application/json' });
   const file = new File([blob], filename, { type:'application/json' });
 
   if(navigator.canShare && navigator.canShare({ files:[file] })){
     try{
-      await navigator.share({ files:[file], title:'방문영업일지 백업', text:'방문영업일지 백업 파일입니다. 카카오톡으로 보내려면 공유 목록에서 카카오톡을 선택해주세요.' });
+      await navigator.share({ files:[file], title:'세일즈맵 백업', text:'세일즈맵 백업 파일입니다. 카카오톡으로 보내려면 공유 목록에서 카카오톡을 선택해주세요.' });
       toast('공유되었습니다.');
       return;
     }catch(e){ /* 사용자가 취소했거나 실패 -> 다운로드로 대체 */ }

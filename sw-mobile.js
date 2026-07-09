@@ -1,7 +1,7 @@
 // 방문영업일지 모바일 — 서비스워커 v4
 // "홈 화면에 추가" 시 앱처럼 동작하고 오프라인에서도 화면이 열리도록 해줍니다.
 // 캐시 이름의 버전 숫자를 바꿔주면 사용자 기기의 오래된 파일이 자동으로 갱신됩니다.
-const CACHE_NAME = 'gfc-visit-log-mobile-v5';
+const CACHE_NAME = 'gfc-visit-log-mobile-v11';
 const CORE_ASSETS = [
   './index.html',
   './manifest-mobile.json',
