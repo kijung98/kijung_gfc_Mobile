@@ -607,6 +607,30 @@ select{-webkit-appearance:none;appearance:none;background-image:url("data:image/
       </div>
     </div>
 
+    <div class="section-title">영업 참고 정보</div>
+    <div class="card">
+      <div class="row2">
+        <div class="field">
+          <label>대표자</label>
+          <input type="text" id="f-ceo" placeholder="예: 박*진 (남, 50대)">
+        </div>
+        <div class="field">
+          <label>사업자번호</label>
+          <input type="text" id="f-bizno" placeholder="000-00-00000" inputmode="numeric">
+        </div>
+      </div>
+      <div class="row2" style="margin-bottom:0;">
+        <div class="field" style="margin-bottom:0;">
+          <label>매출 (백만원)</label>
+          <input type="text" id="f-sales" placeholder="예: 2,500" inputmode="numeric">
+        </div>
+        <div class="field" style="margin-bottom:0;">
+          <label>순이익 (백만원)</label>
+          <input type="text" id="f-profit" placeholder="예: 180" inputmode="numeric">
+        </div>
+      </div>
+    </div>
+
     <div class="section-title">방문 내용</div>
     <div class="card">
       <div class="field">
@@ -1389,17 +1413,18 @@ function journalCellValue(j, key){
     case '동행': return (j.companions && j.companions.length) ? j.companions.join(', ') : '-';
     case '기업명': return j.companyName || '-';
     case '대표자': {
+      if(j.ceo) return j.ceo;   // 일지에 직접 저장된 값 우선
       const name = co && co.대표자이름 ? co.대표자이름 : '';
       if(!name) return '-';
       return `${name} (${co.대표자성별||'-'}, ${co.대표자나이||'-'})`;
     }
-    case '사업자번호': return co ? formatBizNo(co.사업자번호) : '-';
+    case '사업자번호': return j.bizNo || (co ? formatBizNo(co.사업자번호) : '-');
     case '주소': return j.address || (co && co.통합주소) || '-';
     case '전화번호': return j.phone || (co && co.본사전화번호) || '-';
     case '기업형태': return j.companyType || (co && co.기업형태) || '-';
     case '근로자수': { const v = j.employees || (co && co.최신근로자수); return v || '-'; }
-    case '매출': return (co && co.매출) ? co.매출 : '-';
-    case '순이익': return (co && co.순이익) ? co.순이익 : '-';
+    case '매출': return j.sales || ((co && co.매출) ? co.매출 : '-');
+    case '순이익': return j.profit || ((co && co.순이익) ? co.순이익 : '-');
     case '첫인상': return j.firstImpression || '-';
     case '방문결과': return j.result || '-';
     case '우선순위': return j.priority || '-';
@@ -1879,6 +1904,10 @@ function resetForm(){
   document.getElementById('f-phone').value = '';
   document.getElementById('f-type').value = '';
   document.getElementById('f-employees').value = '';
+  document.getElementById('f-ceo').value = '';
+  document.getElementById('f-bizno').value = '';
+  document.getElementById('f-sales').value = '';
+  document.getElementById('f-profit').value = '';
   document.getElementById('f-content').value = '';
   document.getElementById('f-interest-text').value = '';
   document.getElementById('f-visit1').value = '';
@@ -1906,19 +1935,32 @@ function renderCompanionChips(){
   wrap.querySelectorAll('.chip').forEach(c=>{
     c.onclick = ()=>{
       const v=c.dataset.v; const i=selectedChips.companion.indexOf(v);
-      const visitorInput = document.getElementById('f-visitor');
       if(i>-1){
         selectedChips.companion.splice(i,1);
-        // 담당자란이 이 동행자 이름으로 채워져 있었다면 다시 눌렀을 때 지워줌
-        if(visitorInput.value === v) visitorInput.value = '';
+        removeNameFromVisitor(v);   // 담당자란에서 이 동행자 이름만 제거 ("최기정, 함상우" → "최기정")
       } else {
         selectedChips.companion.push(v);
-        // 동행자를 누르면 담당자(방문자)란에 바로 채워줌
-        visitorInput.value = v;
+        appendNameToVisitor(v);     // 담당자란 뒤에 ", 이름" 형태로 추가 ("최기정" → "최기정, 함상우")
       }
       renderChips();
     };
   });
+}
+
+// 담당자(방문자) 입력란을 쉼표 구분 이름 목록으로 다루는 도우미
+function getVisitorNames(){
+  return document.getElementById('f-visitor').value.split(',').map(s=>s.trim()).filter(Boolean);
+}
+function setVisitorNames(names){
+  document.getElementById('f-visitor').value = names.join(', ');
+}
+function appendNameToVisitor(name){
+  const names = getVisitorNames();
+  if(!names.includes(name)) names.push(name);
+  setVisitorNames(names);
+}
+function removeNameFromVisitor(name){
+  setVisitorNames(getVisitorNames().filter(n=>n!==name));
 }
 
 function renderInterestChips(){
@@ -1983,6 +2025,10 @@ function openForm(prefillOrJournal){
     document.getElementById('f-phone').value = j.phone || '';
     document.getElementById('f-type').value = j.companyType || '';
     document.getElementById('f-employees').value = j.employees || '';
+    document.getElementById('f-ceo').value = j.ceo || '';
+    document.getElementById('f-bizno').value = j.bizNo || '';
+    document.getElementById('f-sales').value = j.sales || '';
+    document.getElementById('f-profit').value = j.profit || '';
     document.getElementById('f-content').value = j.content || '';
     document.getElementById('f-interest-text').value = j.interest || '';
     document.getElementById('f-visit1').value = j.visit1 || '';
@@ -2009,6 +2055,13 @@ function openForm(prefillOrJournal){
     document.getElementById('f-phone').value = c.본사전화번호 || '';
     document.getElementById('f-type').value = c.기업형태 || '';
     document.getElementById('f-employees').value = c.최신근로자수 || '';
+    // 영업 참고 정보 — 업체 데이터에서 자동으로 채워줌
+    document.getElementById('f-ceo').value = c.대표자이름
+      ? `${c.대표자이름}${(c.대표자성별||c.대표자나이) ? ` (${[c.대표자성별, c.대표자나이].filter(Boolean).join(', ')})` : ''}`
+      : '';
+    document.getElementById('f-bizno').value = c.사업자번호 ? formatBizNo(c.사업자번호) : '';
+    document.getElementById('f-sales').value = c.매출 || '';
+    document.getElementById('f-profit').value = c.순이익 || '';
   }
   pushSub('screen-form', editingId ? '방문일지 수정' : '직접입력');
 }
@@ -2089,6 +2142,10 @@ function saveJournal(){
     phone: document.getElementById('f-phone').value.trim(),
     companyType: document.getElementById('f-type').value,
     employees: document.getElementById('f-employees').value,
+    ceo: document.getElementById('f-ceo').value.trim(),
+    bizNo: document.getElementById('f-bizno').value.trim(),
+    sales: document.getElementById('f-sales').value.trim(),
+    profit: document.getElementById('f-profit').value.trim(),
     firstImpression: selectedChips.impression,
     result: selectedChips.result || '',
     priority: selectedChips.priority || '',
