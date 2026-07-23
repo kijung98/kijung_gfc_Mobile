@@ -112,10 +112,14 @@ html,body{margin:0;padding:0;height:100%;background:var(--bg);color:var(--text);
 .attach-preview{max-width:100%;border-radius:10px;margin-top:10px;display:none;}
 .attach-preview.show{display:block;}
 
-.save-bar{position:sticky;bottom:0;background:linear-gradient(0deg,var(--bg) 60%,transparent);
-  padding:14px 0 4px;margin-top:6px;}
-.save-btn{width:100%;background:linear-gradient(135deg,var(--green),#128a45);color:#fff;border:none;
-  border-radius:14px;padding:16px;font-size:16px;font-weight:800;box-shadow:0 4px 14px rgba(22,163,74,.35);}
+.save-bar{position:sticky;bottom:0;background:linear-gradient(0deg,var(--bg) 62%,transparent);
+  padding:12px 0 calc(10px + var(--safe-bottom));margin-top:10px;z-index:20;
+  display:flex;gap:10px;}
+.save-btn{flex:2;background:linear-gradient(135deg,var(--green),#128a45);color:#fff;border:none;
+  border-radius:14px;padding:16px 10px;font-size:16px;font-weight:800;box-shadow:0 4px 14px rgba(22,163,74,.35);}
+.cancel-btn{flex:1;background:#fff;color:var(--sub);border:1.5px solid var(--line);
+  border-radius:14px;padding:16px 10px;font-size:15px;font-weight:800;}
+.save-btn:active,.cancel-btn:active{opacity:.75;}
 
 /* ---------- 방문 기록 관리 (PC "📂 방문 기록 관리" 화면과 맞춤) ---------- */
 .stats-row{display:flex;gap:8px;margin-bottom:12px;}
@@ -208,10 +212,31 @@ select{-webkit-appearance:none;appearance:none;background-image:url("data:image/
 .detail-row{display:flex;padding:9px 0;border-bottom:1px solid #eef0f4;font-size:14px;}
 .detail-row .k{width:92px;flex-shrink:0;color:var(--sub);font-weight:600;font-size:12.5px;padding-top:1px;}
 .detail-row .v{flex:1;line-height:1.5;}
-.detail-actions{display:flex;gap:10px;margin-top:16px;}
-.detail-actions button{flex:1;border:none;border-radius:10px;padding:12px;font-weight:700;font-size:14px;}
+.hint-inline{font-size:11.5px;color:var(--sub);margin-top:6px;line-height:1.5;}
+.biz-kind-row{display:flex;gap:8px;margin-bottom:8px;}
+.add-companion-row{display:flex;gap:8px;}
+.add-companion-row input{flex:1;}
+.add-comp-btn{flex-shrink:0;background:var(--navy);color:#fff;border:none;border-radius:10px;
+  padding:0 16px;font-size:13.5px;font-weight:800;white-space:nowrap;}
+.add-comp-btn:active{opacity:.75;}
+.companion-list{display:flex;flex-wrap:wrap;gap:8px;}
+.companion-item{display:flex;align-items:center;gap:6px;background:#fff;border:1.5px solid var(--line);
+  border-radius:999px;padding:8px 6px 8px 14px;font-size:13.5px;font-weight:700;color:var(--text);}
+.companion-item.on{background:var(--navy);border-color:var(--navy);color:#fff;}
+.companion-item .cname{cursor:pointer;}
+.companion-item .cdel{width:22px;height:22px;border-radius:50%;border:none;flex-shrink:0;
+  background:rgba(0,0,0,.08);color:var(--sub);font-size:12px;font-weight:800;line-height:1;}
+.companion-item.on .cdel{background:rgba(255,255,255,.25);color:#fff;}
+.companion-empty{font-size:12px;color:var(--sub);padding:4px 2px;}
+.biz-kind{flex:1;background:#fff;border:1.5px solid var(--line);border-radius:10px;padding:10px 6px;
+  font-size:13px;font-weight:800;color:var(--sub);}
+.biz-kind.on{background:var(--navy);border-color:var(--navy);color:#fff;}
+.biz-kind:active{opacity:.75;}
+.detail-actions{display:flex;gap:8px;margin-top:16px;padding-bottom:calc(10px + var(--safe-bottom));}
+.detail-actions button{flex:1;border:none;border-radius:10px;padding:12px 6px;font-weight:700;font-size:13.5px;}
 .btn-edit{background:var(--navy);color:#fff;}
 .btn-del{background:#fde8e8;color:var(--red);}
+.btn-close-detail{background:#fff;color:var(--sub);border:1.5px solid var(--line) !important;}
 .confirm-overlay{position:fixed;inset:0;background:rgba(10,14,25,.55);z-index:50;display:none;
   align-items:flex-end;justify-content:center;}
 .confirm-overlay.show{display:flex;}
@@ -477,15 +502,27 @@ select{-webkit-appearance:none;appearance:none;background-image:url("data:image/
     <section class="screen" id="screen-settings">
       <div class="section-title">담당자 / 동행자 정보</div>
       <div class="card">
-        <div class="field">
+        <div class="field" style="margin-bottom:0;">
           <label>담당자(방문자) 이름</label>
           <input type="text" id="set-userName" placeholder="예: 홍기정" oninput="saveSettings()">
         </div>
-        <div class="field"><label>동행 1</label><input type="text" id="set-companion1" placeholder="동행자 이름" oninput="saveSettings()"></div>
-        <div class="field"><label>동행 2</label><input type="text" id="set-companion2" placeholder="동행자 이름" oninput="saveSettings()"></div>
-        <div class="field" style="margin-bottom:0;"><label>동행 3</label><input type="text" id="set-companion3" placeholder="동행자 이름" oninput="saveSettings()"></div>
       </div>
-      <div class="hint-box">여기에 입력해두면 직접입력 화면에서 방문자 기본값과 동행 선택 버튼으로 바로 사용됩니다.</div>
+
+      <div class="section-title">👥 동행자 관리</div>
+      <div class="card">
+        <div class="field">
+          <label>동행자 추가</label>
+          <div class="add-companion-row">
+            <input type="text" id="set-newCompanion" placeholder="동행자 이름 입력" onkeydown="if(event.key==='Enter'){event.preventDefault();addCompanion();}">
+            <button type="button" class="add-comp-btn" onclick="addCompanion()">＋ 추가</button>
+          </div>
+        </div>
+        <div class="field" style="margin-bottom:0;">
+          <label>등록된 동행자 (눌러서 오늘의 동행 선택 / ✕ 로 삭제)</label>
+          <div class="companion-list" id="companionList"></div>
+        </div>
+      </div>
+      <div class="hint-box">등록한 동행자를 눌러 선택해두면(파랗게 표시) 방문일지를 새로 작성할 때 방문자(담당자)란에 "담당자, 동행자1, 동행자2" 형태로 자동 입력됩니다. 여러 명을 동시에 선택할 수 있고, 한 번 더 누르면 해제됩니다.</div>
 
       <div class="section-title">📞 인쇄물 상단 정보</div>
       <div class="card">
@@ -547,36 +584,16 @@ select{-webkit-appearance:none;appearance:none;background-image:url("data:image/
 
   <!-- ===================== SUB SCREEN: 방문일지 작성 ===================== -->
   <div class="sub-screen" id="screen-form">
-    <div class="section-title">기본 정보</div>
-    <div class="card">
-      <div class="row2">
-        <div class="field">
-          <label>방문일<span class="req">*</span></label>
-          <input type="date" id="f-date">
-        </div>
-        <div class="field">
-          <label>방문시각</label>
-          <div class="time-row">
-            <input type="time" id="f-time">
-            <button type="button" class="time-btn" onclick="setNowTime()">⏱ 지금</button>
-          </div>
-        </div>
-      </div>
-      <div class="field">
-        <label>방문자(담당자)</label>
-        <input type="text" id="f-visitor" placeholder="담당자 이름">
-      </div>
-      <div class="field" style="margin-bottom:0;">
-        <label>동행</label>
-        <div class="chip-group" id="chip-companion"></div>
-      </div>
-    </div>
-
     <div class="section-title">업체 정보</div>
     <div class="card">
       <div class="field">
         <label>기업명</label>
+        <div class="biz-kind-row">
+          <button type="button" class="biz-kind" id="bk-personal" onclick="setBizKind('개인')">👤 개인</button>
+          <button type="button" class="biz-kind" id="bk-corp" onclick="setBizKind('법인')">🏢 법인</button>
+        </div>
         <input type="text" id="f-company" placeholder="기업명을 입력하세요 (미입력 저장 가능)">
+        <div class="hint-inline">법인을 선택하면 기업명 앞에 "(주)"가 자동으로 붙습니다.</div>
       </div>
       <div class="field">
         <label>주소</label>
@@ -604,30 +621,6 @@ select{-webkit-appearance:none;appearance:none;background-image:url("data:image/
       <div class="field" style="margin-bottom:0;">
         <label>최신 근로자수</label>
         <input type="number" id="f-employees" placeholder="예: 12" inputmode="numeric">
-      </div>
-    </div>
-
-    <div class="section-title">영업 참고 정보</div>
-    <div class="card">
-      <div class="row2">
-        <div class="field">
-          <label>대표자</label>
-          <input type="text" id="f-ceo" placeholder="예: 박*진 (남, 50대)">
-        </div>
-        <div class="field">
-          <label>사업자번호</label>
-          <input type="text" id="f-bizno" placeholder="000-00-00000" inputmode="numeric">
-        </div>
-      </div>
-      <div class="row2" style="margin-bottom:0;">
-        <div class="field" style="margin-bottom:0;">
-          <label>매출 (백만원)</label>
-          <input type="text" id="f-sales" placeholder="예: 2,500" inputmode="numeric">
-        </div>
-        <div class="field" style="margin-bottom:0;">
-          <label>순이익 (백만원)</label>
-          <input type="text" id="f-profit" placeholder="예: 180" inputmode="numeric">
-        </div>
       </div>
     </div>
 
@@ -688,10 +681,36 @@ select{-webkit-appearance:none;appearance:none;background-image:url("data:image/
           <div class="chip" data-v="삼성생명">삼성생명</div>
           <div class="chip" data-v="한화생명">한화생명</div>
           <div class="chip" data-v="교보생명">교보생명</div>
-          <div class="chip" data-v="신한라이프">신한라이프</div>
           <div class="chip" data-v="미래에셋생명">미래에셋생명</div>
+          <div class="chip" data-v="신한라이프">신한라이프</div>
+          <div class="chip" data-v="삼성화재">삼성화재</div>
+          <div class="chip" data-v="한화손해보험">한화손해보험</div>
+          <div class="chip" data-v="기타">기타</div>
           <div class="chip" data-v="없음">없음</div>
-          <div class="chip" data-v="확인필요">확인필요</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-title">영업 참고 정보</div>
+    <div class="card">
+      <div class="row2">
+        <div class="field">
+          <label>대표자</label>
+          <input type="text" id="f-ceo" placeholder="예: 박*진 (남, 50대)">
+        </div>
+        <div class="field">
+          <label>사업자번호</label>
+          <input type="text" id="f-bizno" placeholder="000-00-00000" inputmode="numeric">
+        </div>
+      </div>
+      <div class="row2" style="margin-bottom:0;">
+        <div class="field" style="margin-bottom:0;">
+          <label>매출 (백만원)</label>
+          <input type="text" id="f-sales" placeholder="예: 2,500" inputmode="numeric">
+        </div>
+        <div class="field" style="margin-bottom:0;">
+          <label>순이익 (백만원)</label>
+          <input type="text" id="f-profit" placeholder="예: 180" inputmode="numeric">
         </div>
       </div>
     </div>
@@ -715,8 +734,31 @@ select{-webkit-appearance:none;appearance:none;background-image:url("data:image/
       </div>
     </div>
 
+    <div class="section-title">기본 정보</div>
+    <div class="card">
+      <div class="row2">
+        <div class="field">
+          <label>방문일<span class="req">*</span></label>
+          <input type="date" id="f-date">
+        </div>
+        <div class="field">
+          <label>방문시각</label>
+          <div class="time-row">
+            <input type="time" id="f-time">
+            <button type="button" class="time-btn" onclick="setNowTime()">⏱ 지금</button>
+          </div>
+        </div>
+      </div>
+      <div class="field" style="margin-bottom:0;">
+        <label>방문자(담당자)</label>
+        <input type="text" id="f-visitor" placeholder="담당자 이름">
+        <div class="hint-inline">설정에서 동행자를 선택해두면 담당자 뒤에 자동으로 함께 입력됩니다.</div>
+      </div>
+    </div>
+
     <div class="save-bar">
-      <button class="save-btn" onclick="saveJournal()">💾 저장하기</button>
+      <button type="button" class="save-btn" onclick="saveJournal()">💾 저장하기</button>
+      <button type="button" class="cancel-btn" onclick="cancelForm()">✕ 취소</button>
     </div>
   </div>
 
@@ -845,8 +887,9 @@ select{-webkit-appearance:none;appearance:none;background-image:url("data:image/
   <div class="sub-screen" id="screen-detail">
     <div class="card" id="detailBody"></div>
     <div class="detail-actions">
-      <button class="btn-edit" onclick="editFromDetail()">✏️ 수정</button>
       <button class="btn-del" onclick="deleteFromDetail()">🗑️ 삭제</button>
+      <button class="btn-edit" onclick="editFromDetail()">✏️ 수정</button>
+      <button class="btn-close-detail" onclick="history.back()">✕ 닫기</button>
     </div>
   </div>
 
@@ -1848,12 +1891,15 @@ function openDetail(id){
   const rows = [
     ['방문일', (j.visitDate||'-') + (j.visitTime? ' '+j.visitTime : '')],
     ['방문자', j.visitor||'-'],
-    ['동행', (j.companions||[]).join(', ')||'-'],
     ['기업명', j.companyName||'-'],
     ['주소', j.address||'-'],
     ['전화번호', j.phone||'-'],
     ['기업형태', j.companyType||'-'],
     ['근로자수', j.employees||'-'],
+    ['대표자', j.ceo||'-'],
+    ['사업자번호', j.bizNo||'-'],
+    ['매출(백만)', j.sales||'-'],
+    ['순이익(백만)', j.profit||'-'],
     ['첫인상', j.firstImpression||'-'],
     ['방문결과', j.result||'-'],
     ['우선순위', j.priority||'-'],
@@ -1898,7 +1944,7 @@ function resetForm(){
   const today = new Date();
   document.getElementById('f-date').value = today.toISOString().slice(0,10);
   document.getElementById('f-time').value = today.toTimeString().slice(0,5);
-  document.getElementById('f-visitor').value = appSettings.userName || '';
+  document.getElementById('f-visitor').value = buildDefaultVisitor();
   document.getElementById('f-company').value = '';
   document.getElementById('f-address').value = '';
   document.getElementById('f-phone').value = '';
@@ -1910,14 +1956,16 @@ function resetForm(){
   document.getElementById('f-profit').value = '';
   document.getElementById('f-content').value = '';
   document.getElementById('f-interest-text').value = '';
-  document.getElementById('f-visit1').value = '';
+  // 신규 작성일 때는 1차 방문일을 오늘 날짜로 자동 입력
+  document.getElementById('f-visit1').value = today.toISOString().slice(0,10);
   document.getElementById('f-visit2').value = '';
   document.getElementById('f-visit3').value = '';
   document.getElementById('f-visit4').value = '';
   document.getElementById('attachPreview').src = '';
   document.getElementById('attachPreview').classList.remove('show');
   pendingAttachment = null;
-  renderCompanionChips();
+  bizKind = '';
+  renderBizKind();
   renderInterestChips();
   renderChips();
 }
@@ -1927,40 +1975,113 @@ function setNowTime(){
   toast('현재 시각으로 입력했습니다.');
 }
 
-function renderCompanionChips(){
-  const names = [appSettings.companion1, appSettings.companion2, appSettings.companion3].filter(Boolean);
-  const wrap = document.getElementById('chip-companion');
-  if(!names.length){ wrap.innerHTML = '<span style="font-size:12px;color:var(--sub);">설정 탭에서 동행자 이름을 등록하면 여기에 표시됩니다.</span>'; return; }
-  wrap.innerHTML = names.map(n=>`<div class="chip" data-v="${escapeAttr(n)}">${escapeHTML(n)}</div>`).join('');
-  wrap.querySelectorAll('.chip').forEach(c=>{
-    c.onclick = ()=>{
-      const v=c.dataset.v; const i=selectedChips.companion.indexOf(v);
-      if(i>-1){
-        selectedChips.companion.splice(i,1);
-        removeNameFromVisitor(v);   // 담당자란에서 이 동행자 이름만 제거 ("최기정, 함상우" → "최기정")
-      } else {
-        selectedChips.companion.push(v);
-        appendNameToVisitor(v);     // 담당자란 뒤에 ", 이름" 형태로 추가 ("최기정" → "최기정, 함상우")
-      }
-      renderChips();
-    };
-  });
+/* ---------------- 기업명 개인/법인 구분 ---------------- */
+let bizKind = '';   // '' | '개인' | '법인'
+
+function renderBizKind(){
+  const p = document.getElementById('bk-personal');
+  const c = document.getElementById('bk-corp');
+  if(!p || !c) return;
+  p.classList.toggle('on', bizKind === '개인');
+  c.classList.toggle('on', bizKind === '법인');
 }
 
-// 담당자(방문자) 입력란을 쉼표 구분 이름 목록으로 다루는 도우미
-function getVisitorNames(){
-  return document.getElementById('f-visitor').value.split(',').map(s=>s.trim()).filter(Boolean);
+function setBizKind(kind){
+  const input = document.getElementById('f-company');
+  // 같은 버튼을 다시 누르면 선택 해제
+  bizKind = (bizKind === kind) ? '' : kind;
+
+  // 기존에 붙어있던 "(주)" 접두어는 항상 떼어낸 뒤 다시 판단
+  let name = input.value.replace(/^\s*\(주\)\s*/, '').trim();
+
+  if(bizKind === '법인'){
+    input.value = name ? `(주)${name}` : '(주)';
+    document.getElementById('f-type').value = '주식회사';
+    // 커서를 이름 입력 위치로 이동시켜 바로 이어서 타이핑 가능
+    input.focus();
+    const pos = input.value.length;
+    try { input.setSelectionRange(pos, pos); } catch(e){}
+  } else if(bizKind === '개인'){
+    input.value = name;
+    document.getElementById('f-type').value = '개인기업';
+    input.focus();
+  } else {
+    input.value = name;
+    document.getElementById('f-type').value = '';
+  }
+  renderBizKind();
 }
-function setVisitorNames(names){
-  document.getElementById('f-visitor').value = names.join(', ');
+
+
+/* ---------------- 동행자 관리 (설정에서 자유롭게 추가·삭제·다중선택) ---------------- */
+// 등록된 동행자 명단은 appSettings.companions 배열에 저장.
+// 예전 버전(companion1~3)에 저장된 값은 최초 1회 자동으로 배열로 옮겨온다.
+function getSettingCompanionNames(){
+  if(!Array.isArray(appSettings.companions)){
+    const legacy = [appSettings.companion1, appSettings.companion2, appSettings.companion3].filter(Boolean);
+    appSettings.companions = legacy;
+    if(legacy.length) persistSettings();
+  }
+  return appSettings.companions;
 }
-function appendNameToVisitor(name){
-  const names = getVisitorNames();
-  if(!names.includes(name)) names.push(name);
-  setVisitorNames(names);
+
+function getActiveCompanions(){
+  const valid = getSettingCompanionNames();
+  return (appSettings.activeCompanions || []).filter(n => valid.includes(n));
 }
-function removeNameFromVisitor(name){
-  setVisitorNames(getVisitorNames().filter(n=>n!==name));
+
+function renderCompanionSettingChips(){
+  const wrap = document.getElementById('companionList');
+  if(!wrap) return;
+  const names = getSettingCompanionNames();
+  if(!names.length){
+    wrap.innerHTML = '<div class="companion-empty">아직 등록된 동행자가 없습니다. 위에서 이름을 입력하고 ＋추가를 눌러주세요.</div>';
+    return;
+  }
+  const active = getActiveCompanions();
+  wrap.innerHTML = names.map(n=>{
+    const on = active.includes(n);
+    return `<div class="companion-item ${on?'on':''}">
+      <span class="cname" onclick="toggleSettingCompanion('${escapeAttr(n)}')">${escapeHTML(n)}</span>
+      <button type="button" class="cdel" onclick="removeCompanion('${escapeAttr(n)}')">✕</button>
+    </div>`;
+  }).join('');
+}
+
+function addCompanion(){
+  const input = document.getElementById('set-newCompanion');
+  const name = input.value.trim();
+  if(!name){ toast('동행자 이름을 입력해주세요.'); return; }
+  const names = getSettingCompanionNames();
+  if(names.includes(name)){ toast('이미 등록된 동행자입니다.'); input.value=''; return; }
+  names.push(name);
+  appSettings.companions = names;
+  persistSettings();
+  input.value = '';
+  renderCompanionSettingChips();
+  toast(`${name} 님을 동행자로 등록했습니다.`);
+}
+
+function removeCompanion(name){
+  appSettings.companions = getSettingCompanionNames().filter(n => n !== name);
+  appSettings.activeCompanions = (appSettings.activeCompanions || []).filter(n => n !== name);
+  persistSettings();
+  renderCompanionSettingChips();
+  toast(`${name} 님을 목록에서 삭제했습니다.`);
+}
+
+function toggleSettingCompanion(name){
+  const cur = getActiveCompanions();
+  const i = cur.indexOf(name);
+  if(i > -1) cur.splice(i, 1); else cur.push(name);
+  appSettings.activeCompanions = cur;
+  persistSettings();
+  renderCompanionSettingChips();
+}
+
+// 새 방문일지를 열 때 담당자 + 선택된 동행자를 모두 합쳐서 방문자란에 넣어줌
+function buildDefaultVisitor(){
+  return [appSettings.userName, ...getActiveCompanions()].filter(Boolean).join(', ');
 }
 
 function renderInterestChips(){
@@ -1983,7 +2104,6 @@ function renderChips(){
   document.querySelectorAll('#chip-interest .chip').forEach(c=>c.classList.toggle('on', selectedChips.interest.includes(c.dataset.v)));
   document.querySelectorAll('#chip-materials .chip').forEach(c=>c.classList.toggle('on', selectedChips.materials.includes(c.dataset.v)));
   document.querySelectorAll('#chip-insurers .chip').forEach(c=>c.classList.toggle('on', selectedChips.insurers.includes(c.dataset.v)));
-  document.querySelectorAll('#chip-companion .chip').forEach(c=>c.classList.toggle('on', selectedChips.companion.includes(c.dataset.v)));
 }
 
 function setupChipHandlers(){
@@ -2021,6 +2141,8 @@ function openForm(prefillOrJournal){
     document.getElementById('f-time').value = j.visitTime || '';
     document.getElementById('f-visitor').value = j.visitor || '';
     document.getElementById('f-company').value = j.companyName || '';
+    bizKind = j.bizKind || (/^\s*\(주\)/.test(j.companyName||'') ? '법인' : '');
+    renderBizKind();
     document.getElementById('f-address').value = j.address || '';
     document.getElementById('f-phone').value = j.phone || '';
     document.getElementById('f-type').value = j.companyType || '';
@@ -2051,6 +2173,9 @@ function openForm(prefillOrJournal){
   } else if(prefillOrJournal && prefillOrJournal.기업명){
     const c = applyOverride(prefillOrJournal);
     document.getElementById('f-company').value = c.기업명 || '';
+    bizKind = /^\s*\(주\)/.test(c.기업명||'') ? '법인'
+            : ((c.기업형태||'').includes('개인') ? '개인' : '');
+    renderBizKind();
     document.getElementById('f-address').value = c.통합주소 || '';
     document.getElementById('f-phone').value = c.본사전화번호 || '';
     document.getElementById('f-type').value = c.기업형태 || '';
@@ -2125,7 +2250,23 @@ function useGPS(){
   }, { enableHighAccuracy:true, timeout:8000 });
 }
 
+function cancelForm(){
+  // 입력 중이던 내용을 버리고 이전 화면으로 돌아감
+  pendingAttachment = null;
+  editingId = null;
+  history.back();
+}
+
 function saveJournal(){
+  try{
+    doSaveJournal();
+  }catch(err){
+    console.error('saveJournal error:', err);
+    toast('저장 중 오류가 발생했습니다: ' + (err && err.message ? err.message : '알 수 없는 오류'));
+  }
+}
+
+function doSaveJournal(){
   const companyName = document.getElementById('f-company').value.trim();
   const visitDate = document.getElementById('f-date').value || new Date().toISOString().slice(0,10);
 
@@ -2134,10 +2275,13 @@ function saveJournal(){
   const j = {
     id: editingId || Date.now(),
     companyName: companyName,
+    bizKind: bizKind,
     visitDate: visitDate,
     visitTime: document.getElementById('f-time').value,
     visitor: document.getElementById('f-visitor').value.trim(),
-    companions: selectedChips.companion.slice(),
+    // 동행자는 별도 선택 UI 없이, 방문자란에 들어간 이름 중 담당자 본인을 제외한 나머지로 자동 판단
+    companions: document.getElementById('f-visitor').value.split(',')
+      .map(s=>s.trim()).filter(n => n && n !== (appSettings.userName||'').trim()),
     address: document.getElementById('f-address').value.trim(),
     phone: document.getElementById('f-phone').value.trim(),
     companyType: document.getElementById('f-type').value,
@@ -2510,23 +2654,19 @@ function runNameSearch(){
 /* ---------------- 설정 ---------------- */
 function fillSettings(){
   document.getElementById('set-userName').value = appSettings.userName || '';
-  document.getElementById('set-companion1').value = appSettings.companion1 || '';
-  document.getElementById('set-companion2').value = appSettings.companion2 || '';
-  document.getElementById('set-companion3').value = appSettings.companion3 || '';
   document.getElementById('set-deptName').value = appSettings.deptName || '';
   document.getElementById('set-printTitle').value = appSettings.printTitle || '';
   document.getElementById('set-printPhone').value = appSettings.printPhone || '';
   renderPrintSwatches();
+  renderCompanionSettingChips();
 }
 function saveSettings(){
   appSettings.userName = document.getElementById('set-userName').value;
-  appSettings.companion1 = document.getElementById('set-companion1').value;
-  appSettings.companion2 = document.getElementById('set-companion2').value;
-  appSettings.companion3 = document.getElementById('set-companion3').value;
   appSettings.deptName = document.getElementById('set-deptName').value;
   appSettings.printTitle = document.getElementById('set-printTitle').value;
   appSettings.printPhone = document.getElementById('set-printPhone').value;
   persistSettings();
+  renderCompanionSettingChips();   // 이름을 바꾸면 선택 칩도 즉시 갱신
 }
 
 /* ---------------- 인쇄물 상단메뉴(제목행) 색상 — PC v47과 동일 프리셋 구조(모바일은 5색) ---------------- */
@@ -2663,6 +2803,12 @@ function importExcel(e){
         const PROFIT_KEYS = ['순이익','당기순이익','순수익','영업이익'];
         const INS1_KEYS   = ['단체보험가입여부','단체보험'];
         const INS2_KEYS   = ['법인명의가입여부','법인명의'];
+        // 업체 상세정보 (GFC AI Search 원본 헤더 우선, 그 다음 일반 표기)
+        const CEONAME_KEYS = ['대표자1_이름','대표자이름','대표자명','대표자성명','대표이사','대표자','대표'];
+        const CEOSEX_KEYS  = ['대표자1_성별','대표자성별','성별'];
+        const CEOAGE_KEYS  = ['대표자1_나이','대표자나이','대표자연령','나이','연령'];
+        const BIZNO_KEYS   = ['사업자번호','사업자등록번호','사업자등록증번호'];
+        const FOUND_KEYS   = ['설립년도','설립연도','창립년도','설립일자'];
 
         // 헤더명 정규화 (공백/괄호/특수문자 제거, 소문자화)
         const norm = (s) => String(s||'').replace(/[\s()（）\[\]【】·・,.\/\\\-_'"]/g,'').toLowerCase();
@@ -2705,16 +2851,27 @@ function importExcel(e){
           if(usedSheet === ''){ usedSheet = sn; usedHeaderRow = headerRowIdx + 1; }
         }
 
-        // 매칭 로직: 각 행에서 열 제목을 정규화해서 후보 키 중 하나와 일치하는 값을 반환
+        // 매칭 로직: 후보를 "적어둔 순서대로" 시도하되, 각 후보마다 정확일치 → 부분일치를 모두 확인한 뒤
+        // 다음 후보로 넘어간다. (앞선 후보의 부분일치가 뒤 후보의 정확일치보다 항상 우선)
+        // 예) '순이익'이 '2024년순이익'을 먼저 잡고, 뒤 후보인 '영업이익'에 밀리지 않도록 함.
+        //     연도별 컬럼은 최신연도가 앞에 있으므로 자연히 최신값이 선택됨.
         const pickNorm = (row, candidates) => {
-          const candNorm = candidates.map(norm);
-          for(const key of Object.keys(row)){
-            const kn = norm(key);
-            if(!kn) continue;
-            const hit = candNorm.some(cn => kn === cn || kn.includes(cn));
-            if(hit){
-              const v = row[key];
-              if(v !== undefined && v !== null && String(v).trim() !== '') return String(v).trim();
+          const keys = Object.keys(row);
+          const valOf = (key) => {
+            const v = row[key];
+            return (v !== undefined && v !== null && String(v).trim() !== '') ? String(v).trim() : '';
+          };
+          for(const cand of candidates){
+            const cn = norm(cand);
+            if(!cn) continue;
+            // 1) 이 후보의 정확일치
+            for(const key of keys){
+              if(norm(key) === cn){ const v = valOf(key); if(v) return v; }
+            }
+            // 2) 이 후보의 부분일치
+            for(const key of keys){
+              const kn = norm(key);
+              if(kn && kn.includes(cn)){ const v = valOf(key); if(v) return v; }
             }
           }
           return '';
@@ -2735,6 +2892,11 @@ function importExcel(e){
             업종세부분류: pickNorm(r, IND_KEYS),
             매출: pickNorm(r, SALES_KEYS),
             순이익: pickNorm(r, PROFIT_KEYS),
+            대표자이름: pickNorm(r, CEONAME_KEYS),
+            대표자성별: pickNorm(r, CEOSEX_KEYS),
+            대표자나이: pickNorm(r, CEOAGE_KEYS),
+            사업자번호: pickNorm(r, BIZNO_KEYS),
+            설립년도: (pickNorm(r, FOUND_KEYS).match(/\d{4}/) || [''])[0],
             단체보험가입여부: pickNorm(r, INS1_KEYS) || 'N',
             법인명의가입여부: pickNorm(r, INS2_KEYS) || 'N',
           });
