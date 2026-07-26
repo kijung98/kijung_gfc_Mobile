@@ -1344,6 +1344,7 @@ function renderList(){
   } else if(folderView && !selectMode && !orderMode){
     // 지역 폴더 보기 — 지역명을 클릭하면 펼쳐지고, 기본은 접힌 상태
     const groups = groupJournalsByRegion(list);
+    window._lastGroups = groups;
     wrap.innerHTML = groups.map(g=>{
       const isOpen = !!openFolders[g.key];
       const inner = isOpen
@@ -1396,13 +1397,16 @@ function folderLabel(regionKey, visitorName){
   return visitorName ? `${regionKey} (${visitorName})` : regionKey;
 }
 
-// 폴더의 대표 방문자(담당자 본인) 이름 — 그룹 첫 일지의 방문자에서 담당자만 추출
+// 폴더에 표시할 방문자 문자열 — 담당자 + 동행자 전부 (예: "최기정, 함상우")
 function groupVisitorName(items){
   if(!items.length) return '';
-  const raw = items[0].j.visitor || '';
-  // "최기정, 함상우" → 첫 이름(담당자)만
-  const first = raw.split(',')[0].trim();
-  return first;
+  return (items[0].j.visitor || '').trim();
+}
+
+// 폴더 색상의 기준이 되는 담당자(첫 이름)만 추출 — 설정에서 그 사람에게 지정한 색을 그대로 사용
+function groupOwnerName(items){
+  if(!items.length) return '';
+  return (items[0].j.visitor || '').split(',')[0].trim();
 }
 
 // 방문자별 지정 색상(파스텔). 설정에서 지정하지 않았으면 이름 해시로 자동 배정.
@@ -1440,11 +1444,13 @@ function toggleFolder(regionKey){
 }
 
 function renameFolder(regionKey){
-  const cur = folderLabel(regionKey);
+  // 현재 화면에 보이는 전체 라벨(지역 + 방문자)을 기본값으로 제시
+  const grp = (window._lastGroups || []).find(g => g.key === regionKey);
+  const cur = grp ? grp.label : folderLabel(regionKey);
   const next = prompt('폴더 이름을 입력하세요', cur);
   if(next === null) return;
   const trimmed = next.trim();
-  if(!trimmed || trimmed === regionKey){ delete folderRenames[regionKey]; }
+  if(!trimmed){ delete folderRenames[regionKey]; }
   else { folderRenames[regionKey] = trimmed; }
   persistFolderState();
   renderList();
@@ -1461,9 +1467,10 @@ function groupJournalsByRegion(list){
   });
   // 각 그룹의 방문자명·라벨·색상 확정
   groups.forEach(g=>{
-    g.visitor = groupVisitorName(g.items);
+    g.visitor = groupVisitorName(g.items);       // 담당자+동행자 전체 (폴더명 표시용)
+    g.owner = groupOwnerName(g.items);            // 담당자만 (색상 매칭용)
     g.label = folderLabel(g.key, g.visitor);
-    g.color = visitorColor(g.visitor);
+    g.color = visitorColor(g.owner);              // 설정에서 담당자에게 지정한 색 사용
   });
   return groups;
 }
