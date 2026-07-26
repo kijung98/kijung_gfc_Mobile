@@ -134,6 +134,18 @@ html,body{margin:0;padding:0;height:100%;background:var(--bg);color:var(--text);
 .filter-row-scroll .chip.on{background:var(--navy);border-color:var(--navy);color:#fff;}
 
 .tool-row{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;}
+.region-folder{background:#fff;border:1.5px solid var(--line);border-radius:14px;margin-bottom:10px;overflow:hidden;}
+.region-folder.open{border-color:var(--navy);box-shadow:0 2px 10px rgba(20,30,60,.07);}
+.folder-head{display:flex;align-items:center;gap:9px;padding:14px 14px;cursor:pointer;}
+.folder-caret{font-size:11px;color:var(--sub);width:13px;flex-shrink:0;}
+.folder-icon{font-size:19px;flex-shrink:0;}
+.folder-name{flex:1;font-size:15px;font-weight:800;color:var(--navy);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.folder-count{background:var(--navy);color:#fff;font-size:12px;font-weight:800;border-radius:999px;
+  min-width:24px;height:22px;padding:0 8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.folder-edit{background:none;border:none;font-size:15px;flex-shrink:0;padding:2px 4px;}
+.folder-edit:active{opacity:.6;}
+.folder-body{padding:0 12px 8px;border-top:1px solid var(--line);}
+.folder-body .j-card{margin-top:10px;}
 .tool-row button{flex:1;min-width:calc(50% - 4px);padding:10px 6px;border-radius:10px;border:1.5px solid var(--line);
   background:#fff;font-size:12.5px;font-weight:700;color:#39435a;}
 .tool-row button.on{background:var(--navy);color:#fff;border-color:var(--navy);}
@@ -434,6 +446,7 @@ select{-webkit-appearance:none;appearance:none;background-image:url("data:image/
       <div class="stats-row" id="statsRow"></div>
       <div class="filter-row-scroll" id="resultFilterRow"></div>
       <div class="tool-row">
+        <button id="btnFolderView" class="on" onclick="toggleFolderView()">📁 지역별 보기</button>
         <button id="btnOrderMode" onclick="toggleOrderMode()">🔀 순서변경</button>
         <button id="btnSelectMode" onclick="toggleSelectMode()">☑️ 선택삭제</button>
         <button onclick="exportExcel()">📥 엑셀 내보내기</button>
@@ -1283,15 +1296,99 @@ function renderList(){
   const wrap = document.getElementById('journalList');
   if(!list.length){
     wrap.innerHTML = '<div class="empty-hint">조건에 맞는 방문일지가 없습니다.</div>';
+  } else if(folderView && !selectMode && !orderMode){
+    // 지역 폴더 보기 — 지역명을 클릭하면 펼쳐지고, 기본은 접힌 상태
+    const groups = groupJournalsByRegion(list);
+    wrap.innerHTML = groups.map(g=>{
+      const isOpen = !!openFolders[g.key];
+      const inner = isOpen
+        ? `<div class="folder-body">${g.items.map(x => journalCardHTML(x.j, true, x.idx)).join('')}</div>`
+        : '';
+      return `<div class="region-folder ${isOpen?'open':''}">
+        <div class="folder-head" onclick="toggleFolder('${escapeAttr(g.key)}')">
+          <span class="folder-caret">${isOpen?'▼':'▶'}</span>
+          <span class="folder-icon">${isOpen?'📂':'📁'}</span>
+          <span class="folder-name">${escapeHTML(g.label)}</span>
+          <span class="folder-count">${g.items.length}</span>
+          <button type="button" class="folder-edit" onclick="event.stopPropagation();renameFolder('${escapeAttr(g.key)}')">✏️</button>
+        </div>
+        ${inner}
+      </div>`;
+    }).join('');
   } else {
     wrap.innerHTML = list.map(x => journalCardHTML(x.j, true, x.idx)).join('');
   }
+  const fvBtn = document.getElementById('btnFolderView');
+  if(fvBtn) fvBtn.classList.toggle('on', folderView);
   document.getElementById('bulkBar').classList.toggle('hidden', !selectMode);
   document.getElementById('selCount').textContent = selectedIds.size;
   document.getElementById('btnSelectMode').classList.toggle('on', selectMode);
   document.getElementById('btnOrderMode').classList.toggle('on', orderMode);
 }
 function setListResultFilter(v){ listResultFilter = v; renderList(); }
+
+/* ---------------- 지역 폴더 관리 (첫 방문 기준 지역으로 자동 묶기) ---------------- */
+let folderView = true;                 // 폴더 보기 on/off (기본 켜짐)
+let openFolders = {};                   // { 지역명: true(열림) } — 지역 클릭 시 토글
+let folderRenames = {};                 // { 원래지역명: 사용자수정폴더명 }
+try { folderRenames = JSON.parse(localStorage.getItem('folderRenames') || '{}'); } catch(e){ folderRenames = {}; }
+try { openFolders = JSON.parse(localStorage.getItem('openFolders') || '{}'); } catch(e){ openFolders = {}; }
+
+// 일지의 "지역"을 결정: 주소에서 동 → 리 → 시/군/구 순으로 추출, 없으면 '지역 미지정'
+function journalRegionKey(j){
+  const addr = j.address || '';
+  const dong = extractDong(addr);
+  if(dong) return dong;
+  const ri = extractRiV47(addr);
+  if(ri) return ri;
+  const gu = addr.match(/([가-힣]+[시군구])(?=\s)/);
+  if(gu) return gu[1];
+  return '지역 미지정';
+}
+// 화면에 표시할 폴더 이름(사용자가 수정했으면 그 이름)
+function folderLabel(regionKey){ return folderRenames[regionKey] || regionKey; }
+
+function persistFolderState(){
+  try { localStorage.setItem('folderRenames', JSON.stringify(folderRenames)); } catch(e){}
+  try { localStorage.setItem('openFolders', JSON.stringify(openFolders)); } catch(e){}
+}
+
+function toggleFolderView(){
+  folderView = !folderView;
+  const btn = document.getElementById('btnFolderView');
+  if(btn) btn.classList.toggle('on', folderView);
+  renderList();
+}
+
+function toggleFolder(regionKey){
+  openFolders[regionKey] = !openFolders[regionKey];
+  persistFolderState();
+  renderList();
+}
+
+function renameFolder(regionKey){
+  const cur = folderLabel(regionKey);
+  const next = prompt('폴더 이름을 입력하세요', cur);
+  if(next === null) return;
+  const trimmed = next.trim();
+  if(!trimmed || trimmed === regionKey){ delete folderRenames[regionKey]; }
+  else { folderRenames[regionKey] = trimmed; }
+  persistFolderState();
+  renderList();
+}
+
+// journals를 지역별로 묶어 [{key, label, items:[{j,idx}]}] 형태로 반환 (일지 원래 순서 유지)
+function groupJournalsByRegion(list){
+  const groups = [];
+  const idxMap = {};
+  list.forEach(x=>{
+    const key = journalRegionKey(x.j);
+    if(idxMap[key] === undefined){ idxMap[key] = groups.length; groups.push({ key, label: folderLabel(key), items: [] }); }
+    groups[idxMap[key]].items.push(x);
+  });
+  return groups;
+}
+
 
 function toggleSelectMode(){
   selectMode = !selectMode;
@@ -2774,11 +2871,19 @@ function importBackup(e){
 let xlsxLoaded = false;
 function ensureXLSX(cb){
   if(xlsxLoaded && window.XLSX){ cb(); return; }
-  const s = document.createElement('script');
-  s.src = 'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';
-  s.onload = function(){ xlsxLoaded = true; cb(); };
-  s.onerror = function(){ toast('엑셀 라이브러리를 불러오지 못했습니다. 인터넷 연결을 확인해주세요.'); };
-  document.head.appendChild(s);
+  // 1순위: 앱에 동봉된 로컬 파일 (오프라인·CDN 차단 환경에서도 동작)
+  const local = document.createElement('script');
+  local.src = './xlsx.full.min.js';
+  local.onload = function(){ xlsxLoaded = true; cb(); };
+  local.onerror = function(){
+    // 2순위: 로컬 로드 실패 시 CDN 재시도
+    const cdn = document.createElement('script');
+    cdn.src = 'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';
+    cdn.onload = function(){ xlsxLoaded = true; cb(); };
+    cdn.onerror = function(){ toast('엑셀 기능을 불러오지 못했습니다. 앱을 다시 설치하거나 인터넷 연결을 확인해주세요.'); };
+    document.head.appendChild(cdn);
+  };
+  document.head.appendChild(local);
 }
 
 function importExcel(e){
