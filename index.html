@@ -109,8 +109,31 @@ html,body{margin:0;padding:0;height:100%;background:var(--bg);color:var(--text);
 .visit-grid .field{margin-bottom:0;}
 
 .attach-box{border:1.5px dashed #c7cede;border-radius:12px;padding:14px;text-align:center;background:#fafbfd;}
-.attach-preview{max-width:100%;border-radius:10px;margin-top:10px;display:none;}
-.attach-preview.show{display:block;}
+.attach-hint2{font-size:11px;color:var(--sub);font-weight:600;}
+.attach-thumbs{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;}
+.attach-thumb{position:relative;width:76px;height:76px;border-radius:10px;overflow:hidden;border:1.5px solid var(--line);}
+.attach-thumb img{width:100%;height:100%;object-fit:cover;display:block;}
+.attach-thumb .thumb-del{position:absolute;top:2px;right:2px;width:22px;height:22px;border:none;border-radius:50%;
+  background:rgba(0,0,0,.6);color:#fff;font-size:13px;font-weight:800;line-height:1;display:flex;align-items:center;justify-content:center;}
+.detail-thumbs{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;}
+.detail-thumb{width:88px;height:88px;border-radius:10px;overflow:hidden;border:1.5px solid var(--line);}
+.detail-thumb img{width:100%;height:100%;object-fit:cover;display:block;}
+
+/* 사진 확대 라이트박스 */
+.lightbox{position:fixed;inset:0;background:rgba(0,0,0,.94);z-index:300;display:none;flex-direction:column;}
+.lightbox.show{display:flex;}
+.lb-top{display:flex;align-items:center;justify-content:space-between;padding:calc(12px + var(--safe-top)) 16px 12px;color:#fff;flex-shrink:0;}
+.lb-count{font-size:14px;font-weight:700;}
+.lb-close{background:rgba(255,255,255,.15);border:none;color:#fff;width:36px;height:36px;border-radius:10px;font-size:18px;}
+.lb-stage{flex:1;overflow:hidden;position:relative;touch-action:pan-y;}
+.lb-track{display:flex;height:100%;transition:transform .28s ease;}
+.lb-slide{min-width:100%;height:100%;display:flex;align-items:center;justify-content:center;overflow:hidden;}
+.lb-slide img{max-width:100%;max-height:100%;object-fit:contain;transform-origin:center center;transition:transform .15s ease;touch-action:none;}
+.lb-nav{position:absolute;top:50%;transform:translateY(-50%);width:44px;height:44px;border:none;border-radius:50%;
+  background:rgba(255,255,255,.18);color:#fff;font-size:22px;display:flex;align-items:center;justify-content:center;z-index:2;}
+.lb-nav.prev{left:10px;} .lb-nav.next{right:10px;}
+.lb-nav:disabled{opacity:.25;}
+.lb-hint{text-align:center;color:rgba(255,255,255,.6);font-size:12px;padding:8px 0 calc(10px + var(--safe-bottom));flex-shrink:0;}
 
 .save-bar{position:sticky;bottom:0;background:linear-gradient(0deg,var(--bg) 62%,transparent);
   padding:12px 0 calc(10px + var(--safe-bottom));margin-top:10px;z-index:20;
@@ -240,6 +263,11 @@ select{-webkit-appearance:none;appearance:none;background-image:url("data:image/
   background:rgba(0,0,0,.08);color:var(--sub);font-size:12px;font-weight:800;line-height:1;}
 .companion-item.on .cdel{background:rgba(255,255,255,.25);color:#fff;}
 .companion-empty{font-size:12px;color:var(--sub);padding:4px 2px;}
+.companion-block{margin-bottom:12px;}
+.companion-item.owner{border-color:var(--gold);}
+.vc-row{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px;padding-left:2px;}
+.vc-swatch{width:26px;height:26px;border-radius:50%;border:2px solid transparent;box-shadow:inset 0 0 0 1px rgba(0,0,0,.08);}
+.vc-swatch.sel{border-color:var(--navy);}
 .biz-kind{flex:1;background:#fff;border:1.5px solid var(--line);border-radius:10px;padding:10px 6px;
   font-size:13px;font-weight:800;color:var(--sub);}
 .biz-kind.on{background:var(--navy);border-color:var(--navy);color:#fff;}
@@ -535,7 +563,7 @@ select{-webkit-appearance:none;appearance:none;background-image:url("data:image/
           <div class="companion-list" id="companionList"></div>
         </div>
       </div>
-      <div class="hint-box">등록한 동행자를 눌러 선택해두면(파랗게 표시) 방문일지를 새로 작성할 때 방문자(담당자)란에 "담당자, 동행자1, 동행자2" 형태로 자동 입력됩니다. 여러 명을 동시에 선택할 수 있고, 한 번 더 누르면 해제됩니다.</div>
+      <div class="hint-box">동행자를 눌러 선택하면(파랗게 표시) 새 방문일지의 방문자란에 "담당자, 동행자1..." 형태로 자동 입력됩니다. 각 이름 아래 색상은 방문기록의 지역 폴더 색으로 쓰이며, 방문자가 같으면 같은 색으로 묶여 한눈에 구분됩니다.</div>
 
       <div class="section-title">📞 인쇄물 상단 정보</div>
       <div class="card">
@@ -741,10 +769,10 @@ select{-webkit-appearance:none;appearance:none;background-image:url("data:image/
     <div class="section-title">파일 첨부</div>
     <div class="card">
       <div class="attach-box" onclick="document.getElementById('f-attach').click()">
-        📷 사진 선택 / 촬영
-        <input type="file" id="f-attach" accept="image/*" class="hidden" onchange="handleAttach(event)">
-        <img id="attachPreview" class="attach-preview">
+        📷 사진 선택 / 촬영 <span class="attach-hint2">(여러 장 선택 가능)</span>
+        <input type="file" id="f-attach" accept="image/*" multiple class="hidden" onchange="handleAttach(event)">
       </div>
+      <div class="attach-thumbs" id="attachThumbs"></div>
     </div>
 
     <div class="section-title">기본 정보</div>
@@ -981,6 +1009,20 @@ select{-webkit-appearance:none;appearance:none;background-image:url("data:image/
       <button class="ps-generate-btn" onclick="generatePrintFromSetup()">✅ 인쇄물 만들기</button>
     </div>
   </div>
+</div>
+
+<!-- ===================== 사진 확대 라이트박스 ===================== -->
+<div class="lightbox" id="lightbox">
+  <div class="lb-top">
+    <span class="lb-count" id="lbCount">1 / 1</span>
+    <button class="lb-close" onclick="closeLightbox()">✕</button>
+  </div>
+  <div class="lb-stage" id="lbStage">
+    <button class="lb-nav prev" id="lbPrev" onclick="lbGo(-1)">‹</button>
+    <div class="lb-track" id="lbTrack"></div>
+    <button class="lb-nav next" id="lbNext" onclick="lbGo(1)">›</button>
+  </div>
+  <div class="lb-hint">두 손가락으로 확대 · 더블탭 확대 · 좌우로 넘기기</div>
 </div>
 
 <div class="pp-overlay" id="ppOverlay">
@@ -1305,7 +1347,7 @@ function renderList(){
         ? `<div class="folder-body">${g.items.map(x => journalCardHTML(x.j, true, x.idx)).join('')}</div>`
         : '';
       return `<div class="region-folder ${isOpen?'open':''}">
-        <div class="folder-head" onclick="toggleFolder('${escapeAttr(g.key)}')">
+        <div class="folder-head" style="background:${g.color};" onclick="toggleFolder('${escapeAttr(g.key)}')">
           <span class="folder-caret">${isOpen?'▼':'▶'}</span>
           <span class="folder-icon">${isOpen?'📂':'📁'}</span>
           <span class="folder-name">${escapeHTML(g.label)}</span>
@@ -1345,8 +1387,36 @@ function journalRegionKey(j){
   if(gu) return gu[1];
   return '지역 미지정';
 }
-// 화면에 표시할 폴더 이름(사용자가 수정했으면 그 이름)
-function folderLabel(regionKey){ return folderRenames[regionKey] || regionKey; }
+// 화면에 표시할 폴더 이름(사용자가 수정했으면 그 이름). 형식: "지역명 (방문자명)"
+function folderLabel(regionKey, visitorName){
+  if(folderRenames[regionKey] !== undefined) return folderRenames[regionKey];
+  return visitorName ? `${regionKey} (${visitorName})` : regionKey;
+}
+
+// 폴더의 대표 방문자(담당자 본인) 이름 — 그룹 첫 일지의 방문자에서 담당자만 추출
+function groupVisitorName(items){
+  if(!items.length) return '';
+  const raw = items[0].j.visitor || '';
+  // "최기정, 함상우" → 첫 이름(담당자)만
+  const first = raw.split(',')[0].trim();
+  return first;
+}
+
+// 방문자별 지정 색상(파스텔). 설정에서 지정하지 않았으면 이름 해시로 자동 배정.
+const PASTEL_PALETTE = [
+  '#FDE2E4','#E2ECE9','#E2F0CB','#DCE7FB','#F3E1F7',
+  '#FFF1CC','#D8F3F0','#FCE4D6','#E8E4F3','#E0F2E9'
+];
+function visitorColor(name){
+  if(!name) return '#eef1f7';
+  const map = appSettings.visitorColors || {};
+  if(map[name]) return map[name];
+  // 자동 배정: 이름 해시 → 팔레트 인덱스
+  let h = 0;
+  for(let i=0;i<name.length;i++) h = name.charCodeAt(i) + ((h<<5)-h);
+  return PASTEL_PALETTE[Math.abs(h) % PASTEL_PALETTE.length];
+}
+
 
 function persistFolderState(){
   try { localStorage.setItem('folderRenames', JSON.stringify(folderRenames)); } catch(e){}
@@ -1383,8 +1453,14 @@ function groupJournalsByRegion(list){
   const idxMap = {};
   list.forEach(x=>{
     const key = journalRegionKey(x.j);
-    if(idxMap[key] === undefined){ idxMap[key] = groups.length; groups.push({ key, label: folderLabel(key), items: [] }); }
+    if(idxMap[key] === undefined){ idxMap[key] = groups.length; groups.push({ key, items: [] }); }
     groups[idxMap[key]].items.push(x);
+  });
+  // 각 그룹의 방문자명·라벨·색상 확정
+  groups.forEach(g=>{
+    g.visitor = groupVisitorName(g.items);
+    g.label = folderLabel(g.key, g.visitor);
+    g.color = visitorColor(g.visitor);
   });
   return groups;
 }
@@ -2008,8 +2084,12 @@ function openDetail(id){
     ['3차 방문', j.visit3||'-'],['4차 방문', j.visit4||'-'],
   ];
   let html = rows.map(r => `<div class="detail-row"><div class="k">${r[0]}</div><div class="v">${escapeHTML(r[1])}</div></div>`).join('');
-  if(j.attachment){
-    html += `<div style="margin-top:12px;"><img src="${j.attachment}" style="max-width:100%;border-radius:10px;"></div>`;
+  const atts = getJournalAttachments(j);
+  if(atts.length){
+    window._detailAtt = atts;
+    html += `<div class="detail-thumbs">` + atts.map((src,i)=>
+      `<div class="detail-thumb"><img src="${src}" onclick="openLightbox(window._detailAtt, ${i})"></div>`
+    ).join('') + `</div>`;
   }
   document.getElementById('detailBody').innerHTML = html;
   pushSub('screen-detail', '방문일지 상세');
@@ -2058,9 +2138,8 @@ function resetForm(){
   document.getElementById('f-visit2').value = '';
   document.getElementById('f-visit3').value = '';
   document.getElementById('f-visit4').value = '';
-  document.getElementById('attachPreview').src = '';
-  document.getElementById('attachPreview').classList.remove('show');
-  pendingAttachment = null;
+  pendingAttachments = [];
+  renderAttachThumbs();
   bizKind = '';
   renderBizKind();
   renderInterestChips();
@@ -2130,19 +2209,45 @@ function getActiveCompanions(){
 function renderCompanionSettingChips(){
   const wrap = document.getElementById('companionList');
   if(!wrap) return;
+  // 담당자 본인 + 등록된 동행자 = 폴더 색을 지정할 수 있는 방문자 명단
+  const owner = (appSettings.userName || '').trim();
   const names = getSettingCompanionNames();
-  if(!names.length){
-    wrap.innerHTML = '<div class="companion-empty">아직 등록된 동행자가 없습니다. 위에서 이름을 입력하고 ＋추가를 눌러주세요.</div>';
+  const all = (owner ? [owner] : []).concat(names.filter(n=>n!==owner));
+  if(!all.length){
+    wrap.innerHTML = '<div class="companion-empty">담당자 이름을 입력하거나, 위에서 동행자를 추가해주세요.</div>';
     return;
   }
   const active = getActiveCompanions();
-  wrap.innerHTML = names.map(n=>{
+  wrap.innerHTML = all.map(n=>{
+    const isOwner = (n === owner);
     const on = active.includes(n);
-    return `<div class="companion-item ${on?'on':''}">
-      <span class="cname" onclick="toggleSettingCompanion('${escapeAttr(n)}')">${escapeHTML(n)}</span>
-      <button type="button" class="cdel" onclick="removeCompanion('${escapeAttr(n)}')">✕</button>
+    const color = visitorColor(n);
+    const swatches = PASTEL_PALETTE.map(c=>
+      `<button type="button" class="vc-swatch ${((appSettings.visitorColors||{})[n]||'').toUpperCase()===c.toUpperCase()?'sel':''}"
+         style="background:${c};" onclick="event.stopPropagation();setVisitorColor('${escapeAttr(n)}','${c}')"></button>`
+    ).join('');
+    return `<div class="companion-block">
+      <div class="companion-item ${on?'on':''} ${isOwner?'owner':''}" style="${on?'':'background:'+color+';'}">
+        <span class="cname" onclick="${isOwner?'':`toggleSettingCompanion('${escapeAttr(n)}')`}">
+          ${isOwner?'⭐ ':''}${escapeHTML(n)}${isOwner?' (담당자)':''}
+        </span>
+        ${isOwner?'':`<button type="button" class="cdel" onclick="removeCompanion('${escapeAttr(n)}')">✕</button>`}
+      </div>
+      <div class="vc-row">${swatches}</div>
     </div>`;
   }).join('');
+}
+
+function setVisitorColor(name, color){
+  if(!appSettings.visitorColors) appSettings.visitorColors = {};
+  // 같은 색 다시 누르면 자동배정으로 되돌림
+  if((appSettings.visitorColors[name]||'').toUpperCase() === color.toUpperCase()){
+    delete appSettings.visitorColors[name];
+  } else {
+    appSettings.visitorColors[name] = color;
+  }
+  persistSettings();
+  renderCompanionSettingChips();
 }
 
 function addCompanion(){
@@ -2261,11 +2366,8 @@ function openForm(prefillOrJournal){
     selectedChips.materials = (j.materialsDelivered||[]).slice();
     selectedChips.insurers = (j.currentInsurers||[]).slice();
     selectedChips.companion = (j.companions||[]).slice();
-    if(j.attachment){
-      pendingAttachment = j.attachment;
-      const p = document.getElementById('attachPreview');
-      p.src = j.attachment; p.classList.add('show');
-    }
+    pendingAttachments = getJournalAttachments(j);
+    renderAttachThumbs();
     renderChips();
   } else if(prefillOrJournal && prefillOrJournal.기업명){
     const c = applyOverride(prefillOrJournal);
@@ -2288,29 +2390,141 @@ function openForm(prefillOrJournal){
   pushSub('screen-form', editingId ? '방문일지 수정' : '직접입력');
 }
 
-let pendingAttachment = null;
-function handleAttach(e){
-  const file = e.target.files[0];
-  if(!file) return;
-  const reader = new FileReader();
-  reader.onload = function(ev){
-    const img = new Image();
-    img.onload = function(){
-      const maxW = 900;
-      const scale = Math.min(1, maxW / img.width);
-      const canvas = document.createElement('canvas');
-      canvas.width = img.width * scale;
-      canvas.height = img.height * scale;
-      const ctx = canvas.getContext('2d');
-      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-      pendingAttachment = canvas.toDataURL('image/jpeg', 0.6);
-      const p = document.getElementById('attachPreview');
-      p.src = pendingAttachment; p.classList.add('show');
-    };
-    img.src = ev.target.result;
-  };
-  reader.readAsDataURL(file);
+let pendingAttachments = [];   // data URL 배열 (여러 장 지원)
+
+// 일지의 첨부 사진 목록 — 신버전 attachments 배열 우선, 구버전 attachment 단일값도 지원
+function getJournalAttachments(j){
+  if(Array.isArray(j.attachments) && j.attachments.length) return j.attachments.slice();
+  if(j.attachment) return [j.attachment];
+  return [];
 }
+
+
+function handleAttach(e){
+  const files = Array.from(e.target.files || []);
+  e.target.value = '';   // 같은 파일 다시 선택 가능하도록 초기화
+  if(!files.length) return;
+  let remaining = files.length;
+  files.forEach(file=>{
+    const reader = new FileReader();
+    reader.onload = function(ev){
+      const img = new Image();
+      img.onload = function(){
+        const maxW = 900;
+        const scale = Math.min(1, maxW / img.width);
+        const canvas = document.createElement('canvas');
+        canvas.width = img.width * scale;
+        canvas.height = img.height * scale;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        pendingAttachments.push(canvas.toDataURL('image/jpeg', 0.6));
+        remaining--;
+        if(remaining <= 0) renderAttachThumbs();
+      };
+      img.onerror = function(){ remaining--; if(remaining<=0) renderAttachThumbs(); };
+      img.src = ev.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+function renderAttachThumbs(){
+  const wrap = document.getElementById('attachThumbs');
+  if(!wrap) return;
+  wrap.innerHTML = pendingAttachments.map((src,i)=>
+    `<div class="attach-thumb">
+      <img src="${src}" onclick="openLightbox(window._formAtt, ${i})">
+      <button type="button" class="thumb-del" onclick="event.stopPropagation();removeAttach(${i})">✕</button>
+    </div>`
+  ).join('');
+  window._formAtt = pendingAttachments;
+}
+
+function removeAttach(i){
+  pendingAttachments.splice(i, 1);
+  renderAttachThumbs();
+}
+
+/* ---------------- 사진 확대 라이트박스 (핀치 줌 + 좌우 스와이프) ---------------- */
+let lbImages = [];
+let lbIndex = 0;
+let lbScale = 1;
+
+function openLightbox(images, startIdx){
+  lbImages = images || [];
+  if(!lbImages.length) return;
+  lbIndex = startIdx || 0;
+  const track = document.getElementById('lbTrack');
+  track.innerHTML = lbImages.map(src=>`<div class="lb-slide"><img src="${src}" alt=""></div>`).join('');
+  document.getElementById('lightbox').classList.add('show');
+  updateLightbox();
+}
+
+function closeLightbox(){
+  document.getElementById('lightbox').classList.remove('show');
+  lbImages = [];
+}
+
+function updateLightbox(){
+  lbScale = 1;
+  const track = document.getElementById('lbTrack');
+  track.style.transform = `translateX(-${lbIndex*100}%)`;
+  track.querySelectorAll('.lb-slide img').forEach(im=>{ im.style.transform = 'scale(1)'; });
+  document.getElementById('lbCount').textContent = `${lbIndex+1} / ${lbImages.length}`;
+  document.getElementById('lbPrev').disabled = lbIndex === 0;
+  document.getElementById('lbNext').disabled = lbIndex === lbImages.length-1;
+}
+
+function lbGo(dir){
+  const n = lbIndex + dir;
+  if(n < 0 || n >= lbImages.length) return;
+  lbIndex = n; updateLightbox();
+}
+
+function initLightboxGestures(){
+  const stage = document.getElementById('lbStage');
+  if(!stage) return;
+  let startX=0, startDist=0, curImg=null, panning=false;
+
+  const dist = (t)=>Math.hypot(t[0].clientX-t[1].clientX, t[0].clientY-t[1].clientY);
+
+  stage.addEventListener('touchstart', (e)=>{
+    curImg = stage.querySelectorAll('.lb-slide img')[lbIndex];
+    if(e.touches.length === 2){ startDist = dist(e.touches); }
+    else if(e.touches.length === 1){ startX = e.touches[0].clientX; panning = true; }
+  }, {passive:true});
+
+  stage.addEventListener('touchmove', (e)=>{
+    if(e.touches.length === 2 && curImg){
+      const d = dist(e.touches);
+      lbScale = Math.min(4, Math.max(1, d/startDist));
+      curImg.style.transform = `scale(${lbScale})`;
+    }
+  }, {passive:true});
+
+  stage.addEventListener('touchend', (e)=>{
+    // 확대 상태가 아니면 좌우 스와이프로 사진 이동
+    if(panning && lbScale <= 1.05 && e.changedTouches.length){
+      const dx = e.changedTouches[0].clientX - startX;
+      if(Math.abs(dx) > 55){ lbGo(dx < 0 ? 1 : -1); }
+    }
+    panning = false;
+    // 확대 배율이 거의 1이면 리셋
+    if(lbScale <= 1.05 && curImg){ curImg.style.transform = 'scale(1)'; lbScale = 1; }
+  }, {passive:true});
+
+  // 더블탭으로 확대/원복
+  let lastTap = 0;
+  stage.addEventListener('touchend', (e)=>{
+    const now = Date.now();
+    if(now - lastTap < 280){
+      const im = stage.querySelectorAll('.lb-slide img')[lbIndex];
+      if(im){ lbScale = (lbScale > 1.05) ? 1 : 2.2; im.style.transform = `scale(${lbScale})`; }
+    }
+    lastTap = now;
+  }, {passive:true});
+}
+
 
 /* 외국식 주소를 한국식 순서(시/도 → 구/군 → 동/로 → 번지)로 재조합 (Nominatim 결과 기준, 추정 조합이므로 필요시 수동 수정 가능) */
 function formatKoreanAddress(addr){
@@ -2349,7 +2563,7 @@ function useGPS(){
 
 function cancelForm(){
   // 입력 중이던 내용을 버리고 이전 화면으로 돌아감
-  pendingAttachment = null;
+  pendingAttachments = [];
   editingId = null;
   history.back();
 }
@@ -2398,7 +2612,8 @@ function doSaveJournal(){
     visit2: document.getElementById('f-visit2').value,
     visit3: document.getElementById('f-visit3').value,
     visit4: document.getElementById('f-visit4').value,
-    attachment: pendingAttachment || null,
+    attachments: pendingAttachments.slice(),
+    attachment: null,   // 구버전 단일 필드는 더 이상 사용 안 함
     savedAt: new Date().toISOString(),
   };
 
@@ -3057,6 +3272,7 @@ function init(){
   const today = new Date();
   document.getElementById('todayStr').textContent = `${today.getMonth()+1}월 ${today.getDate()}일`;
   setupChipHandlers();
+  initLightboxGestures();
   renderHome();
   history.replaceState({tab:'home', sub:null}, '');
 
