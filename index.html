@@ -566,7 +566,7 @@ select{-webkit-appearance:none;appearance:none;background-image:url("data:image/
           <div class="companion-list" id="companionList"></div>
         </div>
       </div>
-      <div class="hint-box">동행자를 눌러 선택하면(파랗게 표시) 새 방문일지의 방문자란에 "담당자, 동행자1..." 형태로 자동 입력됩니다. 각 이름 아래 색상은 방문기록의 지역 폴더 색으로 쓰이며, 방문자가 같으면 같은 색으로 묶여 한눈에 구분됩니다.</div>
+      <div class="hint-box">동행자를 눌러 선택하면(파랗게 표시) 새 방문일지의 방문자란에 "담당자, 동행자1..." 형태로 자동 입력됩니다. 각 동행자 아래에서 고른 색상이 방문기록의 지역 폴더 색으로 쓰여, 같은 동행자끼리 한눈에 구분됩니다. (담당자 혼자 방문한 폴더는 기본 회색)</div>
 
       <div class="section-title">📞 인쇄물 상단 정보</div>
       <div class="card">
@@ -1391,10 +1391,12 @@ function journalRegionKey(j){
   if(gu) return gu[1];
   return '지역 미지정';
 }
-// 화면에 표시할 폴더 이름(사용자가 수정했으면 그 이름). 형식: "지역명 (방문자명)"
-function folderLabel(regionKey, visitorName){
+// 화면에 표시할 폴더 이름(사용자가 수정했으면 그 이름). 형식: "2026.7.25. 지역명 (방문자명)"
+function folderLabel(regionKey, visitorName, dateStr){
   if(folderRenames[regionKey] !== undefined) return folderRenames[regionKey];
-  return visitorName ? `${regionKey} (${visitorName})` : regionKey;
+  const datePart = dateStr ? `${dateStr} ` : '';
+  const base = visitorName ? `${regionKey} (${visitorName})` : regionKey;
+  return `${datePart}${base}`;
 }
 
 // 폴더에 표시할 방문자 문자열 — 담당자 + 동행자 전부 (예: "최기정, 함상우")
@@ -1403,16 +1405,29 @@ function groupVisitorName(items){
   return (items[0].j.visitor || '').trim();
 }
 
-// 폴더 색상의 기준이 되는 담당자(첫 이름)만 추출 — 설정에서 그 사람에게 지정한 색을 그대로 사용
+// 폴더 색상의 기준이 되는 "동행자" 추출 — 방문자에서 담당자(본인)를 뺀 첫 동행자.
+// 설정에서 그 동행자에게 지정한 색을 폴더 색으로 사용. 동행자가 없으면(혼자 방문) 빈값 → 기본색.
 function groupOwnerName(items){
   if(!items.length) return '';
-  return (items[0].j.visitor || '').split(',')[0].trim();
+  const owner = (appSettings.userName || '').trim();
+  const parts = (items[0].j.visitor || '')
+    .split(',').map(s=>s.trim()).filter(Boolean);
+  const companions = parts.filter(n => n !== owner);
+  return companions[0] || '';
+}
+
+// 폴더명 앞에 붙일 방문날짜 포맷: "2026-07-25" → "2026.7.25."
+function fmtFolderDate(d){
+  if(!d) return '';
+  const m = String(d).match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
+  if(!m) return String(d).trim();
+  return `${m[1]}.${parseInt(m[2],10)}.${parseInt(m[3],10)}.`;
 }
 
 // 방문자별 지정 색상(파스텔). 설정에서 지정하지 않았으면 이름 해시로 자동 배정.
 const PASTEL_PALETTE = [
-  '#FDE2E4','#E2ECE9','#E2F0CB','#DCE7FB','#F3E1F7',
-  '#FFF1CC','#D8F3F0','#FCE4D6','#E8E4F3','#E0F2E9'
+  '#FDE2E4','#E2F0CB','#DCE7FB','#F3E1F7',
+  '#FFF1CC','#D8F3F0','#FCE4D6','#E8E4F3'
 ];
 function visitorColor(name){
   if(!name) return '#eef1f7';
@@ -1468,9 +1483,10 @@ function groupJournalsByRegion(list){
   // 각 그룹의 방문자명·라벨·색상 확정
   groups.forEach(g=>{
     g.visitor = groupVisitorName(g.items);       // 담당자+동행자 전체 (폴더명 표시용)
-    g.owner = groupOwnerName(g.items);            // 담당자만 (색상 매칭용)
-    g.label = folderLabel(g.key, g.visitor);
-    g.color = visitorColor(g.owner);              // 설정에서 담당자에게 지정한 색 사용
+    g.owner = groupOwnerName(g.items);            // 동행자(색상 매칭용)
+    g.date = fmtFolderDate(g.items[0].j.visitDate); // 폴더 대표 방문날짜(첫 일지 기준)
+    g.label = folderLabel(g.key, g.visitor, g.date);
+    g.color = visitorColor(g.owner);              // 설정에서 동행자에게 지정한 색 사용
   });
   return groups;
 }
@@ -2219,17 +2235,16 @@ function getActiveCompanions(){
 function renderCompanionSettingChips(){
   const wrap = document.getElementById('companionList');
   if(!wrap) return;
-  // 담당자 본인 + 등록된 동행자 = 폴더 색을 지정할 수 있는 방문자 명단
+  // 담당자(본인)는 상단 정보란에 이미 있으므로 제외 — 등록된 동행자만 표시.
+  // 각 동행자에게 지정한 색이 방문기록의 폴더 색으로 쓰인다.
   const owner = (appSettings.userName || '').trim();
-  const names = getSettingCompanionNames();
-  const all = (owner ? [owner] : []).concat(names.filter(n=>n!==owner));
-  if(!all.length){
-    wrap.innerHTML = '<div class="companion-empty">담당자 이름을 입력하거나, 위에서 동행자를 추가해주세요.</div>';
+  const names = getSettingCompanionNames().filter(n => n !== owner);
+  if(!names.length){
+    wrap.innerHTML = '<div class="companion-empty">위에서 동행자를 추가해주세요.</div>';
     return;
   }
   const active = getActiveCompanions();
-  wrap.innerHTML = all.map(n=>{
-    const isOwner = (n === owner);
+  wrap.innerHTML = names.map(n=>{
     const on = active.includes(n);
     const color = visitorColor(n);
     const swatches = PASTEL_PALETTE.map(c=>{
@@ -2237,9 +2252,9 @@ function renderCompanionSettingChips(){
       return `<button type="button" class="vc-swatch ${selected?'sel':''}" data-color="${c}" data-name="${escapeHTML(n)}" style="background:${c};"></button>`;
     }).join('');
     return `<div class="companion-block">
-      <div class="companion-item ${on?'on':''} ${isOwner?'owner':''}" data-name="${escapeHTML(n)}" data-owner="${isOwner?'1':'0'}" style="${on?'':'background:'+color+';'}">
-        <span class="cname">${isOwner?'⭐ ':''}${escapeHTML(n)}${isOwner?' (담당자)':''}</span>
-        ${isOwner?'<span class="owner-tag">기본 선택</span>':'<button type="button" class="cdel" data-del="'+escapeHTML(n)+'">✕</button>'}
+      <div class="companion-item ${on?'on':''}" data-name="${escapeHTML(n)}" data-owner="0" style="${on?'':'background:'+color+';'}">
+        <span class="cname">${escapeHTML(n)}</span>
+        <button type="button" class="cdel" data-del="${escapeHTML(n)}">✕</button>
       </div>
       <div class="vc-row">${swatches}</div>
     </div>`;
