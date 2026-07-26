@@ -256,18 +256,21 @@ select{-webkit-appearance:none;appearance:none;background-image:url("data:image/
 .add-comp-btn:active{opacity:.75;}
 .companion-list{display:flex;flex-wrap:wrap;gap:8px;}
 .companion-item{display:flex;align-items:center;gap:6px;background:#fff;border:1.5px solid var(--line);
-  border-radius:999px;padding:8px 6px 8px 14px;font-size:13.5px;font-weight:700;color:var(--text);}
-.companion-item.on{background:var(--navy);border-color:var(--navy);color:#fff;}
-.companion-item .cname{cursor:pointer;}
-.companion-item .cdel{width:22px;height:22px;border-radius:50%;border:none;flex-shrink:0;
-  background:rgba(0,0,0,.08);color:var(--sub);font-size:12px;font-weight:800;line-height:1;}
+  border-radius:14px;padding:12px 8px 12px 14px;font-size:14px;font-weight:700;color:var(--text);cursor:pointer;}
+.companion-item .cname{flex:1;cursor:pointer;}
+.companion-item.on{background:var(--navy) !important;border-color:var(--navy);color:#fff;}
+.companion-item.on::after{content:'✓ 선택됨';font-size:11px;font-weight:800;margin-right:4px;}
+.companion-item .owner-tag{font-size:11px;font-weight:700;color:var(--sub);flex-shrink:0;}
+.companion-item .cdel{width:26px;height:26px;border-radius:50%;border:none;flex-shrink:0;
+  background:rgba(0,0,0,.1);color:var(--sub);font-size:13px;font-weight:800;line-height:1;}
 .companion-item.on .cdel{background:rgba(255,255,255,.25);color:#fff;}
 .companion-empty{font-size:12px;color:var(--sub);padding:4px 2px;}
-.companion-block{margin-bottom:12px;}
+.companion-block{margin-bottom:14px;}
 .companion-item.owner{border-color:var(--gold);}
-.vc-row{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px;padding-left:2px;}
-.vc-swatch{width:26px;height:26px;border-radius:50%;border:2px solid transparent;box-shadow:inset 0 0 0 1px rgba(0,0,0,.08);}
-.vc-swatch.sel{border-color:var(--navy);}
+.vc-row{display:flex;flex-wrap:wrap;gap:9px;margin-top:8px;padding-left:2px;}
+.vc-swatch{width:34px;height:34px;border-radius:50%;border:2px solid transparent;box-shadow:inset 0 0 0 1px rgba(0,0,0,.1);}
+.vc-swatch.sel{border-color:var(--navy);box-shadow:inset 0 0 0 1px rgba(0,0,0,.1), 0 0 0 2px var(--navy);}
+.vc-swatch.sel::after{content:'✓';display:flex;align-items:center;justify-content:center;height:100%;color:var(--navy);font-weight:800;font-size:15px;}
 .biz-kind{flex:1;background:#fff;border:1.5px solid var(--line);border-radius:10px;padding:10px 6px;
   font-size:13px;font-weight:800;color:var(--sub);}
 .biz-kind.on{background:var(--navy);border-color:var(--navy);color:#fff;}
@@ -2222,20 +2225,36 @@ function renderCompanionSettingChips(){
     const isOwner = (n === owner);
     const on = active.includes(n);
     const color = visitorColor(n);
-    const swatches = PASTEL_PALETTE.map(c=>
-      `<button type="button" class="vc-swatch ${((appSettings.visitorColors||{})[n]||'').toUpperCase()===c.toUpperCase()?'sel':''}"
-         style="background:${c};" onclick="event.stopPropagation();setVisitorColor('${escapeAttr(n)}','${c}')"></button>`
-    ).join('');
+    const swatches = PASTEL_PALETTE.map(c=>{
+      const selected = ((appSettings.visitorColors||{})[n]||'').toUpperCase() === c.toUpperCase();
+      return `<button type="button" class="vc-swatch ${selected?'sel':''}" data-color="${c}" data-name="${escapeHTML(n)}" style="background:${c};"></button>`;
+    }).join('');
     return `<div class="companion-block">
-      <div class="companion-item ${on?'on':''} ${isOwner?'owner':''}" style="${on?'':'background:'+color+';'}">
-        <span class="cname" onclick="${isOwner?'':`toggleSettingCompanion('${escapeAttr(n)}')`}">
-          ${isOwner?'⭐ ':''}${escapeHTML(n)}${isOwner?' (담당자)':''}
-        </span>
-        ${isOwner?'':`<button type="button" class="cdel" onclick="removeCompanion('${escapeAttr(n)}')">✕</button>`}
+      <div class="companion-item ${on?'on':''} ${isOwner?'owner':''}" data-name="${escapeHTML(n)}" data-owner="${isOwner?'1':'0'}" style="${on?'':'background:'+color+';'}">
+        <span class="cname">${isOwner?'⭐ ':''}${escapeHTML(n)}${isOwner?' (담당자)':''}</span>
+        ${isOwner?'<span class="owner-tag">기본 선택</span>':'<button type="button" class="cdel" data-del="'+escapeHTML(n)+'">✕</button>'}
       </div>
       <div class="vc-row">${swatches}</div>
     </div>`;
   }).join('');
+}
+
+// 동행자 선택/삭제/색상 — 이벤트 위임으로 처리 (모바일 터치에서 안정적)
+function setupCompanionDelegation(){
+  const wrap = document.getElementById('companionList');
+  if(!wrap || wrap._delegated) return;
+  wrap._delegated = true;
+  wrap.addEventListener('click', function(e){
+    // 색상 스와치
+    const sw = e.target.closest('.vc-swatch');
+    if(sw){ e.stopPropagation(); setVisitorColor(sw.dataset.name, sw.dataset.color); return; }
+    // 삭제 버튼
+    const del = e.target.closest('.cdel');
+    if(del){ e.stopPropagation(); removeCompanion(del.dataset.del); return; }
+    // 이름 행 전체 → 동행 선택 토글 (담당자 본인은 제외)
+    const item = e.target.closest('.companion-item');
+    if(item && item.dataset.owner !== '1'){ toggleSettingCompanion(item.dataset.name); return; }
+  });
 }
 
 function setVisitorColor(name, color){
@@ -3272,6 +3291,7 @@ function init(){
   const today = new Date();
   document.getElementById('todayStr').textContent = `${today.getMonth()+1}월 ${today.getDate()}일`;
   setupChipHandlers();
+  setupCompanionDelegation();
   initLightboxGestures();
   renderHome();
   history.replaceState({tab:'home', sub:null}, '');
