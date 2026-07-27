@@ -364,6 +364,7 @@ select{-webkit-appearance:none;appearance:none;background-image:url("data:image/
 .pp-topbar{padding:14px 16px 10px;border-bottom:1px solid var(--line);display:flex;
   align-items:center;justify-content:space-between;flex-shrink:0;}
 .pp-title{font-size:15.5px;font-weight:800;color:var(--navy);}
+.pp-subhint{font-size:11px;color:var(--sub);font-weight:600;margin-top:2px;}
 .pp-count{font-size:12px;color:var(--sub);font-weight:700;}
 .pp-scroll{flex:1;overflow:auto;-webkit-overflow-scrolling:touch;padding:12px 12px 4px;}
 .pp-print-head{margin-bottom:8px;}
@@ -375,6 +376,9 @@ select{-webkit-appearance:none;appearance:none;background-image:url("data:image/
   position:sticky;top:0;}
 .pp-table td{padding:6px 8px;border-bottom:1px solid var(--line);color:var(--text);}
 .pp-table tr:nth-child(even) td{background:#f7f9fc;}
+.pp-check-col{width:30px;text-align:center !important;}
+.pp-check-col input{width:17px;height:17px;}
+.pp-table tr.pp-off td{opacity:.32;}
 .pp-actions{display:flex;gap:8px;padding:10px 12px calc(12px + var(--safe-bottom));
   border-top:1px solid var(--line);flex-shrink:0;background:#fff;}
 .pp-actions button{flex:1;border:none;border-radius:10px;padding:13px 6px;font-size:12.5px;font-weight:800;}
@@ -387,7 +391,15 @@ select{-webkit-appearance:none;appearance:none;background-image:url("data:image/
   .pp-print-area{position:absolute;top:0;left:0;width:100%;}
   .pp-overlay, .pp-sheet, .pp-scroll{position:static;background:#fff;max-height:none;overflow:visible;}
   .pp-topbar, .pp-actions, #tabbar, #topbar{display:none !important;}
-  @page{ size: landscape; margin:10mm; }
+  /* 선택된(체크된) 행만 인쇄, 체크박스 컬럼은 숨김 */
+  .pp-table tr.pp-off{display:none !important;}
+  .pp-check-col{display:none !important;}
+  /* A4 가로 한 장에 담기도록 표 폭·글자 크기 최적화 */
+  .pp-table{font-size:7.6px;min-width:0;width:100%;table-layout:fixed;
+    white-space:normal;word-break:break-word;border-collapse:collapse;}
+  .pp-table th, .pp-table td{padding:2.5px 3px;vertical-align:top;overflow:hidden;}
+  .pp-table tr.pp-off td{opacity:1;}
+  @page{ size: A4 landscape; margin:7mm; }
 }
 
 /* ---------------- 인쇄 설정 모달 (PC v47 "업체 리스트 인쇄" 화면과 동일 구성) ---------------- */
@@ -1033,6 +1045,7 @@ select{-webkit-appearance:none;appearance:none;background-image:url("data:image/
     <div class="pp-topbar">
       <div>
         <div class="pp-title" id="ppTitle">업체 목록</div>
+        <div class="pp-subhint">☑️ 체크한 항목만 인쇄 / PDF / 엑셀로 저장됩니다</div>
       </div>
       <div class="pp-count" id="ppCount"></div>
     </div>
@@ -1399,10 +1412,14 @@ function folderLabel(regionKey, visitorName, dateStr){
   return `${datePart}${base}`;
 }
 
-// 폴더에 표시할 방문자 문자열 — 담당자 + 동행자 전부 (예: "최기정, 함상우")
+// 폴더에 표시할 방문자 문자열 — 담당자(본인)를 뺀 동행자만 (예: "함상우, 김영수")
 function groupVisitorName(items){
   if(!items.length) return '';
-  return (items[0].j.visitor || '').trim();
+  const owner = (appSettings.userName || '').trim();
+  const parts = (items[0].j.visitor || '')
+    .split(',').map(s=>s.trim()).filter(Boolean);
+  const companions = parts.filter(n => n !== owner);
+  return companions.join(', ');
 }
 
 // 폴더 색상의 기준이 되는 "동행자" 추출 — 방문자에서 담당자(본인)를 뺀 첫 동행자.
@@ -1590,36 +1607,30 @@ const PP_COLS = [
   { key:'순이익',           label:'순이익(백만)' },
 ];
 
-// 방문일지 목록 인쇄/엑셀 전용 컬럼 — 방문기록 정보 + 업체 기본정보(대표자·사업자번호·매출·순이익 등)를 함께 출력
+// 방문일지 목록 인쇄/엑셀 전용 컬럼 — 요청 항목/순서 (담당자 제외, 동행자만 / 방문차수는 횟수)
 const JOURNAL_PP_COLS = [
-  { key:'방문일시',   label:'방문일시' },
-  { key:'담당자',     label:'담당자' },
-  { key:'동행',       label:'동행' },
+  { key:'방문일',     label:'방문일' },
+  { key:'동행',       label:'동행자' },
   { key:'기업명',     label:'기업명' },
-  { key:'대표자',     label:'대표자(성별/나이)' },
+  { key:'대표자나이', label:'대표자/나이' },
   { key:'사업자번호', label:'사업자번호' },
   { key:'주소',       label:'주소' },
   { key:'전화번호',   label:'전화번호' },
   { key:'기업형태',   label:'기업형태' },
   { key:'근로자수',   label:'근로자수' },
   { key:'매출',       label:'매출(백만)' },
-  { key:'순이익',     label:'순이익(백만)' },
+  { key:'순이익',     label:'순수익(백만)' },
   { key:'첫인상',     label:'첫인상' },
   { key:'방문결과',   label:'방문결과' },
-  { key:'우선순위',   label:'우선순위' },
   { key:'관심분야',   label:'관심분야' },
   { key:'상담내용',   label:'상담내용' },
-  { key:'전달자료',   label:'전달자료' },
-  { key:'가입보험사', label:'가입보험사' },
-  { key:'1차방문',    label:'1차방문' },
-  { key:'2차방문',    label:'2차방문' },
-  { key:'3차방문',    label:'3차방문' },
-  { key:'4차방문',    label:'4차방문' },
+  { key:'방문차수',   label:'방문차수' },
 ];
 
 let ppCurrentList = [];
 let ppMode = 'company';       // 'company' | 'journal'
 let ppActiveCols = PP_COLS;
+let ppChecked = [];           // 인쇄 미리보기에서 행별 선택 여부 (기본 전체 선택)
 
 // 사업자번호를 "357-13-01128" 형식으로 표시 (PC v47과 동일 로직)
 function formatBizNo(v){
@@ -1650,10 +1661,26 @@ function ppFieldValue(c2, key){
 function journalCellValue(j, key){
   const co = j._co || null;
   switch(key){
+    case '방문일': return j.visitDate || '-';
     case '방문일시': { const s = `${j.visitDate||''} ${j.visitTime||''}`.trim(); return s || '-'; }
     case '담당자': return j.visitor || '-';
-    case '동행': return (j.companions && j.companions.length) ? j.companions.join(', ') : '-';
+    case '동행': {
+      // 담당자 본인을 뺀 동행자만
+      const owner = (appSettings.userName || '').trim();
+      let names = (j.companions && j.companions.length)
+        ? j.companions.slice()
+        : (j.visitor || '').split(',').map(s=>s.trim()).filter(Boolean);
+      names = names.filter(n => n && n !== owner);
+      return names.length ? names.join(', ') : '-';
+    }
     case '기업명': return j.companyName || '-';
+    case '대표자나이': {
+      if(j.ceo) return j.ceo;   // 일지에 직접 저장된 텍스트 우선
+      const name = co && co.대표자이름 ? co.대표자이름 : '';
+      if(!name) return '-';
+      const age = co && co.대표자나이 ? co.대표자나이 : '';
+      return age ? `${name} (${age})` : name;
+    }
     case '대표자': {
       if(j.ceo) return j.ceo;   // 일지에 직접 저장된 값 우선
       const name = co && co.대표자이름 ? co.대표자이름 : '';
@@ -1674,6 +1701,12 @@ function journalCellValue(j, key){
     case '상담내용': return j.content || '-';
     case '전달자료': return (j.materialsDelivered && j.materialsDelivered.length) ? j.materialsDelivered.join(', ') : '-';
     case '가입보험사': return (j.currentInsurers && j.currentInsurers.length) ? j.currentInsurers.join(', ') : '-';
+    case '방문차수': {
+      // visit1~4 중 날짜가 채워진 개수 = 방문 횟수. 하나도 없으면 최소 1회로 표시.
+      let n = 0;
+      ['visit1','visit2','visit3','visit4'].forEach(k=>{ if(String(j[k]||'').trim()) n++; });
+      return `${n || 1}회`;
+    }
     case '1차방문': return j.visit1 || '-';
     case '2차방문': return j.visit2 || '-';
     case '3차방문': return j.visit3 || '-';
@@ -1694,9 +1727,11 @@ function openPrintPreview(list, title, opts){
   ppMode = opts.mode || 'company';
   ppActiveCols = opts.cols || PP_COLS;
   ppCurrentList = list;
+  ppChecked = list.map(()=>true);   // 기본은 모두 선택
   const unit = ppMode === 'journal' ? '건' : '개';
   document.getElementById('ppTitle').textContent = title;
-  document.getElementById('ppCount').textContent = list.length.toLocaleString() + unit;
+  document.getElementById('ppCount').textContent =
+    `${list.length.toLocaleString()}${unit} 선택 / 총 ${list.length.toLocaleString()}${unit}`;
   document.getElementById('ppPrintTitle').textContent = '📋 ' + title;
   const who = appSettings.userName ? (appSettings.userName + ' · ') : '';
   document.getElementById('ppPrintMeta').textContent =
@@ -1709,15 +1744,51 @@ function openPrintPreview(list, title, opts){
     orgEl.style.display = orgBits.length ? '' : 'none';
   }
 
-  const theadHtml = '<tr>' + ppActiveCols.map(c=>`<th>${c.label}</th>`).join('') + '</tr>';
-  const tbodyHtml = list.map(item=>{
-    return '<tr>' + ppActiveCols.map(col=>`<td>${escapeHTML(String(ppCellValue(item, col.key)))}</td>`).join('') + '</tr>';
+  const theadHtml = '<tr>'
+    + '<th class="pp-check-col"><input type="checkbox" id="ppCheckAll" checked onclick="ppToggleAll(this.checked)"></th>'
+    + ppActiveCols.map(c=>`<th>${c.label}</th>`).join('') + '</tr>';
+  const tbodyHtml = list.map((item,i)=>{
+    const cells = ppActiveCols.map(col=>`<td>${escapeHTML(String(ppCellValue(item, col.key)))}</td>`).join('');
+    return `<tr data-i="${i}">`
+      + `<td class="pp-check-col"><input type="checkbox" checked onclick="ppToggleRow(${i}, this.checked)"></td>`
+      + cells + '</tr>';
   }).join('');
   document.querySelector('#ppTable thead').innerHTML = theadHtml;
   document.querySelector('#ppTable tbody').innerHTML = tbodyHtml;
 
   document.getElementById('ppOverlay').classList.add('show');
   document.getElementById('ppScroll').scrollTop = 0;
+}
+
+// ── 인쇄 미리보기 행 선택 ──────────────────────────────
+function ppToggleRow(i, checked){
+  ppChecked[i] = checked;
+  const tr = document.querySelector(`#ppTable tbody tr[data-i="${i}"]`);
+  if(tr) tr.classList.toggle('pp-off', !checked);
+  // 전체선택 체크박스 동기화
+  const allOn = ppChecked.every(Boolean);
+  const chkAll = document.getElementById('ppCheckAll');
+  if(chkAll) chkAll.checked = allOn;
+  ppUpdateSelCount();
+}
+function ppToggleAll(checked){
+  ppChecked = ppChecked.map(()=>checked);
+  document.querySelectorAll('#ppTable tbody tr').forEach(tr=>{
+    tr.classList.toggle('pp-off', !checked);
+    const cb = tr.querySelector('input[type=checkbox]');
+    if(cb) cb.checked = checked;
+  });
+  ppUpdateSelCount();
+}
+function ppSelectedItems(){
+  return ppCurrentList.filter((_,i)=> ppChecked[i] !== false);
+}
+function ppUpdateSelCount(){
+  const n = ppSelectedItems().length;
+  const unit = ppMode === 'journal' ? '건' : '개';
+  const el = document.getElementById('ppCount');
+  if(el) el.textContent =
+    `${n.toLocaleString()}${unit} 선택 / 총 ${ppCurrentList.length.toLocaleString()}${unit}`;
 }
 
 // 방문일지 목록을 업체 기본정보(대표자·사업자번호·매출·순이익 등)와 함께 인쇄/엑셀 미리보기로 열기
@@ -1735,22 +1806,29 @@ function closePrintPreview(){
 }
 
 function ppPrintNow(){
-  if(!ppCurrentList.length){ toast('인쇄할 내용이 없습니다.'); return; }
+  const sel = ppSelectedItems();
+  if(!sel.length){ toast('출력할 항목을 하나 이상 선택해주세요.'); return; }
+  // 인쇄물 상단 메타를 "선택 건수" 기준으로 갱신
+  const unit = ppMode === 'journal' ? '건' : '개';
+  const who = appSettings.userName ? (appSettings.userName + ' · ') : '';
+  const meta = document.getElementById('ppPrintMeta');
+  if(meta) meta.textContent = who + new Date().toLocaleDateString('ko-KR') + ' · 총 ' + sel.length.toLocaleString() + unit;
   window.print();
 }
 
 function ppExportExcel(){
-  if(!ppCurrentList.length){ toast('내보낼 내용이 없습니다.'); return; }
+  const sel = ppSelectedItems();
+  if(!sel.length){ toast('내보낼 항목을 하나 이상 선택해주세요.'); return; }
   ensureXLSX(function(){
     const headers = ppActiveCols.map(c=>c.label);
-    const rows = [headers].concat(ppCurrentList.map(item=>ppActiveCols.map(col=>ppCellValue(item, col.key))));
+    const rows = [headers].concat(sel.map(item=>ppActiveCols.map(col=>ppCellValue(item, col.key))));
     const ws = XLSX.utils.aoa_to_sheet(rows);
     const wb = XLSX.utils.book_new();
     const sheetName = ppMode === 'journal' ? '방문일지' : '업체목록';
     XLSX.utils.book_append_sheet(wb, ws, sheetName);
     const ts = new Date().toISOString().slice(0,10);
     XLSX.writeFile(wb, `${sheetName}_${ts}.xlsx`);
-    toast('엑셀 파일을 내보냈습니다.');
+    toast(`${sel.length}건을 엑셀로 내보냈습니다.`);
   });
 }
 
