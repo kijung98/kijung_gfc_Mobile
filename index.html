@@ -359,14 +359,24 @@ select{-webkit-appearance:none;appearance:none;background-image:url("data:image/
 .pp-overlay{position:fixed;inset:0;background:rgba(15,22,40,.55);z-index:200;display:none;
   flex-direction:column;}
 .pp-overlay.show{display:flex;}
-.pp-sheet{margin-top:auto;background:#fff;border-radius:18px 18px 0 0;max-height:92vh;
+/* 시트 높이: 모바일 주소창을 고려한 dvh를 우선 사용(폴백 vh). 하단 버튼이 화면 밖으로 밀리지 않도록. */
+.pp-sheet{margin-top:auto;background:#fff;border-radius:18px 18px 0 0;
+  max-height:90vh; max-height:90dvh;
   display:flex;flex-direction:column;overflow:hidden;}
 .pp-topbar{padding:14px 16px 10px;border-bottom:1px solid var(--line);display:flex;
   align-items:center;justify-content:space-between;flex-shrink:0;}
 .pp-title{font-size:15.5px;font-weight:800;color:var(--navy);}
 .pp-subhint{font-size:11px;color:var(--sub);font-weight:600;margin-top:2px;}
 .pp-count{font-size:12px;color:var(--sub);font-weight:700;}
-.pp-scroll{flex:1;overflow:auto;-webkit-overflow-scrolling:touch;padding:12px 12px 4px;}
+/* 동행자별 빠른 선택 필터바 */
+.pp-filterbar{display:flex;gap:6px;overflow-x:auto;-webkit-overflow-scrolling:touch;
+  padding:8px 12px;border-bottom:1px solid var(--line);flex-shrink:0;background:#fafbfd;}
+.pp-filterbar::-webkit-scrollbar{display:none;}
+.pp-fchip{flex-shrink:0;border:1.5px solid var(--line);background:#fff;color:#39435a;
+  border-radius:999px;padding:8px 14px;font-size:12.5px;font-weight:700;white-space:nowrap;
+  touch-action:manipulation;}
+.pp-fchip.on{background:var(--navy);color:#fff;border-color:var(--navy);}
+.pp-scroll{flex:1;overflow:auto;-webkit-overflow-scrolling:touch;padding:12px 12px 4px;min-height:0;}
 .pp-print-head{margin-bottom:8px;}
 .pp-print-title{font-size:14px;font-weight:800;color:var(--navy);}
 .pp-print-org{font-size:11.5px;color:var(--navy);font-weight:700;margin-top:2px;}
@@ -380,8 +390,9 @@ select{-webkit-appearance:none;appearance:none;background-image:url("data:image/
 .pp-check-col input{width:17px;height:17px;}
 .pp-table tr.pp-off td{opacity:.32;}
 .pp-actions{display:flex;gap:8px;padding:10px 12px calc(12px + var(--safe-bottom));
-  border-top:1px solid var(--line);flex-shrink:0;background:#fff;}
-.pp-actions button{flex:1;border:none;border-radius:10px;padding:13px 6px;font-size:12.5px;font-weight:800;}
+  border-top:1px solid var(--line);flex-shrink:0;background:#fff;position:relative;z-index:2;}
+.pp-actions button{flex:1;border:none;border-radius:10px;padding:14px 6px;font-size:12.5px;font-weight:800;
+  touch-action:manipulation;-webkit-user-select:none;user-select:none;cursor:pointer;}
 .pp-actions .pp-excel{background:var(--teal);color:#fff;}
 .pp-actions .pp-print{background:linear-gradient(135deg,var(--navy),var(--navy2));color:#fff;}
 .pp-actions .pp-close{background:#fff;color:var(--sub);border:1.5px solid var(--line);}
@@ -390,7 +401,7 @@ select{-webkit-appearance:none;appearance:none;background-image:url("data:image/
   .pp-print-area, .pp-print-area *{visibility:visible;}
   .pp-print-area{position:absolute;top:0;left:0;width:100%;}
   .pp-overlay, .pp-sheet, .pp-scroll{position:static;background:#fff;max-height:none;overflow:visible;}
-  .pp-topbar, .pp-actions, #tabbar, #topbar{display:none !important;}
+  .pp-topbar, .pp-actions, .pp-filterbar, #tabbar, #topbar{display:none !important;}
   /* 선택된(체크된) 행만 인쇄, 체크박스 컬럼은 숨김 */
   .pp-table tr.pp-off{display:none !important;}
   .pp-check-col{display:none !important;}
@@ -1049,6 +1060,7 @@ select{-webkit-appearance:none;appearance:none;background-image:url("data:image/
       </div>
       <div class="pp-count" id="ppCount"></div>
     </div>
+    <div class="pp-filterbar" id="ppFilterBar" style="display:none;"></div>
     <div class="pp-scroll" id="ppScroll">
       <div class="pp-print-area" id="ppPrintArea">
         <div class="pp-print-head">
@@ -1657,6 +1669,15 @@ function ppFieldValue(c2, key){
   return (v===undefined || v===null || v==='') ? '-' : v;
 }
 
+// 방문일지 한 건에서 담당자(본인)를 뺀 동행자 배열을 반환
+function journalCompanions(j){
+  const owner = (appSettings.userName || '').trim();
+  let names = (j.companions && j.companions.length)
+    ? j.companions.slice()
+    : (j.visitor || '').split(',').map(s=>s.trim()).filter(Boolean);
+  return names.filter(n => n && n !== owner);
+}
+
 // 방문일지 한 건(+미리 매칭해둔 업체정보 _co)을 인쇄/엑셀 컬럼값으로 변환
 function journalCellValue(j, key){
   const co = j._co || null;
@@ -1665,12 +1686,7 @@ function journalCellValue(j, key){
     case '방문일시': { const s = `${j.visitDate||''} ${j.visitTime||''}`.trim(); return s || '-'; }
     case '담당자': return j.visitor || '-';
     case '동행': {
-      // 담당자 본인을 뺀 동행자만
-      const owner = (appSettings.userName || '').trim();
-      let names = (j.companions && j.companions.length)
-        ? j.companions.slice()
-        : (j.visitor || '').split(',').map(s=>s.trim()).filter(Boolean);
-      names = names.filter(n => n && n !== owner);
+      const names = journalCompanions(j);
       return names.length ? names.join(', ') : '-';
     }
     case '기업명': return j.companyName || '-';
@@ -1756,11 +1772,65 @@ function openPrintPreview(list, title, opts){
   document.querySelector('#ppTable thead').innerHTML = theadHtml;
   document.querySelector('#ppTable tbody').innerHTML = tbodyHtml;
 
+  renderPpFilterBar();   // 동행자별 빠른 선택 버튼(방문일지 모드에서만)
+
   document.getElementById('ppOverlay').classList.add('show');
   document.getElementById('ppScroll').scrollTop = 0;
 }
 
-// ── 인쇄 미리보기 행 선택 ──────────────────────────────
+// ── 동행자별 빠른 선택(필터) 버튼 ─────────────────────
+function renderPpFilterBar(){
+  const bar = document.getElementById('ppFilterBar');
+  if(!bar) return;
+  // 방문일지 모드가 아니면(=업체 목록) 동행자 개념이 없으므로 숨김
+  if(ppMode !== 'journal'){ bar.style.display = 'none'; bar.innerHTML = ''; return; }
+  const counts = {}; let solo = 0;
+  ppCurrentList.forEach(j=>{
+    const comps = journalCompanions(j);
+    if(!comps.length) solo++;
+    comps.forEach(n=>{ counts[n] = (counts[n]||0) + 1; });
+  });
+  const names = Object.keys(counts).sort((a,b)=> counts[b]-counts[a] || a.localeCompare(b,'ko'));
+  let html = `<button type="button" class="pp-fchip on" onclick="ppFilterByCompanion('__all__', this)">전체 (${ppCurrentList.length})</button>`;
+  names.forEach(n=>{
+    html += `<button type="button" class="pp-fchip" onclick="ppFilterByCompanion('${escapeAttr(n)}', this)">${escapeHTML(n)} (${counts[n]})</button>`;
+  });
+  if(solo > 0){
+    html += `<button type="button" class="pp-fchip" onclick="ppFilterByCompanion('__solo__', this)">🙋 혼자 방문 (${solo})</button>`;
+  }
+  bar.innerHTML = html;
+  // 동행자 종류가 없으면(전부 혼자) 굳이 안 보여줌
+  bar.style.display = names.length ? '' : 'none';
+}
+
+// 특정 동행자로 방문한 행만 일괄 체크(나머지 해제). '__all__'=전체, '__solo__'=혼자 방문
+function ppFilterByCompanion(name, btn){
+  ppCurrentList.forEach((j,i)=>{
+    const comps = journalCompanions(j);
+    let match;
+    if(name === '__all__')      match = true;
+    else if(name === '__solo__') match = (comps.length === 0);
+    else                         match = comps.includes(name);
+    ppChecked[i] = match;
+  });
+  // 표 UI 반영
+  document.querySelectorAll('#ppTable tbody tr').forEach(tr=>{
+    const i = +tr.dataset.i;
+    const on = ppChecked[i] !== false;
+    tr.classList.toggle('pp-off', !on);
+    const cb = tr.querySelector('input[type=checkbox]');
+    if(cb) cb.checked = on;
+  });
+  const chkAll = document.getElementById('ppCheckAll');
+  if(chkAll) chkAll.checked = ppChecked.every(Boolean);
+  // 활성 칩 표시
+  document.querySelectorAll('#ppFilterBar .pp-fchip').forEach(b=>b.classList.remove('on'));
+  if(btn) btn.classList.add('on');
+  ppUpdateSelCount();
+}
+function clearPpFilterChips(){
+  document.querySelectorAll('#ppFilterBar .pp-fchip').forEach(b=>b.classList.remove('on'));
+}
 function ppToggleRow(i, checked){
   ppChecked[i] = checked;
   const tr = document.querySelector(`#ppTable tbody tr[data-i="${i}"]`);
@@ -1769,6 +1839,7 @@ function ppToggleRow(i, checked){
   const allOn = ppChecked.every(Boolean);
   const chkAll = document.getElementById('ppCheckAll');
   if(chkAll) chkAll.checked = allOn;
+  clearPpFilterChips();   // 손으로 조작하면 필터 버튼 활성표시 해제
   ppUpdateSelCount();
 }
 function ppToggleAll(checked){
@@ -1778,6 +1849,11 @@ function ppToggleAll(checked){
     const cb = tr.querySelector('input[type=checkbox]');
     if(cb) cb.checked = checked;
   });
+  clearPpFilterChips();
+  if(checked){
+    const allChip = document.querySelector('#ppFilterBar .pp-fchip');
+    if(allChip) allChip.classList.add('on');   // 전체 체크면 '전체' 칩 활성
+  }
   ppUpdateSelCount();
 }
 function ppSelectedItems(){
