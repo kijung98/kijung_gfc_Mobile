@@ -109,6 +109,12 @@ html,body{margin:0;padding:0;height:100%;background:var(--bg);color:var(--text);
 .visit-grid .field{margin-bottom:0;}
 
 .attach-box{border:1.5px dashed #c7cede;border-radius:12px;padding:14px;text-align:center;background:#fafbfd;}
+.attach-btn-row{display:flex;gap:10px;}
+.attach-action{flex:1;border:1.5px solid var(--line);border-radius:12px;padding:16px 8px;font-size:14px;font-weight:800;
+  background:#fff;color:var(--navy);display:flex;flex-direction:column;align-items:center;gap:4px;}
+.attach-action.camera{background:linear-gradient(135deg,var(--navy),var(--navy2));color:#fff;border:none;}
+.attach-action:active{opacity:.75;}
+.attach-hint3{font-size:11.5px;color:var(--sub);margin-top:8px;text-align:center;}
 .attach-hint2{font-size:11px;color:var(--sub);font-weight:600;}
 .attach-thumbs{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;}
 .attach-thumb{position:relative;width:76px;height:76px;border-radius:10px;overflow:hidden;border:1.5px solid var(--line);}
@@ -359,24 +365,13 @@ select{-webkit-appearance:none;appearance:none;background-image:url("data:image/
 .pp-overlay{position:fixed;inset:0;background:rgba(15,22,40,.55);z-index:200;display:none;
   flex-direction:column;}
 .pp-overlay.show{display:flex;}
-/* 시트 높이: 모바일 주소창을 고려한 dvh를 우선 사용(폴백 vh). 하단 버튼이 화면 밖으로 밀리지 않도록. */
-.pp-sheet{margin-top:auto;background:#fff;border-radius:18px 18px 0 0;
-  max-height:90vh; max-height:90dvh;
+.pp-sheet{margin-top:auto;background:#fff;border-radius:18px 18px 0 0;max-height:92vh;
   display:flex;flex-direction:column;overflow:hidden;}
 .pp-topbar{padding:14px 16px 10px;border-bottom:1px solid var(--line);display:flex;
   align-items:center;justify-content:space-between;flex-shrink:0;}
 .pp-title{font-size:15.5px;font-weight:800;color:var(--navy);}
-.pp-subhint{font-size:11px;color:var(--sub);font-weight:600;margin-top:2px;}
 .pp-count{font-size:12px;color:var(--sub);font-weight:700;}
-/* 동행자별 빠른 선택 필터바 */
-.pp-filterbar{display:flex;gap:6px;overflow-x:auto;-webkit-overflow-scrolling:touch;
-  padding:8px 12px;border-bottom:1px solid var(--line);flex-shrink:0;background:#fafbfd;}
-.pp-filterbar::-webkit-scrollbar{display:none;}
-.pp-fchip{flex-shrink:0;border:1.5px solid var(--line);background:#fff;color:#39435a;
-  border-radius:999px;padding:8px 14px;font-size:12.5px;font-weight:700;white-space:nowrap;
-  touch-action:manipulation;}
-.pp-fchip.on{background:var(--navy);color:#fff;border-color:var(--navy);}
-.pp-scroll{flex:1;overflow:auto;-webkit-overflow-scrolling:touch;padding:12px 12px 4px;min-height:0;}
+.pp-scroll{flex:1;overflow:auto;-webkit-overflow-scrolling:touch;padding:12px 12px 4px;}
 .pp-print-head{margin-bottom:8px;}
 .pp-print-title{font-size:14px;font-weight:800;color:var(--navy);}
 .pp-print-org{font-size:11.5px;color:var(--navy);font-weight:700;margin-top:2px;}
@@ -386,13 +381,9 @@ select{-webkit-appearance:none;appearance:none;background-image:url("data:image/
   position:sticky;top:0;}
 .pp-table td{padding:6px 8px;border-bottom:1px solid var(--line);color:var(--text);}
 .pp-table tr:nth-child(even) td{background:#f7f9fc;}
-.pp-check-col{width:30px;text-align:center !important;}
-.pp-check-col input{width:17px;height:17px;}
-.pp-table tr.pp-off td{opacity:.32;}
 .pp-actions{display:flex;gap:8px;padding:10px 12px calc(12px + var(--safe-bottom));
-  border-top:1px solid var(--line);flex-shrink:0;background:#fff;position:relative;z-index:2;}
-.pp-actions button{flex:1;border:none;border-radius:10px;padding:14px 6px;font-size:12.5px;font-weight:800;
-  touch-action:manipulation;-webkit-user-select:none;user-select:none;cursor:pointer;}
+  border-top:1px solid var(--line);flex-shrink:0;background:#fff;}
+.pp-actions button{flex:1;border:none;border-radius:10px;padding:13px 6px;font-size:12.5px;font-weight:800;}
 .pp-actions .pp-excel{background:var(--teal);color:#fff;}
 .pp-actions .pp-print{background:linear-gradient(135deg,var(--navy),var(--navy2));color:#fff;}
 .pp-actions .pp-close{background:#fff;color:var(--sub);border:1.5px solid var(--line);}
@@ -401,16 +392,8 @@ select{-webkit-appearance:none;appearance:none;background-image:url("data:image/
   .pp-print-area, .pp-print-area *{visibility:visible;}
   .pp-print-area{position:absolute;top:0;left:0;width:100%;}
   .pp-overlay, .pp-sheet, .pp-scroll{position:static;background:#fff;max-height:none;overflow:visible;}
-  .pp-topbar, .pp-actions, .pp-filterbar, #tabbar, #topbar{display:none !important;}
-  /* 선택된(체크된) 행만 인쇄, 체크박스 컬럼은 숨김 */
-  .pp-table tr.pp-off{display:none !important;}
-  .pp-check-col{display:none !important;}
-  /* A4 가로 한 장에 담기도록 표 폭·글자 크기 최적화 */
-  .pp-table{font-size:7.6px;min-width:0;width:100%;table-layout:fixed;
-    white-space:normal;word-break:break-word;border-collapse:collapse;}
-  .pp-table th, .pp-table td{padding:2.5px 3px;vertical-align:top;overflow:hidden;}
-  .pp-table tr.pp-off td{opacity:1;}
-  @page{ size: A4 landscape; margin:7mm; }
+  .pp-topbar, .pp-actions, #tabbar, #topbar{display:none !important;}
+  @page{ size: landscape; margin:10mm; }
 }
 
 /* ---------------- 인쇄 설정 모달 (PC v47 "업체 리스트 인쇄" 화면과 동일 구성) ---------------- */
@@ -589,7 +572,7 @@ select{-webkit-appearance:none;appearance:none;background-image:url("data:image/
           <div class="companion-list" id="companionList"></div>
         </div>
       </div>
-      <div class="hint-box">동행자를 눌러 선택하면(파랗게 표시) 새 방문일지의 방문자란에 "담당자, 동행자1..." 형태로 자동 입력됩니다. 각 동행자 아래에서 고른 색상이 방문기록의 지역 폴더 색으로 쓰여, 같은 동행자끼리 한눈에 구분됩니다. (담당자 혼자 방문한 폴더는 기본 회색)</div>
+      <div class="hint-box">동행자를 눌러 선택하면(파랗게 표시) 새 방문일지의 방문자란에 "담당자, 동행자1..." 형태로 자동 입력됩니다. 각 이름 아래 색상은 방문기록의 지역 폴더 색으로 쓰이며, 방문자가 같으면 같은 색으로 묶여 한눈에 구분됩니다.</div>
 
       <div class="section-title">📞 인쇄물 상단 정보</div>
       <div class="card">
@@ -635,6 +618,18 @@ select{-webkit-appearance:none;appearance:none;background-image:url("data:image/
         </button>
       </div>
 
+      <div class="section-title">앱 정보 · 업데이트</div>
+      <div class="card">
+        <div style="font-size:13px;color:var(--sub);line-height:1.6;margin-bottom:12px;">
+          현재 버전: <b id="appVersionLabel" style="color:var(--navy);">-</b><br>
+          카메라 촬영 버튼이 안 보이거나 화면이 예전 그대로면 아래 버튼을 눌러 최신 버전으로 새로고침해주세요.
+        </div>
+        <button class="big-btn outline" style="margin-bottom:0;" onclick="forceUpdateApp()">
+          <div class="ico">🔄</div>
+          <div><div>최신 버전으로 업데이트</div><div class="desc">캐시를 비우고 새 화면을 불러옵니다</div></div>
+        </button>
+      </div>
+
       <div class="section-title">기타</div>
       <div class="card">
         <button class="big-btn outline" style="margin-bottom:0;color:var(--red);" onclick="confirmReset()">
@@ -643,7 +638,7 @@ select{-webkit-appearance:none;appearance:none;background-image:url("data:image/
         </button>
       </div>
       <div style="text-align:center;color:var(--sub);font-size:11px;margin-top:10px;">
-        세일즈맵 모바일 v4 · PC v47 데이터와 동일한 저장 방식 사용
+        세일즈맵 모바일 <span id="appVersionFoot">v22</span> · 사진은 기기 내부 DB에 저장됩니다
       </div>
     </section>
 
@@ -794,10 +789,19 @@ select{-webkit-appearance:none;appearance:none;background-image:url("data:image/
 
     <div class="section-title">파일 첨부</div>
     <div class="card">
-      <div class="attach-box" onclick="document.getElementById('f-attach').click()">
-        📷 사진 선택 / 촬영 <span class="attach-hint2">(여러 장 선택 가능)</span>
-        <input type="file" id="f-attach" accept="image/*" multiple class="hidden" onchange="handleAttach(event)">
+      <div class="attach-btn-row">
+        <button type="button" class="attach-action camera" onclick="document.getElementById('f-camera').click()">
+          📸 카메라 촬영
+        </button>
+        <button type="button" class="attach-action gallery" onclick="document.getElementById('f-attach').click()">
+          🖼️ 갤러리에서 선택
+        </button>
       </div>
+      <div class="attach-hint3">여러 장 선택 가능 · 사진은 기기 내부에 안전하게 저장됩니다</div>
+      <!-- 카메라: capture 속성으로 갤럭시/안드로이드에서 바로 촬영 실행 -->
+      <input type="file" id="f-camera" accept="image/*" capture="environment" class="hidden" onchange="handleAttach(event)">
+      <!-- 갤러리: 여러 장 선택 -->
+      <input type="file" id="f-attach" accept="image/*" multiple class="hidden" onchange="handleAttach(event)">
       <div class="attach-thumbs" id="attachThumbs"></div>
     </div>
 
@@ -1056,11 +1060,9 @@ select{-webkit-appearance:none;appearance:none;background-image:url("data:image/
     <div class="pp-topbar">
       <div>
         <div class="pp-title" id="ppTitle">업체 목록</div>
-        <div class="pp-subhint">☑️ 체크한 항목만 인쇄 / PDF / 엑셀로 저장됩니다</div>
       </div>
       <div class="pp-count" id="ppCount"></div>
     </div>
-    <div class="pp-filterbar" id="ppFilterBar" style="display:none;"></div>
     <div class="pp-scroll" id="ppScroll">
       <div class="pp-print-area" id="ppPrintArea">
         <div class="pp-print-head">
@@ -1143,6 +1145,79 @@ const RESULT_DEFS = [
 let journals = [];
 try { journals = JSON.parse(localStorage.getItem('visitJournals') || '[]'); } catch(e){ journals = []; }
 
+/* ================= 사진 저장소: 기기 내부 DB(IndexedDB) =================
+   localStorage(약 5MB)는 사진 몇 장이면 가득 차므로, 사진은 용량이 훨씬 큰
+   IndexedDB에 저장하고 방문일지에는 사진 ID만 보관한다. */
+const PHOTO_DB_NAME = 'salesmap-photos';
+const PHOTO_STORE = 'photos';
+let _photoDB = null;
+
+function openPhotoDB(){
+  return new Promise((resolve, reject)=>{
+    if(_photoDB){ resolve(_photoDB); return; }
+    if(!('indexedDB' in window)){ reject(new Error('IndexedDB 미지원')); return; }
+    const req = indexedDB.open(PHOTO_DB_NAME, 1);
+    req.onupgradeneeded = function(e){
+      const db = e.target.result;
+      if(!db.objectStoreNames.contains(PHOTO_STORE)) db.createObjectStore(PHOTO_STORE);
+    };
+    req.onsuccess = function(e){ _photoDB = e.target.result; resolve(_photoDB); };
+    req.onerror = function(e){ reject(e.target.error); };
+  });
+}
+
+// dataURL 사진 한 장을 IndexedDB에 저장하고 생성된 ID 반환
+async function photoPut(dataUrl){
+  const db = await openPhotoDB();
+  const id = 'p_' + Date.now() + '_' + Math.random().toString(36).slice(2,8);
+  return new Promise((resolve, reject)=>{
+    const tx = db.transaction(PHOTO_STORE, 'readwrite');
+    tx.objectStore(PHOTO_STORE).put(dataUrl, id);
+    tx.oncomplete = ()=>resolve(id);
+    tx.onerror = (e)=>reject(e.target.error);
+  });
+}
+
+// ID로 사진 dataURL 불러오기 (없으면 null)
+async function photoGet(id){
+  const db = await openPhotoDB();
+  return new Promise((resolve, reject)=>{
+    const tx = db.transaction(PHOTO_STORE, 'readonly');
+    const r = tx.objectStore(PHOTO_STORE).get(id);
+    r.onsuccess = ()=>resolve(r.result || null);
+    r.onerror = (e)=>reject(e.target.error);
+  });
+}
+
+async function photoDelete(id){
+  try{
+    const db = await openPhotoDB();
+    await new Promise((resolve)=>{
+      const tx = db.transaction(PHOTO_STORE, 'readwrite');
+      tx.objectStore(PHOTO_STORE).delete(id);
+      tx.oncomplete = resolve; tx.onerror = resolve;
+    });
+  }catch(e){}
+}
+
+// 사진 참조 여부: 'p_'로 시작하면 IndexedDB ID, 아니면 옛 방식의 dataURL
+function isPhotoId(s){ return typeof s === 'string' && s.indexOf('p_') === 0; }
+
+// 일지의 사진 참조 목록(ID 또는 dataURL)을 실제 표시용 dataURL 배열로 변환
+async function resolvePhotoRefs(refs){
+  const out = [];
+  for(const r of (refs||[])){
+    if(isPhotoId(r)){
+      const url = await photoGet(r);
+      if(url) out.push(url);
+    } else if(r){
+      out.push(r);   // 구버전 dataURL 그대로
+    }
+  }
+  return out;
+}
+
+
 let manualCompanies = [];
 try { manualCompanies = JSON.parse(localStorage.getItem('manualCompanies') || '[]'); } catch(e){ manualCompanies = []; }
 
@@ -1166,7 +1241,42 @@ function getBuiltinName(){
   return name;
 }
 
-function persistJournals(){ localStorage.setItem('visitJournals', JSON.stringify(journals)); }
+function persistJournals(){
+  try {
+    localStorage.setItem('visitJournals', JSON.stringify(journals));
+    return { ok:true };
+  } catch(err){
+    // localStorage 용량 초과(QuotaExceededError) — 사진 용량이 원인일 가능성이 큼
+    const isQuota = err && (err.name === 'QuotaExceededError' || /quota/i.test(err.message||''));
+    if(!isQuota) return { ok:false, error:err };
+    return { ok:false, quota:true, error:err };
+  }
+}
+
+// 사진 첨부가 커서 저장이 안 될 때: 오래된 일지의 사진부터 하나씩 비우며 재시도
+function persistJournalsWithQuotaHandling(){
+  let r = persistJournals();
+  if(r.ok) return r;
+  if(!r.quota) return r;
+
+  // 1) 전체 사진 총량 계산
+  const withPhotos = journals.filter(j => Array.isArray(j.attachments) && j.attachments.length);
+  if(!withPhotos.length) return r;   // 사진 문제가 아니면 그대로 실패 반환
+
+  // 2) 가장 오래된 일지(배열 뒤쪽)부터 사진을 제거하며 재시도
+  let removedCount = 0;
+  for(let i = journals.length - 1; i >= 0; i--){
+    const j = journals[i];
+    if(Array.isArray(j.attachments) && j.attachments.length){
+      removedCount += j.attachments.length;
+      j.attachments = [];
+      j.photosDropped = true;   // 용량 때문에 사진이 빠졌음을 표시
+      const rr = persistJournals();
+      if(rr.ok) return { ok:true, droppedPhotos:removedCount };
+    }
+  }
+  return persistJournals();
+}
 function persistManual(){ localStorage.setItem('manualCompanies', JSON.stringify(manualCompanies)); }
 function persistSettings(){ localStorage.setItem('appSettings', JSON.stringify(appSettings)); }
 function persistExtraSources(){ localStorage.setItem('extraSources', JSON.stringify(extraSources)); }
@@ -1416,47 +1526,28 @@ function journalRegionKey(j){
   if(gu) return gu[1];
   return '지역 미지정';
 }
-// 화면에 표시할 폴더 이름(사용자가 수정했으면 그 이름). 형식: "2026.7.25. 지역명 (방문자명)"
-function folderLabel(regionKey, visitorName, dateStr){
+// 화면에 표시할 폴더 이름(사용자가 수정했으면 그 이름). 형식: "지역명 (방문자명)"
+function folderLabel(regionKey, visitorName){
   if(folderRenames[regionKey] !== undefined) return folderRenames[regionKey];
-  const datePart = dateStr ? `${dateStr} ` : '';
-  const base = visitorName ? `${regionKey} (${visitorName})` : regionKey;
-  return `${datePart}${base}`;
+  return visitorName ? `${regionKey} (${visitorName})` : regionKey;
 }
 
-// 폴더에 표시할 방문자 문자열 — 담당자(본인)를 뺀 동행자만 (예: "함상우, 김영수")
+// 폴더에 표시할 방문자 문자열 — 담당자 + 동행자 전부 (예: "최기정, 함상우")
 function groupVisitorName(items){
   if(!items.length) return '';
-  const owner = (appSettings.userName || '').trim();
-  const parts = (items[0].j.visitor || '')
-    .split(',').map(s=>s.trim()).filter(Boolean);
-  const companions = parts.filter(n => n !== owner);
-  return companions.join(', ');
+  return (items[0].j.visitor || '').trim();
 }
 
-// 폴더 색상의 기준이 되는 "동행자" 추출 — 방문자에서 담당자(본인)를 뺀 첫 동행자.
-// 설정에서 그 동행자에게 지정한 색을 폴더 색으로 사용. 동행자가 없으면(혼자 방문) 빈값 → 기본색.
+// 폴더 색상의 기준이 되는 담당자(첫 이름)만 추출 — 설정에서 그 사람에게 지정한 색을 그대로 사용
 function groupOwnerName(items){
   if(!items.length) return '';
-  const owner = (appSettings.userName || '').trim();
-  const parts = (items[0].j.visitor || '')
-    .split(',').map(s=>s.trim()).filter(Boolean);
-  const companions = parts.filter(n => n !== owner);
-  return companions[0] || '';
-}
-
-// 폴더명 앞에 붙일 방문날짜 포맷: "2026-07-25" → "2026.7.25."
-function fmtFolderDate(d){
-  if(!d) return '';
-  const m = String(d).match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
-  if(!m) return String(d).trim();
-  return `${m[1]}.${parseInt(m[2],10)}.${parseInt(m[3],10)}.`;
+  return (items[0].j.visitor || '').split(',')[0].trim();
 }
 
 // 방문자별 지정 색상(파스텔). 설정에서 지정하지 않았으면 이름 해시로 자동 배정.
 const PASTEL_PALETTE = [
-  '#FDE2E4','#E2F0CB','#DCE7FB','#F3E1F7',
-  '#FFF1CC','#D8F3F0','#FCE4D6','#E8E4F3'
+  '#FDE2E4','#E2ECE9','#E2F0CB','#DCE7FB','#F3E1F7',
+  '#FFF1CC','#D8F3F0','#FCE4D6','#E8E4F3','#E0F2E9'
 ];
 function visitorColor(name){
   if(!name) return '#eef1f7';
@@ -1512,10 +1603,9 @@ function groupJournalsByRegion(list){
   // 각 그룹의 방문자명·라벨·색상 확정
   groups.forEach(g=>{
     g.visitor = groupVisitorName(g.items);       // 담당자+동행자 전체 (폴더명 표시용)
-    g.owner = groupOwnerName(g.items);            // 동행자(색상 매칭용)
-    g.date = fmtFolderDate(g.items[0].j.visitDate); // 폴더 대표 방문날짜(첫 일지 기준)
-    g.label = folderLabel(g.key, g.visitor, g.date);
-    g.color = visitorColor(g.owner);              // 설정에서 동행자에게 지정한 색 사용
+    g.owner = groupOwnerName(g.items);            // 담당자만 (색상 매칭용)
+    g.label = folderLabel(g.key, g.visitor);
+    g.color = visitorColor(g.owner);              // 설정에서 담당자에게 지정한 색 사용
   });
   return groups;
 }
@@ -1619,30 +1709,36 @@ const PP_COLS = [
   { key:'순이익',           label:'순이익(백만)' },
 ];
 
-// 방문일지 목록 인쇄/엑셀 전용 컬럼 — 요청 항목/순서 (담당자 제외, 동행자만 / 방문차수는 횟수)
+// 방문일지 목록 인쇄/엑셀 전용 컬럼 — 방문기록 정보 + 업체 기본정보(대표자·사업자번호·매출·순이익 등)를 함께 출력
 const JOURNAL_PP_COLS = [
-  { key:'방문일',     label:'방문일' },
-  { key:'동행',       label:'동행자' },
+  { key:'방문일시',   label:'방문일시' },
+  { key:'담당자',     label:'담당자' },
+  { key:'동행',       label:'동행' },
   { key:'기업명',     label:'기업명' },
-  { key:'대표자나이', label:'대표자/나이' },
+  { key:'대표자',     label:'대표자(성별/나이)' },
   { key:'사업자번호', label:'사업자번호' },
   { key:'주소',       label:'주소' },
   { key:'전화번호',   label:'전화번호' },
   { key:'기업형태',   label:'기업형태' },
   { key:'근로자수',   label:'근로자수' },
   { key:'매출',       label:'매출(백만)' },
-  { key:'순이익',     label:'순수익(백만)' },
+  { key:'순이익',     label:'순이익(백만)' },
   { key:'첫인상',     label:'첫인상' },
   { key:'방문결과',   label:'방문결과' },
+  { key:'우선순위',   label:'우선순위' },
   { key:'관심분야',   label:'관심분야' },
   { key:'상담내용',   label:'상담내용' },
-  { key:'방문차수',   label:'방문차수' },
+  { key:'전달자료',   label:'전달자료' },
+  { key:'가입보험사', label:'가입보험사' },
+  { key:'1차방문',    label:'1차방문' },
+  { key:'2차방문',    label:'2차방문' },
+  { key:'3차방문',    label:'3차방문' },
+  { key:'4차방문',    label:'4차방문' },
 ];
 
 let ppCurrentList = [];
 let ppMode = 'company';       // 'company' | 'journal'
 let ppActiveCols = PP_COLS;
-let ppChecked = [];           // 인쇄 미리보기에서 행별 선택 여부 (기본 전체 선택)
 
 // 사업자번호를 "357-13-01128" 형식으로 표시 (PC v47과 동일 로직)
 function formatBizNo(v){
@@ -1669,34 +1765,14 @@ function ppFieldValue(c2, key){
   return (v===undefined || v===null || v==='') ? '-' : v;
 }
 
-// 방문일지 한 건에서 담당자(본인)를 뺀 동행자 배열을 반환
-function journalCompanions(j){
-  const owner = (appSettings.userName || '').trim();
-  let names = (j.companions && j.companions.length)
-    ? j.companions.slice()
-    : (j.visitor || '').split(',').map(s=>s.trim()).filter(Boolean);
-  return names.filter(n => n && n !== owner);
-}
-
 // 방문일지 한 건(+미리 매칭해둔 업체정보 _co)을 인쇄/엑셀 컬럼값으로 변환
 function journalCellValue(j, key){
   const co = j._co || null;
   switch(key){
-    case '방문일': return j.visitDate || '-';
     case '방문일시': { const s = `${j.visitDate||''} ${j.visitTime||''}`.trim(); return s || '-'; }
     case '담당자': return j.visitor || '-';
-    case '동행': {
-      const names = journalCompanions(j);
-      return names.length ? names.join(', ') : '-';
-    }
+    case '동행': return (j.companions && j.companions.length) ? j.companions.join(', ') : '-';
     case '기업명': return j.companyName || '-';
-    case '대표자나이': {
-      if(j.ceo) return j.ceo;   // 일지에 직접 저장된 텍스트 우선
-      const name = co && co.대표자이름 ? co.대표자이름 : '';
-      if(!name) return '-';
-      const age = co && co.대표자나이 ? co.대표자나이 : '';
-      return age ? `${name} (${age})` : name;
-    }
     case '대표자': {
       if(j.ceo) return j.ceo;   // 일지에 직접 저장된 값 우선
       const name = co && co.대표자이름 ? co.대표자이름 : '';
@@ -1717,12 +1793,6 @@ function journalCellValue(j, key){
     case '상담내용': return j.content || '-';
     case '전달자료': return (j.materialsDelivered && j.materialsDelivered.length) ? j.materialsDelivered.join(', ') : '-';
     case '가입보험사': return (j.currentInsurers && j.currentInsurers.length) ? j.currentInsurers.join(', ') : '-';
-    case '방문차수': {
-      // visit1~4 중 날짜가 채워진 개수 = 방문 횟수. 하나도 없으면 최소 1회로 표시.
-      let n = 0;
-      ['visit1','visit2','visit3','visit4'].forEach(k=>{ if(String(j[k]||'').trim()) n++; });
-      return `${n || 1}회`;
-    }
     case '1차방문': return j.visit1 || '-';
     case '2차방문': return j.visit2 || '-';
     case '3차방문': return j.visit3 || '-';
@@ -1743,11 +1813,9 @@ function openPrintPreview(list, title, opts){
   ppMode = opts.mode || 'company';
   ppActiveCols = opts.cols || PP_COLS;
   ppCurrentList = list;
-  ppChecked = list.map(()=>true);   // 기본은 모두 선택
   const unit = ppMode === 'journal' ? '건' : '개';
   document.getElementById('ppTitle').textContent = title;
-  document.getElementById('ppCount').textContent =
-    `${list.length.toLocaleString()}${unit} 선택 / 총 ${list.length.toLocaleString()}${unit}`;
+  document.getElementById('ppCount').textContent = list.length.toLocaleString() + unit;
   document.getElementById('ppPrintTitle').textContent = '📋 ' + title;
   const who = appSettings.userName ? (appSettings.userName + ' · ') : '';
   document.getElementById('ppPrintMeta').textContent =
@@ -1760,111 +1828,15 @@ function openPrintPreview(list, title, opts){
     orgEl.style.display = orgBits.length ? '' : 'none';
   }
 
-  const theadHtml = '<tr>'
-    + '<th class="pp-check-col"><input type="checkbox" id="ppCheckAll" checked onclick="ppToggleAll(this.checked)"></th>'
-    + ppActiveCols.map(c=>`<th>${c.label}</th>`).join('') + '</tr>';
-  const tbodyHtml = list.map((item,i)=>{
-    const cells = ppActiveCols.map(col=>`<td>${escapeHTML(String(ppCellValue(item, col.key)))}</td>`).join('');
-    return `<tr data-i="${i}">`
-      + `<td class="pp-check-col"><input type="checkbox" checked onclick="ppToggleRow(${i}, this.checked)"></td>`
-      + cells + '</tr>';
+  const theadHtml = '<tr>' + ppActiveCols.map(c=>`<th>${c.label}</th>`).join('') + '</tr>';
+  const tbodyHtml = list.map(item=>{
+    return '<tr>' + ppActiveCols.map(col=>`<td>${escapeHTML(String(ppCellValue(item, col.key)))}</td>`).join('') + '</tr>';
   }).join('');
   document.querySelector('#ppTable thead').innerHTML = theadHtml;
   document.querySelector('#ppTable tbody').innerHTML = tbodyHtml;
 
-  renderPpFilterBar();   // 동행자별 빠른 선택 버튼(방문일지 모드에서만)
-
   document.getElementById('ppOverlay').classList.add('show');
   document.getElementById('ppScroll').scrollTop = 0;
-}
-
-// ── 동행자별 빠른 선택(필터) 버튼 ─────────────────────
-function renderPpFilterBar(){
-  const bar = document.getElementById('ppFilterBar');
-  if(!bar) return;
-  // 방문일지 모드가 아니면(=업체 목록) 동행자 개념이 없으므로 숨김
-  if(ppMode !== 'journal'){ bar.style.display = 'none'; bar.innerHTML = ''; return; }
-  const counts = {}; let solo = 0;
-  ppCurrentList.forEach(j=>{
-    const comps = journalCompanions(j);
-    if(!comps.length) solo++;
-    comps.forEach(n=>{ counts[n] = (counts[n]||0) + 1; });
-  });
-  const names = Object.keys(counts).sort((a,b)=> counts[b]-counts[a] || a.localeCompare(b,'ko'));
-  let html = `<button type="button" class="pp-fchip on" onclick="ppFilterByCompanion('__all__', this)">전체 (${ppCurrentList.length})</button>`;
-  names.forEach(n=>{
-    html += `<button type="button" class="pp-fchip" onclick="ppFilterByCompanion('${escapeAttr(n)}', this)">${escapeHTML(n)} (${counts[n]})</button>`;
-  });
-  if(solo > 0){
-    html += `<button type="button" class="pp-fchip" onclick="ppFilterByCompanion('__solo__', this)">🙋 혼자 방문 (${solo})</button>`;
-  }
-  bar.innerHTML = html;
-  // 동행자 종류가 없으면(전부 혼자) 굳이 안 보여줌
-  bar.style.display = names.length ? '' : 'none';
-}
-
-// 특정 동행자로 방문한 행만 일괄 체크(나머지 해제). '__all__'=전체, '__solo__'=혼자 방문
-function ppFilterByCompanion(name, btn){
-  ppCurrentList.forEach((j,i)=>{
-    const comps = journalCompanions(j);
-    let match;
-    if(name === '__all__')      match = true;
-    else if(name === '__solo__') match = (comps.length === 0);
-    else                         match = comps.includes(name);
-    ppChecked[i] = match;
-  });
-  // 표 UI 반영
-  document.querySelectorAll('#ppTable tbody tr').forEach(tr=>{
-    const i = +tr.dataset.i;
-    const on = ppChecked[i] !== false;
-    tr.classList.toggle('pp-off', !on);
-    const cb = tr.querySelector('input[type=checkbox]');
-    if(cb) cb.checked = on;
-  });
-  const chkAll = document.getElementById('ppCheckAll');
-  if(chkAll) chkAll.checked = ppChecked.every(Boolean);
-  // 활성 칩 표시
-  document.querySelectorAll('#ppFilterBar .pp-fchip').forEach(b=>b.classList.remove('on'));
-  if(btn) btn.classList.add('on');
-  ppUpdateSelCount();
-}
-function clearPpFilterChips(){
-  document.querySelectorAll('#ppFilterBar .pp-fchip').forEach(b=>b.classList.remove('on'));
-}
-function ppToggleRow(i, checked){
-  ppChecked[i] = checked;
-  const tr = document.querySelector(`#ppTable tbody tr[data-i="${i}"]`);
-  if(tr) tr.classList.toggle('pp-off', !checked);
-  // 전체선택 체크박스 동기화
-  const allOn = ppChecked.every(Boolean);
-  const chkAll = document.getElementById('ppCheckAll');
-  if(chkAll) chkAll.checked = allOn;
-  clearPpFilterChips();   // 손으로 조작하면 필터 버튼 활성표시 해제
-  ppUpdateSelCount();
-}
-function ppToggleAll(checked){
-  ppChecked = ppChecked.map(()=>checked);
-  document.querySelectorAll('#ppTable tbody tr').forEach(tr=>{
-    tr.classList.toggle('pp-off', !checked);
-    const cb = tr.querySelector('input[type=checkbox]');
-    if(cb) cb.checked = checked;
-  });
-  clearPpFilterChips();
-  if(checked){
-    const allChip = document.querySelector('#ppFilterBar .pp-fchip');
-    if(allChip) allChip.classList.add('on');   // 전체 체크면 '전체' 칩 활성
-  }
-  ppUpdateSelCount();
-}
-function ppSelectedItems(){
-  return ppCurrentList.filter((_,i)=> ppChecked[i] !== false);
-}
-function ppUpdateSelCount(){
-  const n = ppSelectedItems().length;
-  const unit = ppMode === 'journal' ? '건' : '개';
-  const el = document.getElementById('ppCount');
-  if(el) el.textContent =
-    `${n.toLocaleString()}${unit} 선택 / 총 ${ppCurrentList.length.toLocaleString()}${unit}`;
 }
 
 // 방문일지 목록을 업체 기본정보(대표자·사업자번호·매출·순이익 등)와 함께 인쇄/엑셀 미리보기로 열기
@@ -1882,29 +1854,22 @@ function closePrintPreview(){
 }
 
 function ppPrintNow(){
-  const sel = ppSelectedItems();
-  if(!sel.length){ toast('출력할 항목을 하나 이상 선택해주세요.'); return; }
-  // 인쇄물 상단 메타를 "선택 건수" 기준으로 갱신
-  const unit = ppMode === 'journal' ? '건' : '개';
-  const who = appSettings.userName ? (appSettings.userName + ' · ') : '';
-  const meta = document.getElementById('ppPrintMeta');
-  if(meta) meta.textContent = who + new Date().toLocaleDateString('ko-KR') + ' · 총 ' + sel.length.toLocaleString() + unit;
+  if(!ppCurrentList.length){ toast('인쇄할 내용이 없습니다.'); return; }
   window.print();
 }
 
 function ppExportExcel(){
-  const sel = ppSelectedItems();
-  if(!sel.length){ toast('내보낼 항목을 하나 이상 선택해주세요.'); return; }
+  if(!ppCurrentList.length){ toast('내보낼 내용이 없습니다.'); return; }
   ensureXLSX(function(){
     const headers = ppActiveCols.map(c=>c.label);
-    const rows = [headers].concat(sel.map(item=>ppActiveCols.map(col=>ppCellValue(item, col.key))));
+    const rows = [headers].concat(ppCurrentList.map(item=>ppActiveCols.map(col=>ppCellValue(item, col.key))));
     const ws = XLSX.utils.aoa_to_sheet(rows);
     const wb = XLSX.utils.book_new();
     const sheetName = ppMode === 'journal' ? '방문일지' : '업체목록';
     XLSX.utils.book_append_sheet(wb, ws, sheetName);
     const ts = new Date().toISOString().slice(0,10);
     XLSX.writeFile(wb, `${sheetName}_${ts}.xlsx`);
-    toast(`${sel.length}건을 엑셀로 내보냈습니다.`);
+    toast('엑셀 파일을 내보냈습니다.');
   });
 }
 
@@ -2264,15 +2229,24 @@ function openDetail(id){
     ['3차 방문', j.visit3||'-'],['4차 방문', j.visit4||'-'],
   ];
   let html = rows.map(r => `<div class="detail-row"><div class="k">${r[0]}</div><div class="v">${escapeHTML(r[1])}</div></div>`).join('');
-  const atts = getJournalAttachments(j);
-  if(atts.length){
-    window._detailAtt = atts;
-    html += `<div class="detail-thumbs">` + atts.map((src,i)=>
-      `<div class="detail-thumb"><img src="${src}" onclick="openLightbox(window._detailAtt, ${i})"></div>`
-    ).join('') + `</div>`;
+  const refs = getJournalAttachments(j);
+  if(refs.length){
+    html += `<div class="detail-thumbs" id="detailThumbs"><span class="companion-empty">사진 불러오는 중…</span></div>`;
   }
   document.getElementById('detailBody').innerHTML = html;
   pushSub('screen-detail', '방문일지 상세');
+
+  // 사진은 기기 내부 DB에서 비동기로 불러와 표시
+  if(refs.length){
+    resolvePhotoRefs(refs).then(urls=>{
+      window._detailAtt = urls;
+      const box = document.getElementById('detailThumbs');
+      if(!box) return;
+      box.innerHTML = urls.length
+        ? urls.map((src,i)=>`<div class="detail-thumb"><img src="${src}" onclick="openLightbox(window._detailAtt, ${i})"></div>`).join('')
+        : '<span class="companion-empty">사진을 불러올 수 없습니다.</span>';
+    });
+  }
 }
 
 function editFromDetail(){
@@ -2389,16 +2363,17 @@ function getActiveCompanions(){
 function renderCompanionSettingChips(){
   const wrap = document.getElementById('companionList');
   if(!wrap) return;
-  // 담당자(본인)는 상단 정보란에 이미 있으므로 제외 — 등록된 동행자만 표시.
-  // 각 동행자에게 지정한 색이 방문기록의 폴더 색으로 쓰인다.
+  // 담당자 본인 + 등록된 동행자 = 폴더 색을 지정할 수 있는 방문자 명단
   const owner = (appSettings.userName || '').trim();
-  const names = getSettingCompanionNames().filter(n => n !== owner);
-  if(!names.length){
-    wrap.innerHTML = '<div class="companion-empty">위에서 동행자를 추가해주세요.</div>';
+  const names = getSettingCompanionNames();
+  const all = (owner ? [owner] : []).concat(names.filter(n=>n!==owner));
+  if(!all.length){
+    wrap.innerHTML = '<div class="companion-empty">담당자 이름을 입력하거나, 위에서 동행자를 추가해주세요.</div>';
     return;
   }
   const active = getActiveCompanions();
-  wrap.innerHTML = names.map(n=>{
+  wrap.innerHTML = all.map(n=>{
+    const isOwner = (n === owner);
     const on = active.includes(n);
     const color = visitorColor(n);
     const swatches = PASTEL_PALETTE.map(c=>{
@@ -2406,9 +2381,9 @@ function renderCompanionSettingChips(){
       return `<button type="button" class="vc-swatch ${selected?'sel':''}" data-color="${c}" data-name="${escapeHTML(n)}" style="background:${c};"></button>`;
     }).join('');
     return `<div class="companion-block">
-      <div class="companion-item ${on?'on':''}" data-name="${escapeHTML(n)}" data-owner="0" style="${on?'':'background:'+color+';'}">
-        <span class="cname">${escapeHTML(n)}</span>
-        <button type="button" class="cdel" data-del="${escapeHTML(n)}">✕</button>
+      <div class="companion-item ${on?'on':''} ${isOwner?'owner':''}" data-name="${escapeHTML(n)}" data-owner="${isOwner?'1':'0'}" style="${on?'':'background:'+color+';'}">
+        <span class="cname">${isOwner?'⭐ ':''}${escapeHTML(n)}${isOwner?' (담당자)':''}</span>
+        ${isOwner?'<span class="owner-tag">기본 선택</span>':'<button type="button" class="cdel" data-del="'+escapeHTML(n)+'">✕</button>'}
       </div>
       <div class="vc-row">${swatches}</div>
     </div>`;
@@ -2605,14 +2580,15 @@ function handleAttach(e){
     reader.onload = function(ev){
       const img = new Image();
       img.onload = function(){
-        const maxW = 900;
-        const scale = Math.min(1, maxW / img.width);
+        // 저장공간(localStorage ~5MB) 절약을 위해 긴 변 기준 1000px로 축소 + JPEG 품질 0.55
+        const maxSide = 1000;
+        const scale = Math.min(1, maxSide / Math.max(img.width, img.height));
         const canvas = document.createElement('canvas');
-        canvas.width = img.width * scale;
-        canvas.height = img.height * scale;
+        canvas.width = Math.round(img.width * scale);
+        canvas.height = Math.round(img.height * scale);
         const ctx = canvas.getContext('2d');
         ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-        pendingAttachments.push(canvas.toDataURL('image/jpeg', 0.6));
+        pendingAttachments.push(canvas.toDataURL('image/jpeg', 0.55));
         remaining--;
         if(remaining <= 0) renderAttachThumbs();
       };
@@ -2626,13 +2602,17 @@ function handleAttach(e){
 function renderAttachThumbs(){
   const wrap = document.getElementById('attachThumbs');
   if(!wrap) return;
-  wrap.innerHTML = pendingAttachments.map((src,i)=>
-    `<div class="attach-thumb">
-      <img src="${src}" onclick="openLightbox(window._formAtt, ${i})">
-      <button type="button" class="thumb-del" onclick="event.stopPropagation();removeAttach(${i})">✕</button>
-    </div>`
-  ).join('');
-  window._formAtt = pendingAttachments;
+  if(!pendingAttachments.length){ wrap.innerHTML = ''; window._formAtt = []; return; }
+  // 사진 참조(ID/dataURL)를 표시용 dataURL로 변환 후 썸네일 렌더
+  resolvePhotoRefs(pendingAttachments).then(urls=>{
+    window._formAtt = urls;
+    wrap.innerHTML = urls.map((src,i)=>
+      `<div class="attach-thumb">
+        <img src="${src}" onclick="openLightbox(window._formAtt, ${i})">
+        <button type="button" class="thumb-del" onclick="event.stopPropagation();removeAttach(${i})">✕</button>
+      </div>`
+    ).join('');
+  });
 }
 
 function removeAttach(i){
@@ -2764,19 +2744,32 @@ function cancelForm(){
 }
 
 function saveJournal(){
-  try{
-    doSaveJournal();
-  }catch(err){
+  doSaveJournal().catch(function(err){
     console.error('saveJournal error:', err);
     toast('저장 중 오류가 발생했습니다: ' + (err && err.message ? err.message : '알 수 없는 오류'));
-  }
+  });
 }
 
-function doSaveJournal(){
+async function doSaveJournal(){
   const companyName = document.getElementById('f-company').value.trim();
   const visitDate = document.getElementById('f-date').value || new Date().toISOString().slice(0,10);
 
   const interestText = document.getElementById('f-interest-text').value.trim();
+
+  // 사진을 기기 내부 DB(IndexedDB)에 저장하고, 일지에는 사진 ID만 보관 → localStorage 용량 문제 해결
+  let photoRefs = [];
+  let photoDbFailed = false;
+  try {
+    for(const item of pendingAttachments){
+      if(isPhotoId(item)){ photoRefs.push(item); }                 // 이미 저장된 사진(수정 시)
+      else { photoRefs.push(await photoPut(item)); }               // 새 사진 → DB에 저장 후 ID
+    }
+  } catch(e){
+    // IndexedDB 사용 불가(사생활 모드 등) — 예전처럼 dataURL을 그대로 넣되 용량핸들링에 맡김
+    console.warn('photo DB save failed, fallback to inline', e);
+    photoDbFailed = true;
+    photoRefs = pendingAttachments.slice();
+  }
 
   const j = {
     id: editingId || Date.now(),
@@ -2807,8 +2800,8 @@ function doSaveJournal(){
     visit2: document.getElementById('f-visit2').value,
     visit3: document.getElementById('f-visit3').value,
     visit4: document.getElementById('f-visit4').value,
-    attachments: pendingAttachments.slice(),
-    attachment: null,   // 구버전 단일 필드는 더 이상 사용 안 함
+    attachments: photoRefs,       // 사진 ID(또는 폴백 dataURL) 배열
+    attachment: null,
     savedAt: new Date().toISOString(),
   };
 
@@ -2818,10 +2811,38 @@ function doSaveJournal(){
   } else {
     journals.unshift(j);
   }
-  persistJournals();
-  toast(`${companyName || '방문일지'}가 저장되었습니다.`);
-  history.back();
-  setTimeout(()=>switchTab('list'), 60);
+
+  const r = persistJournalsWithQuotaHandling();
+  if(r.ok){
+    if(r.droppedPhotos){
+      toast(`저장됐지만 저장공간이 부족해 오래된 사진 ${r.droppedPhotos}장이 자동 삭제됐습니다.`);
+    } else {
+      toast(`${companyName || '방문일지'}가 저장되었습니다.`);
+    }
+    history.back();
+    setTimeout(()=>switchTab('list'), 60);
+    return;
+  }
+
+  // IndexedDB 사용 시엔 사진이 localStorage에 없으므로 여기 오는 일은 거의 없음(방어용)
+  if(r.quota){
+    const cur = editingId ? journals.find(x=>x.id===editingId) : journals[0];
+    if(cur && cur.attachments && cur.attachments.length){
+      const dropped = cur.attachments.length;
+      cur.attachments = [];
+      cur.photosDropped = true;
+      const r2 = persistJournals();
+      if(r2.ok){
+        toast(`저장공간이 부족해 이 일지의 사진 ${dropped}장 없이 저장했습니다.`);
+        history.back();
+        setTimeout(()=>switchTab('list'), 60);
+        return;
+      }
+    }
+    toast('저장공간이 가득 찼습니다. 설정 > 백업으로 내보낸 뒤 정리해주세요.');
+  } else {
+    toast('저장 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
+  }
 }
 
 /* ---------------- 지역·조건 검색 (PC 지역·조건 패널과 동일 필터 값) ---------------- */
@@ -3223,17 +3244,26 @@ function selectPrintText(hex){
 }
 
 /* ---------------- Backup export / share ---------------- */
-function buildBackupJSON(){
+async function buildBackupJSON(){
   const backup = { _meta: { app: 'gfc-visit-log-backup', exportedAt: new Date().toISOString() } };
   BACKUP_KEYS.forEach(k=>{
     const v = localStorage.getItem(k);
     if(v !== null) backup[k] = v;
   });
+  // 기기 내부 DB에 저장된 사진도 함께 백업 (일지에서 참조하는 사진 ID만)
+  try{
+    const ids = new Set();
+    journals.forEach(j=>(j.attachments||[]).forEach(r=>{ if(isPhotoId(r)) ids.add(r); }));
+    const photos = {};
+    for(const id of ids){ const url = await photoGet(id); if(url) photos[id] = url; }
+    if(Object.keys(photos).length) backup._photos = photos;
+  }catch(e){ console.warn('photo backup skipped', e); }
   return JSON.stringify(backup);
 }
 
 async function shareBackup(){
-  const json = buildBackupJSON();
+  toast('백업 파일을 준비하는 중...');
+  const json = await buildBackupJSON();
   const ts = new Date().toISOString().slice(0,10);
   const filename = `세일즈맵_백업_${ts}.json`;
   const blob = new Blob([json], { type:'application/json' });
@@ -3259,7 +3289,7 @@ function importBackup(e){
   e.target.value = '';
   if(!file) return;
   const reader = new FileReader();
-  reader.onload = function(ev){
+  reader.onload = async function(ev){
     let data;
     try{ data = JSON.parse(ev.target.result); }
     catch(err){ toast('백업 파일을 읽지 못했습니다.'); return; }
@@ -3269,6 +3299,11 @@ function importBackup(e){
         try{ localStorage.setItem(k, data[k]); restored++; }catch(err){}
       }
     });
+    // 사진(IndexedDB) 복원
+    if(data._photos){
+      try{ for(const id of Object.keys(data._photos)){ await photoPutWithId(id, data._photos[id]); } }
+      catch(err){ console.warn('photo restore failed', err); }
+    }
     if(!restored){ toast('복원할 데이터를 찾지 못했습니다.'); return; }
     toast(`복원 완료 (${restored}개 항목). 새로고침합니다...`);
     setTimeout(()=>location.reload(), 1200);
@@ -3460,7 +3495,27 @@ function confirmReset(){
 }
 
 /* ---------------- Init ---------------- */
+// 캐시를 비우고 서비스워커를 갱신한 뒤 새로고침 → 항상 최신 화면 보장
+async function forceUpdateApp(){
+  toast('최신 버전을 불러오는 중입니다...');
+  try{
+    if('serviceWorker' in navigator){
+      const regs = await navigator.serviceWorker.getRegistrations();
+      for(const reg of regs){ try { await reg.update(); } catch(e){} }
+    }
+    if('caches' in window){
+      const keys = await caches.keys();
+      await Promise.all(keys.map(k => caches.delete(k)));   // 앱 화면 캐시만 삭제 (사진 DB·방문일지는 그대로)
+    }
+  }catch(e){ console.warn('forceUpdate error', e); }
+  // 캐시 무효화를 위해 쿼리스트링 붙여 재로딩
+  setTimeout(()=>{ location.href = location.pathname + '?v=' + Date.now(); }, 400);
+}
+
 function init(){
+  window.APP_VERSION = 'v22';
+  const vEl = document.getElementById('appVersionLabel');
+  if(vEl) vEl.textContent = window.APP_VERSION;
   // 이전 버전에서 manualCompanies에 저장된 엑셀 데이터가 있으면 extraSources로 자동 이관
   migrateManualToExtraSources();
   fillSettings();
