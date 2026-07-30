@@ -3488,6 +3488,12 @@ function importExcel(e){
         // 헤더명 정규화 (공백/괄호/특수문자 제거, 소문자화)
         const norm = (s) => String(s||'').replace(/[\s()（）\[\]【】·・,.\/\\\-_'"]/g,'').toLowerCase();
         const normalizedNameKeys = NAME_KEYS.map(norm);
+        // 헤더 행 채점용 — 우리가 아는 모든 헤더 키(정확일치 기준). '업체정보' 같은 그룹헤더 오인식을 막는다.
+        const ALL_HEADER_KEYS = [].concat(
+          NAME_KEYS, ZONE_KEYS, ADDR_KEYS, PHONE_KEYS, TYPE_KEYS, WORKER_KEYS, IND_KEYS,
+          SALES_KEYS, PROFIT_KEYS, INS1_KEYS, INS2_KEYS, CEONAME_KEYS, CEOSEX_KEYS, CEOAGE_KEYS,
+          BIZNO_KEYS, FOUND_KEYS
+        ).map(norm);
 
         // 여러 시트를 훑으며, 각 시트에서 헤더 행을 자동으로 찾아 데이터를 추출한다.
         let allRows = [];
@@ -3500,18 +3506,35 @@ function importExcel(e){
           const aoa = XLSX.utils.sheet_to_json(sheet, { header:1, defval:'', blankrows:false });
           if(!aoa.length) continue;
 
-          // 첫 20행을 스캔해서 "기업명" 계열이 들어있는 행을 헤더로 판정
-          let headerRowIdx = -1;
+          // 첫 20행을 스캔 — "기업명"이 '정확히' 있는 행들 중, 아는 헤더가 가장 많이 일치하는 행을 헤더로 선택.
+          // (그룹헤더 1행의 "업체정보"가 '업체'에 부분일치해 잘못 잡히던 문제 해결)
+          let headerRowIdx = -1, bestScore = -1;
           const scanLimit = Math.min(20, aoa.length);
           for(let i=0; i<scanLimit; i++){
             const row = aoa[i];
             if(!Array.isArray(row)) continue;
-            const hasName = row.some(cell => {
-              const nc = norm(cell);
-              if(!nc) return false;
-              return normalizedNameKeys.some(k => nc === k || nc.includes(k));
-            });
-            if(hasName){ headerRowIdx = i; break; }
+            const cells = row.map(norm).filter(Boolean);
+            if(!cells.length) continue;
+            // 기업명 계열이 '정확히' 일치하는 셀이 있어야 헤더 후보
+            const hasNameExact = cells.some(c => normalizedNameKeys.includes(c));
+            if(!hasNameExact) continue;
+            // 아는 헤더 키와 정확일치하는 셀 수로 점수화 (많을수록 진짜 헤더 행)
+            let score = 0;
+            cells.forEach(c => { if(ALL_HEADER_KEYS.includes(c)) score++; });
+            if(score > bestScore){ bestScore = score; headerRowIdx = i; }
+          }
+
+          if(headerRowIdx < 0){
+            // "기업명" 정확일치가 없으면 예전 방식(부분일치)으로 한 번 더 시도 (다른 양식 대비)
+            for(let i=0; i<scanLimit; i++){
+              const row = aoa[i];
+              if(!Array.isArray(row)) continue;
+              const hasName = row.some(cell => {
+                const nc = norm(cell);
+                return nc && normalizedNameKeys.some(k => nc === k || nc.includes(k));
+              });
+              if(hasName){ headerRowIdx = i; break; }
+            }
           }
 
           if(headerRowIdx < 0){
