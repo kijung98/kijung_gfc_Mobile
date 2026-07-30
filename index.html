@@ -416,6 +416,8 @@ select{-webkit-appearance:none;appearance:none;background-image:url("data:image/
 .pp-actions .pp-print{background:linear-gradient(135deg,var(--navy),var(--navy2));color:#fff;}
 .pp-actions .pp-close{background:#fff;color:var(--sub);border:1.5px solid var(--line);}
 @media print{
+  /* 배경색(헤더 파란색·짝수행 음영)을 인쇄에도 그대로 출력 */
+  *{ -webkit-print-color-adjust:exact !important; print-color-adjust:exact !important; }
   body *{visibility:hidden;}
   .pp-print-area, .pp-print-area *{visibility:visible;}
   .pp-print-area{position:absolute;top:0;left:0;width:100%;}
@@ -424,11 +426,19 @@ select{-webkit-appearance:none;appearance:none;background-image:url("data:image/
   /* 선택된(체크된) 행만 인쇄, 체크박스 컬럼은 숨김 */
   .pp-table tr.pp-off{display:none !important;}
   .pp-check-col{display:none !important;}
-  /* A4 가로 한 장에 담기도록 표 폭·글자 크기 최적화 */
-  .pp-table{font-size:7.6px;min-width:0;width:100%;table-layout:fixed;
+  /* A4 가로에 맞춰 컬럼 폭(각 th의 width%)대로 배분. 폰트는 읽기 편하게 키움 */
+  .pp-table{font-size:9.5px;min-width:0;width:100%;table-layout:fixed;
     white-space:normal;word-break:break-word;border-collapse:collapse;}
-  .pp-table th, .pp-table td{padding:2.5px 3px;vertical-align:top;overflow:hidden;}
+  .pp-table thead{display:table-header-group;}   /* 페이지가 넘어가도 헤더 반복 */
+  .pp-table th{position:static;                    /* 화면용 sticky 해제(헤더가 밑으로 밀리는 문제 방지) */
+    background:var(--print-th-bg) !important;color:#fff !important;
+    padding:5px 4px;font-size:9.5px;font-weight:700;text-align:center;}
+  .pp-table td{padding:4px 4px;vertical-align:top;overflow:hidden;}
+  .pp-table tr:nth-child(even) td{background:#eef2f9 !important;}
+  .pp-table tr{page-break-inside:avoid;}
   .pp-table tr.pp-off td{opacity:1;}
+  /* 숫자·짧은 항목은 가운데 정렬로 깔끔하게 */
+  .pp-print-title{font-size:15px;}
   @page{ size: A4 landscape; margin:7mm; }
 }
 
@@ -1742,37 +1752,37 @@ function exportPDF(){
    상세형(카드형) 인쇄는 지원하지 않고, 목록형(표) 인쇄만 제공합니다.
    PC v47 패키지의 업체정보 필드(대표자이름/성별/나이, 사업자번호, 설립년도)를 추가로 반영. */
 const PP_COLS = [
-  { key:'기업명',           label:'기업명' },
-  { key:'대표자',           label:'대표자(성별/나이)' },
-  { key:'통합주소',         label:'주소' },
-  { key:'본사전화번호',     label:'전화번호' },
-  { key:'최신근로자수',     label:'근로자수' },
-  { key:'단체보험가입여부', label:'단체보험' },
-  { key:'법인명의가입여부', label:'법인명의' },
-  { key:'사업자번호',       label:'사업자번호' },
-  { key:'설립년도',         label:'설립년도' },
-  { key:'매출',             label:'매출(백만)' },
-  { key:'순이익',           label:'순이익(백만)' },
+  { key:'기업명',           label:'기업명',           w:12 },
+  { key:'대표자',           label:'대표자(성별/나이)', w:12 },
+  { key:'통합주소',         label:'주소',             w:24 },
+  { key:'본사전화번호',     label:'전화번호',         w:11 },
+  { key:'최신근로자수',     label:'근로자수',         w:5.5 },
+  { key:'단체보험가입여부', label:'단체보험',         w:5.5 },
+  { key:'법인명의가입여부', label:'법인명의',         w:5.5 },
+  { key:'사업자번호',       label:'사업자번호',       w:8.5 },
+  { key:'설립년도',         label:'설립년도',         w:5.5 },
+  { key:'매출',             label:'매출(백만)',       w:5.5 },
+  { key:'순이익',           label:'순이익(백만)',     w:5.5 },
 ];
 
 // 방문일지 목록 인쇄/엑셀 전용 컬럼 — 요청 항목/순서 (담당자 제외, 동행자만 / 방문차수는 횟수)
 const JOURNAL_PP_COLS = [
-  { key:'방문일',     label:'방문일' },
-  { key:'동행',       label:'동행자' },
-  { key:'기업명',     label:'기업명' },
-  { key:'대표자나이', label:'대표자/나이' },
-  { key:'사업자번호', label:'사업자번호' },
-  { key:'주소',       label:'주소' },
-  { key:'전화번호',   label:'전화번호' },
-  { key:'기업형태',   label:'기업형태' },
-  { key:'근로자수',   label:'근로자수' },
-  { key:'매출',       label:'매출(백만)' },
-  { key:'순이익',     label:'순수익(백만)' },
-  { key:'첫인상',     label:'첫인상' },
-  { key:'방문결과',   label:'방문결과' },
-  { key:'관심분야',   label:'관심분야' },
-  { key:'상담내용',   label:'상담내용' },
-  { key:'방문차수',   label:'방문차수' },
+  { key:'방문일',     label:'방문일',       w:6 },
+  { key:'동행',       label:'동행자',       w:5 },
+  { key:'기업명',     label:'기업명',       w:8 },
+  { key:'대표자나이', label:'대표자/나이',   w:7 },
+  { key:'사업자번호', label:'사업자번호',   w:7 },
+  { key:'주소',       label:'주소',         w:13 },
+  { key:'전화번호',   label:'전화번호',     w:7 },
+  { key:'기업형태',   label:'기업형태',     w:5 },
+  { key:'근로자수',   label:'근로자수',     w:4 },
+  { key:'매출',       label:'매출(백만)',   w:4.5 },
+  { key:'순이익',     label:'순수익(백만)', w:4.5 },
+  { key:'첫인상',     label:'첫인상',       w:4 },
+  { key:'방문결과',   label:'방문결과',     w:4.5 },
+  { key:'관심분야',   label:'관심분야',     w:4.5 },
+  { key:'상담내용',   label:'상담내용',     w:11 },
+  { key:'방문차수',   label:'방문차수',     w:4.5 },
 ];
 
 let ppCurrentList = [];
@@ -1898,7 +1908,7 @@ function openPrintPreview(list, title, opts){
 
   const theadHtml = '<tr>'
     + '<th class="pp-check-col"><input type="checkbox" id="ppCheckAll" checked onclick="ppToggleAll(this.checked)"></th>'
-    + ppActiveCols.map(c=>`<th>${c.label}</th>`).join('') + '</tr>';
+    + ppActiveCols.map(c=>`<th${c.w?` style="width:${c.w}%"`:''}>${c.label}</th>`).join('') + '</tr>';
   const tbodyHtml = list.map((item,i)=>{
     const cells = ppActiveCols.map(col=>`<td>${escapeHTML(String(ppCellValue(item, col.key)))}</td>`).join('');
     return `<tr data-i="${i}">`
