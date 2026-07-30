@@ -190,15 +190,34 @@ html,body{margin:0;padding:0;height:100%;background:var(--bg);color:var(--text);
 .j-card .date{font-size:12px;color:var(--sub);margin-top:2px;}
 .j-card .tag{display:inline-block;font-size:11px;font-weight:700;padding:3px 9px;border-radius:8px;
   background:#eef1f7;color:#39435a;margin-top:6px;margin-right:5px;}
+.j-card .j-move{flex-shrink:0;margin-left:8px;border:1.5px solid var(--line);background:#f4f6fa;
+  color:#39435a;border-radius:9px;padding:6px 10px;font-size:11.5px;font-weight:700;white-space:nowrap;
+  touch-action:manipulation;}
 .j-card .snippet{font-size:13px;color:#4a5568;margin-top:8px;line-height:1.4;
   display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
 .empty-hint{text-align:center;color:var(--sub);font-size:13px;padding:40px 10px;}
 
 .bulk-bar{position:sticky;bottom:0;display:flex;gap:8px;padding:10px 0 4px;
   background:linear-gradient(0deg,var(--bg) 65%,transparent);}
-.bulk-bar button{flex:1;border:none;border-radius:12px;padding:13px;font-weight:800;font-size:14px;}
+.bulk-bar button{flex:1;border:none;border-radius:12px;padding:13px;font-weight:800;font-size:13.5px;
+  touch-action:manipulation;}
 .bulk-bar .del{background:var(--red);color:#fff;}
+.bulk-bar .move{background:var(--navy);color:#fff;}
 .bulk-bar .cancel{background:#eef1f7;color:#444;}
+
+/* 폴더 이동 모달 */
+.move-box{max-height:82vh; max-height:82dvh; display:flex;flex-direction:column;}
+.move-list{overflow-y:auto;-webkit-overflow-scrolling:touch;display:flex;flex-direction:column;gap:8px;
+  margin-bottom:12px;min-height:0;}
+.move-item{display:flex;justify-content:space-between;align-items:center;gap:10px;width:100%;
+  border:1.5px solid var(--line);background:#fff;border-radius:12px;padding:13px 14px;text-align:left;
+  font-size:14px;font-weight:700;color:#2b3550;touch-action:manipulation;}
+.move-item:active{background:#f4f6fa;}
+.move-item.cur{opacity:.5;}
+.move-item .mi-count{font-size:11.5px;color:var(--sub);font-weight:700;flex-shrink:0;}
+.move-special{display:flex;gap:8px;flex-wrap:wrap;border-top:1px solid var(--line);padding-top:12px;}
+.move-special button{flex:1;min-width:calc(50% - 4px);border:1.5px dashed var(--line);background:#fafbfd;
+  color:#39435a;border-radius:12px;padding:12px;font-size:12.5px;font-weight:700;touch-action:manipulation;}
 
 /* ---------- 지역·조건으로 찾기 (PC picker-panel과 맞춤: 아이콘+타이틀 섹션 + 칩줄) ---------- */
 .picker-section{margin-bottom:16px;}
@@ -509,6 +528,7 @@ select{-webkit-appearance:none;appearance:none;background-image:url("data:image/
       <div id="journalList"></div>
       <div class="bulk-bar hidden" id="bulkBar">
         <button class="cancel" onclick="toggleSelectMode()">취소</button>
+        <button class="move" onclick="bulkMove()">📁 선택 이동 (<span id="selCountMove">0</span>)</button>
         <button class="del" onclick="bulkDelete()">선택 삭제 (<span id="selCount">0</span>)</button>
       </div>
     </section>
@@ -1102,6 +1122,21 @@ select{-webkit-appearance:none;appearance:none;background-image:url("data:image/
   </div>
 </div>
 
+<div class="confirm-overlay" id="moveOverlay">
+  <div class="confirm-box move-box">
+    <h3 id="moveTitle">📁 폴더 이동</h3>
+    <p id="moveMsg" style="margin-bottom:10px;color:var(--sub);font-size:13px;"></p>
+    <div class="move-list" id="moveList"></div>
+    <div class="move-special">
+      <button type="button" class="move-new" onclick="moveToNewFolder()">➕ 새 폴더 만들기</button>
+      <button type="button" class="move-auto" onclick="moveToFolder('__auto__')">🔄 자동 분류로 되돌리기</button>
+    </div>
+    <div class="btns" style="margin-top:14px;">
+      <button class="btn-cancel" onclick="closeMoveFolder()">취소</button>
+    </div>
+  </div>
+</div>
+
 <script>
 /* =========================================================
    방문영업일지 모바일 v3 — v39 PC버전의 실제 방문결과/우선순위/지역 필터 값과
@@ -1393,6 +1428,7 @@ function renderList(){
   if(fvBtn) fvBtn.classList.toggle('on', folderView);
   document.getElementById('bulkBar').classList.toggle('hidden', !selectMode);
   document.getElementById('selCount').textContent = selectedIds.size;
+  const selMoveEl = document.getElementById('selCountMove'); if(selMoveEl) selMoveEl.textContent = selectedIds.size;
   document.getElementById('btnSelectMode').classList.toggle('on', selectMode);
   document.getElementById('btnOrderMode').classList.toggle('on', orderMode);
 }
@@ -1416,12 +1452,30 @@ function journalRegionKey(j){
   if(gu) return gu[1];
   return '지역 미지정';
 }
-// 화면에 표시할 폴더 이름(사용자가 수정했으면 그 이름). 형식: "2026.7.25. 지역명 (방문자명)"
-function folderLabel(regionKey, visitorName, dateStr){
+// 주소에서 시/군/구를 추출 (폴더명 앞에 표시). 예: "인천광역시 서구 ..." → "인천 서구", "경기도 김포시 ..." → "김포시"
+function extractSigungu(addr){
+  const s = String(addr || '').trim();
+  if(!s) return '';
+  const tokens = s.split(/\s+/);
+  let metro = '', si = '', gu = '';
+  for(const t of tokens){
+    if(/(특별시|광역시|특별자치시)$/.test(t)) metro = t.replace(/(특별시|광역시|특별자치시)$/, '');
+    else if(/시$/.test(t)){ if(!si) si = t; }
+    else if(/군$/.test(t)){ if(!si) si = t; }
+    else if(/구$/.test(t)){ if(!gu) gu = t; }
+  }
+  if(metro && gu) return `${metro} ${gu}`;   // 인천 서구
+  if(si && gu)    return `${si} ${gu}`;       // 성남시 분당구
+  if(si)          return si;                  // 김포시
+  if(gu)          return gu;                  // 서구
+  if(metro)       return metro;               // 인천
+  return '';
+}
+// 화면에 표시할 폴더 이름(사용자가 수정했으면 그 이름). 형식: "시/구 동 · 동행자"
+function folderLabel(regionKey, visitorName, sigungu){
   if(folderRenames[regionKey] !== undefined) return folderRenames[regionKey];
-  const datePart = dateStr ? `${dateStr} ` : '';
-  const base = visitorName ? `${regionKey} (${visitorName})` : regionKey;
-  return `${datePart}${base}`;
+  const region = sigungu ? `${sigungu} ${regionKey}` : regionKey;  // "김포시 성곡동"
+  return visitorName ? `${region} · ${visitorName}` : region;      // "김포시 성곡동 · 함상우"
 }
 
 // 폴더에 표시할 방문자 문자열 — 담당자(본인)를 뺀 동행자만 (예: "함상우, 김영수")
@@ -1500,21 +1554,24 @@ function renameFolder(regionKey){
   renderList();
 }
 
-// journals를 지역별로 묶어 [{key, label, items:[{j,idx}]}] 형태로 반환 (일지 원래 순서 유지)
+// journals를 폴더별로 묶어 반환. 일지에 folderKey(수동 지정)가 있으면 그 폴더로, 없으면 주소 기반 자동 분류.
+function journalFolderKey(j){
+  return (j.folderKey && String(j.folderKey).trim()) ? String(j.folderKey).trim() : journalRegionKey(j);
+}
 function groupJournalsByRegion(list){
   const groups = [];
   const idxMap = {};
   list.forEach(x=>{
-    const key = journalRegionKey(x.j);
+    const key = journalFolderKey(x.j);
     if(idxMap[key] === undefined){ idxMap[key] = groups.length; groups.push({ key, items: [] }); }
     groups[idxMap[key]].items.push(x);
   });
   // 각 그룹의 방문자명·라벨·색상 확정
   groups.forEach(g=>{
-    g.visitor = groupVisitorName(g.items);       // 담당자+동행자 전체 (폴더명 표시용)
+    g.visitor = groupVisitorName(g.items);       // 동행자만 (폴더명 표시용)
     g.owner = groupOwnerName(g.items);            // 동행자(색상 매칭용)
-    g.date = fmtFolderDate(g.items[0].j.visitDate); // 폴더 대표 방문날짜(첫 일지 기준)
-    g.label = folderLabel(g.key, g.visitor, g.date);
+    g.sigungu = extractSigungu(g.items[0].j.address); // 폴더 대표 시/구(첫 일지 기준)
+    g.label = folderLabel(g.key, g.visitor, g.sigungu);
     g.color = visitorColor(g.owner);              // 설정에서 동행자에게 지정한 색 사용
   });
   return groups;
@@ -1539,6 +1596,7 @@ function toggleOrderMode(){
 function toggleCheck(id){
   if(selectedIds.has(id)) selectedIds.delete(id); else selectedIds.add(id);
   document.getElementById('selCount').textContent = selectedIds.size;
+  const m = document.getElementById('selCountMove'); if(m) m.textContent = selectedIds.size;
 }
 function bulkDelete(){
   if(!selectedIds.size){ toast('삭제할 항목을 선택해주세요.'); return; }
@@ -1550,6 +1608,81 @@ function bulkDelete(){
     toast('삭제되었습니다.');
     renderList(); renderHome();
   });
+}
+
+/* ---------------- 폴더 이동 (B-2 카드별 · B-3 다중 선택) ---------------- */
+let moveTargetIds = [];   // 이동 대상 일지 id 배열
+
+// 현재 존재하는 폴더 목록을 [{key, label, count}]로 반환 (전체 일지 기준)
+function currentFolderList(){
+  const order = [];
+  const map = {};
+  journals.forEach(j=>{
+    const key = journalFolderKey(j);
+    if(!map[key]){
+      map[key] = { key, sigungu: extractSigungu(j.address), visitor: '', count: 0, first: j };
+      order.push(key);
+    }
+    map[key].count++;
+  });
+  return order.map(k=>{
+    const g = map[k];
+    // 폴더명 라벨 (동행자는 폴더 대표 첫 일지 기준)
+    const comps = journalCompanions(g.first);
+    const label = folderLabel(k, comps.join(', '), g.sigungu);
+    return { key:k, label, count:g.count };
+  });
+}
+
+function openMoveFolder(ids){
+  moveTargetIds = (ids || []).slice();
+  if(!moveTargetIds.length){ toast('이동할 항목을 선택해주세요.'); return; }
+  document.getElementById('moveMsg').textContent = `선택한 ${moveTargetIds.length}건을 옮길 폴더를 고르세요.`;
+  const folders = currentFolderList();
+  // 대상이 단일 건이면 현재 폴더는 목록에서 빼서 헷갈리지 않게
+  let curKey = null;
+  if(moveTargetIds.length === 1){
+    const j = journals.find(x=>x.id===moveTargetIds[0]);
+    if(j) curKey = journalFolderKey(j);
+  }
+  const listEl = document.getElementById('moveList');
+  listEl.innerHTML = folders.map(f=>{
+    const isCur = (f.key === curKey);
+    return `<button type="button" class="move-item ${isCur?'cur':''}" ${isCur?'disabled':''} onclick="moveToFolder('${escapeAttr(f.key)}')">
+      <span class="mi-name">${escapeHTML(f.label)}</span>
+      <span class="mi-count">${f.count}건${isCur?' · 현재':''}</span>
+    </button>`;
+  }).join('') || '<div style="color:var(--sub);font-size:13px;padding:8px 0;">아직 만들어진 폴더가 없습니다. 아래에서 새 폴더를 만들어 주세요.</div>';
+  document.getElementById('moveOverlay').classList.add('show');
+}
+function closeMoveFolder(){ document.getElementById('moveOverlay').classList.remove('show'); }
+
+function moveToFolder(key){
+  if(!moveTargetIds.length){ closeMoveFolder(); return; }
+  moveTargetIds.forEach(id=>{
+    const j = journals.find(x=>x.id===id);
+    if(!j) return;
+    if(key === '__auto__') delete j.folderKey;   // 주소 기반 자동 분류로 복귀
+    else j.folderKey = key;
+  });
+  persistJournals();
+  closeMoveFolder();
+  const n = moveTargetIds.length;
+  moveTargetIds = [];
+  if(selectMode){ selectMode = false; selectedIds.clear(); }
+  toast(key === '__auto__' ? `${n}건을 자동 분류로 되돌렸습니다.` : `${n}건을 이동했습니다.`);
+  renderList();
+}
+function moveToNewFolder(){
+  const name = prompt('새 폴더 이름을 입력하세요 (예: 핵심관리, 재방문예정)');
+  if(name === null) return;
+  const key = name.trim();
+  if(!key){ toast('폴더 이름을 입력해주세요.'); return; }
+  moveToFolder(key);
+}
+function bulkMove(){
+  if(!selectedIds.size){ toast('이동할 항목을 선택해주세요.'); return; }
+  openMoveFolder(Array.from(selectedIds));
 }
 function moveJournal(idx, dir){
   const newIdx = idx + dir;
@@ -1564,6 +1697,8 @@ function journalCardHTML(j, withTools, idx){
   const orderBtns = (withTools && orderMode) ? `<div class="ord" onclick="event.stopPropagation();">
       <button onclick="moveJournal(${idx},-1)">▲</button><button onclick="moveJournal(${idx},1)">▼</button>
     </div>` : '';
+  // 폴더 이동 버튼 (일반 보기에서만 표시)
+  const moveBtn = (withTools && !selectMode && !orderMode) ? `<button type="button" class="j-move" onclick="event.stopPropagation();openMoveFolder([${j.id}])">📁 폴더이동</button>` : '';
   const clickable = (selectMode) ? `onclick="toggleCheck(${j.id});renderList();"` : (orderMode ? '' : `onclick="openDetail(${j.id})"`);
   const resultClass = j.result ? 'r-'+j.result : '';
   return `<div class="j-card ${resultClass}" ${clickable}>
@@ -1574,6 +1709,7 @@ function journalCardHTML(j, withTools, idx){
           <div class="company">${escapeHTML(j.companyName||'(기업명 없음)')}</div>
           <div class="date">${j.visitDate||''} ${j.visitTime||''} · ${escapeHTML(j.visitor||'')}</div>
         </div>
+        ${moveBtn}
       </div>
       ${j.result ? `<span class="tag">${escapeHTML(j.result)}</span>` : ''}
       ${j.priority ? `<span class="tag">${escapeHTML(j.priority)}</span>` : ''}
@@ -2814,7 +2950,10 @@ function doSaveJournal(){
 
   if(editingId){
     const idx = journals.findIndex(x=>x.id===editingId);
-    if(idx>-1) journals[idx] = j;
+    if(idx>-1){
+      if(journals[idx].folderKey) j.folderKey = journals[idx].folderKey; // 수동 지정한 폴더 유지
+      journals[idx] = j;
+    }
   } else {
     journals.unshift(j);
   }
