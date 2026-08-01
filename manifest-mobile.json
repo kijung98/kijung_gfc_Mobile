@@ -1,7 +1,11 @@
 {
+  "id": "./index.html",
   "name": "세일즈맵",
   "short_name": "세일즈맵",
   "description": "삼성생명 GFC 방문영업 CRM - 모바일 간편 입력용",
+  "lang": "ko",
+  "dir": "ltr",
+  "categories": ["business", "productivity"],
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",

@@ -23,7 +23,9 @@
   --print-th-bg: #1B3A6B; --print-th-text: #ffffff;
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
-html,body{margin:0;padding:0;height:100%;background:var(--bg);color:var(--text);
+html,body{margin:0;padding:0;height:100%;color:var(--text);
+  background:linear-gradient(160deg,#eaf0fb 0%,#f3f5f9 42%,#f6f2ec 100%);
+  background-attachment:fixed;
   font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;
   overscroll-behavior:none;}
 #app{position:fixed;inset:0;display:flex;flex-direction:column;}
@@ -51,16 +53,38 @@ html,body{margin:0;padding:0;height:100%;background:var(--bg);color:var(--text);
 .mode-tab.active{background:#fff;color:var(--navy);box-shadow:0 1px 4px rgba(20,30,60,.1);}
 
 /* ---------- Buttons / cards ---------- */
-.big-btn{width:100%;border:none;border-radius:16px;padding:20px 16px;margin-bottom:14px;
-  display:flex;align-items:center;gap:14px;font-size:16px;font-weight:700;text-align:left;
-  box-shadow:0 3px 10px rgba(20,30,60,.08);}
+/* Liquid Glass 버튼 — 반투명 프로스티드 카드 + 눌림 축소 애니메이션 */
+.big-btn{width:100%;border:1px solid rgba(255,255,255,.65);border-radius:20px;padding:16px;margin-bottom:12px;
+  display:flex;align-items:center;gap:14px;font-size:16px;font-weight:700;text-align:left;color:var(--navy);
+  background:rgba(255,255,255,.60);
+  -webkit-backdrop-filter:saturate(180%) blur(20px);backdrop-filter:saturate(180%) blur(20px);
+  box-shadow:0 6px 20px rgba(20,30,60,.10);
+  transition:transform .12s ease, box-shadow .12s ease;}
+.big-btn:active{transform:scale(.97);box-shadow:0 3px 10px rgba(20,30,60,.10);}
+.big-btn .desc{font-weight:400;font-size:12px;color:var(--sub);margin-top:3px;}
+.big-btn.primary{background:linear-gradient(135deg,rgba(37,99,235,.16),rgba(15,31,61,.10));border-color:rgba(37,99,235,.22);color:var(--navy);}
+.big-btn.gold{background:linear-gradient(135deg,rgba(201,162,39,.22),rgba(169,134,29,.12));border-color:rgba(201,162,39,.30);color:#7a5f10;}
+.big-btn.outline{background:rgba(255,255,255,.60);color:var(--navy);}
+
+/* 아이콘 컬러 타일 (iOS 설정형): .ico.tile 에만 적용, 기존 이모지형 .ico 는 그대로 유지 */
 .big-btn .ico{font-size:26px;width:40px;text-align:center;flex-shrink:0;}
-.big-btn .desc{font-weight:400;font-size:12px;opacity:.85;margin-top:2px;}
-.big-btn.primary{background:linear-gradient(135deg,var(--navy),var(--navy2));color:#fff;}
-.big-btn.gold{background:linear-gradient(135deg,#caa63a,#a9861d);color:#fff;}
-.big-btn.outline{background:#fff;color:var(--navy);border:1.5px solid var(--line);}
+.ico.tile{width:44px;height:44px;border-radius:12px;font-size:0;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(20,30,60,.20);}
+.ico.tile svg{width:24px;height:24px;stroke:#fff;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
+.ico.tile.blue{background:linear-gradient(135deg,#4c9bff,#2563eb);}
+.ico.tile.green{background:linear-gradient(135deg,#34d399,#0d9488);}
+.ico.tile.indigo{background:linear-gradient(135deg,#8b8bff,#6366f1);}
+.ico.tile.navy{background:linear-gradient(135deg,#334e86,#0f1f3d);}
+.ico.tile.red{background:linear-gradient(135deg,#f87171,#dc2626);}
+.ico.tile.gray{background:linear-gradient(135deg,#9aa3b5,#6b7280);}
+.ico.tile.gold{background:linear-gradient(135deg,#e0b73d,#c9a227);}
 .small-btn{width:100%;border:1.5px dashed #c7cede;background:#eef1f7;color:#556;
   border-radius:12px;padding:12px;font-size:13px;font-weight:600;margin-top:6px;margin-bottom:20px;}
+.home-more-btn{width:100%;border:1px solid rgba(255,255,255,.65);color:var(--navy);
+  background:rgba(255,255,255,.60);-webkit-backdrop-filter:saturate(180%) blur(20px);backdrop-filter:saturate(180%) blur(20px);
+  border-radius:14px;padding:12px;font-size:13px;font-weight:700;margin-top:2px;margin-bottom:8px;
+  box-shadow:0 4px 14px rgba(20,30,60,.08);transition:transform .12s ease;}
+.home-more-btn:active{transform:scale(.98);opacity:.85;}
 
 .card{background:var(--card);border-radius:14px;padding:14px;margin-bottom:12px;
   box-shadow:0 2px 8px rgba(20,30,60,.06);}
@@ -92,18 +116,21 @@ html,body{margin:0;padding:0;height:100%;background:var(--bg);color:var(--text);
   font-size:13px;font-weight:700;color:#556;}
 .chip.pill{border-radius:20px;font-weight:600;}
 .chip.sm{padding:6px 11px;font-size:12px;border-radius:16px;}
-/* 방문결과 - PC와 동일한 값별 색상 */
-.chip.result[data-v="완료"].on{background:var(--green);border-color:var(--green);color:#fff;}
-.chip.result[data-v="재방문필요"].on{background:var(--blue);border-color:var(--blue);color:#fff;}
-.chip.result[data-v="부재"].on{background:var(--amber);border-color:var(--amber);color:#fff;}
-.chip.result[data-v="거절"].on{background:var(--red);border-color:var(--red);color:#fff;}
-.chip.result[data-v="취소"].on{background:var(--gray-400);border-color:var(--gray-400);color:#fff;}
-.chip.result[data-v="가벼운터치"].on{background:var(--purple);border-color:var(--purple);color:#fff;}
-/* 우선순위 - PC와 동일하게 단일 amber 강조 */
+/* 방문결과 - 선택 시 값별 색상 '틴트'(연한 배경 + 색 글씨 + 색 테두리) */
+.chip.result[data-v="완료"].on{background:rgba(22,163,74,.12);border-color:var(--green);color:var(--green);}
+.chip.result[data-v="재방문필요"].on{background:rgba(37,99,235,.12);border-color:var(--blue);color:var(--blue);}
+.chip.result[data-v="부재"].on{background:rgba(217,119,6,.14);border-color:var(--amber);color:var(--amber);}
+.chip.result[data-v="거절"].on{background:rgba(220,38,38,.12);border-color:var(--red);color:var(--red);}
+.chip.result[data-v="취소"].on{background:rgba(156,163,175,.18);border-color:var(--gray-400);color:#6b7280;}
+.chip.result[data-v="가벼운터치"].on{background:rgba(124,58,237,.12);border-color:var(--purple);color:var(--purple);}
+/* 우선순위 - amber 틴트 */
 .chip.priority.on{background:var(--amber-lt);border-color:var(--amber);color:var(--amber);}
-/* 일반 선택형(단체보험/법인명의/리/근로자수 등) - PC picker-chip과 동일한 파란색 강조 */
-.chip.pick.on{background:var(--blue);border-color:var(--blue);color:#fff;}
-.chip.on{background:var(--navy);border-color:var(--navy);color:#fff;}
+/* 일반 선택형(단체보험/법인명의/리/근로자수 등) - 파란 틴트 */
+.chip.pick.on{background:rgba(37,99,235,.12);border-color:var(--blue);color:var(--blue);}
+/* 공통 선택 - 남색 틴트 */
+.chip.on{background:rgba(15,31,61,.10);border-color:var(--navy);color:var(--navy);}
+/* 선택된 칩 앞에 체크마크 표시 (iOS 선택됨 스타일) */
+.chip.on::before{content:'✓';font-weight:800;margin-right:5px;}
 
 .visit-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
 .visit-grid .field{margin-bottom:0;}
@@ -154,7 +181,7 @@ html,body{margin:0;padding:0;height:100%;background:var(--bg);color:var(--text);
 
 .filter-row-scroll{display:flex;gap:6px;overflow-x:auto;padding:2px 0 10px;margin-bottom:4px;}
 .filter-row-scroll .chip{white-space:nowrap;flex-shrink:0;}
-.filter-row-scroll .chip.on{background:var(--navy);border-color:var(--navy);color:#fff;}
+.filter-row-scroll .chip.on{background:rgba(15,31,61,.10);border-color:var(--navy);color:var(--navy);}
 
 .tool-row{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;}
 .region-folder{background:#fff;border:1.5px solid var(--line);border-radius:14px;margin-bottom:10px;overflow:hidden;}
@@ -252,7 +279,8 @@ html,body{margin:0;padding:0;height:100%;background:var(--bg);color:var(--text);
   padding-bottom:var(--safe-bottom);flex-shrink:0;}
 #tabbar button{flex:1;background:none;border:none;padding:9px 0 8px;display:flex;
   flex-direction:column;align-items:center;gap:2px;color:#9aa3b5;font-size:10.5px;font-weight:600;}
-#tabbar button .ic{font-size:19px;}
+#tabbar button .ic{display:flex;align-items:center;justify-content:center;height:25px;}
+#tabbar button .ic svg{width:25px;height:25px;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;}
 #tabbar button.active{color:var(--navy);}
 
 /* ---------- Misc ---------- */
@@ -312,8 +340,9 @@ select{-webkit-appearance:none;appearance:none;background-image:url("data:image/
 .hint-box{background:#fff8e6;border:1px solid var(--gold-soft);border-radius:10px;padding:10px 12px;font-size:12px;color:#7a5f10;margin-bottom:12px;line-height:1.5;}
 
 /* ---------- 데이터관리 (PC버전 데이터 소스 관리 스타일 이식) ---------- */
-.dm-section{background:#fff;border-radius:14px;margin-bottom:16px;overflow:hidden;box-shadow:0 2px 8px rgba(20,30,60,.06);}
-.dm-section-head{background:linear-gradient(135deg,#2b57c4,#3d6bd8);color:#fff;padding:13px 16px;font-size:15px;font-weight:800;display:flex;align-items:center;gap:8px;}
+.dm-section{background:rgba(255,255,255,.62);border:1px solid rgba(255,255,255,.65);border-radius:16px;margin-bottom:16px;overflow:hidden;
+  -webkit-backdrop-filter:saturate(180%) blur(20px);backdrop-filter:saturate(180%) blur(20px);box-shadow:0 6px 20px rgba(20,30,60,.08);}
+.dm-section-head{background:rgba(37,99,235,.10);color:var(--navy);border-bottom:1px solid rgba(37,99,235,.14);padding:14px 16px;font-size:15px;font-weight:800;display:flex;align-items:center;gap:8px;}
 .dm-section-body{padding:14px 14px 16px;}
 .dm-section-note{font-size:12.5px;color:var(--sub);line-height:1.55;margin-bottom:12px;}
 
@@ -362,12 +391,17 @@ select{-webkit-appearance:none;appearance:none;background-image:url("data:image/
 .quick-nav-row button{flex:1;background:#fff;border:1.5px solid var(--line);border-radius:12px;
   padding:10px 6px 8px;font-size:12px;font-weight:800;color:var(--navy);
   display:flex;flex-direction:column;align-items:center;gap:3px;}
-.quick-nav-row button .qn-ic{font-size:18px;line-height:1;}
+.quick-nav-row button .qn-ic{font-size:18px;line-height:1;display:flex;align-items:center;justify-content:center;height:20px;}
+.quick-nav-row button .qn-ic svg{width:19px;height:19px;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;}
 .quick-nav-row button.qn-primary{background:linear-gradient(135deg,var(--navy),var(--navy2));color:#fff;border:none;}
 .quick-nav-row button:active{opacity:.75;}
-.home-print-row{margin-bottom:14px;background:#fff;border:1.5px solid var(--line);border-radius:14px;padding:14px;}
-.hp-print-btn{width:100%;border:none;border-radius:12px;padding:13px 14px;font-size:14px;font-weight:800;
-  color:#fff;background:linear-gradient(135deg,var(--navy),var(--navy2));}
+.home-print-row{margin-bottom:12px;}
+.hp-print-btn{width:100%;border:1px solid rgba(255,255,255,.65);border-radius:20px;padding:14px 16px;font-size:14.5px;font-weight:800;
+  color:var(--navy);background:rgba(255,255,255,.60);
+  -webkit-backdrop-filter:saturate(180%) blur(20px);backdrop-filter:saturate(180%) blur(20px);
+  box-shadow:0 6px 20px rgba(20,30,60,.10);display:flex;align-items:center;gap:12px;text-align:left;
+  transition:transform .12s ease;}
+.hp-print-btn:active{transform:scale(.97);}
 
 /* ---------- 지역·조건찾기 결과 개수 — 스크롤 없이 상단에 항상 보이도록 sticky 처리 ---------- */
 .region-live-count{position:sticky;top:0;z-index:8;background:#eef1f7;border:1.5px solid var(--line);
@@ -481,6 +515,77 @@ select{-webkit-appearance:none;appearance:none;background-image:url("data:image/
 .print-header-preview{border:1px solid var(--line);border-radius:10px;overflow:hidden;margin-top:10px;}
 .print-header-preview .php-row{background:var(--print-th-bg);color:var(--print-th-text);padding:9px 12px;
   font-size:12.5px;font-weight:700;display:flex;gap:16px;}
+
+/* ---------- 영업백과 (컨설턴트 지식) ---------- */
+.guide-chev{color:var(--sub);font-size:20px;font-weight:400;flex-shrink:0;margin-left:6px;line-height:1;}
+.guide-intro{font-size:12.5px;color:var(--sub);line-height:1.6;margin-bottom:14px;}
+.guide-detail h3{font-size:15px;color:var(--navy);margin:16px 0 6px;font-weight:800;}
+.guide-detail h3:first-child{margin-top:0;}
+.guide-detail p{font-size:13.5px;line-height:1.65;margin:0 0 8px;color:var(--text);}
+.guide-detail ul{margin:0 0 10px;padding-left:18px;}
+.guide-detail li{font-size:13.5px;line-height:1.6;margin-bottom:4px;}
+.guide-table{width:100%;border-collapse:collapse;margin:6px 0 12px;font-size:12.5px;}
+.guide-table th,.guide-table td{border:1px solid var(--line);padding:7px 8px;text-align:left;vertical-align:top;}
+.guide-table th{background:rgba(37,99,235,.10);color:var(--navy);font-weight:700;}
+.guide-tip{background:rgba(37,99,235,.07);border:1px solid rgba(37,99,235,.16);border-radius:10px;
+  padding:10px 12px;font-size:12.5px;color:#243b6b;line-height:1.6;margin:8px 0 4px;}
+.guide-note{background:#fff8e6;border:1px solid var(--gold-soft);border-radius:10px;
+  padding:10px 12px;font-size:11.5px;color:#7a5f10;line-height:1.55;margin-top:12px;}
+
+/* 서브 화면(상단바가 가려지는 화면)용 뒤로/홈 바 */
+.sub-topbar{display:flex;gap:8px;align-items:center;margin-bottom:14px;padding-top:var(--safe-top);}
+.sub-topbar .sbtn{background:rgba(255,255,255,.62);border:1px solid rgba(255,255,255,.65);
+  -webkit-backdrop-filter:saturate(180%) blur(20px);backdrop-filter:saturate(180%) blur(20px);
+  color:var(--navy);border-radius:12px;padding:10px 15px;font-size:13.5px;font-weight:700;
+  box-shadow:0 2px 8px rgba(20,30,60,.08);display:flex;align-items:center;gap:5px;transition:transform .12s ease;}
+.sub-topbar .sbtn:active{transform:scale(.94);}
+.sub-topbar .sp{flex:1;}
+
+/* ---- 물결(리플) + 눌림 반응 ---- */
+.big-btn,.chip,#tabbar button,.quick-nav-row button,.hp-print-btn,.home-more-btn,
+.sub-topbar .sbtn,.move-item,.pp-fchip,.tool-row button{position:relative;overflow:hidden;}
+.ripple{position:absolute;border-radius:50%;background:currentColor;opacity:.18;transform:scale(0);
+  animation:ripple-anim .55s ease-out;pointer-events:none;}
+@keyframes ripple-anim{to{transform:scale(2.4);opacity:0;}}
+.chip{transition:transform .1s ease, background .14s ease, border-color .14s ease, color .14s ease;}
+.chip:active{transform:scale(.93);}
+
+/* ---- 방문기록 드래그 순서변경 ---- */
+.j-card{transition:box-shadow .15s ease;}
+.j-card .ord .drag-handle{width:30px;height:26px;display:flex;align-items:center;justify-content:center;
+  font-size:16px;color:var(--sub);cursor:grab;touch-action:none;-webkit-user-select:none;user-select:none;}
+.j-card.dragging{z-index:30;box-shadow:0 12px 30px rgba(20,30,60,.30);opacity:.97;}
+
+/* ---- 영업백과 계산기 ---- */
+.calc-row{display:flex;align-items:center;gap:8px;margin:10px 0 6px;flex-wrap:wrap;}
+.calc-row input{flex:1;min-width:110px;padding:11px 12px;border:1.5px solid var(--line);border-radius:10px;font-size:15px;background:#fff;}
+.calc-row .unit{font-size:13px;color:var(--sub);font-weight:700;}
+.calc-btn{border:none;border-radius:10px;padding:11px 18px;font-size:14px;font-weight:800;color:#fff;
+  background:linear-gradient(135deg,var(--blue),#1d4ed8);position:relative;overflow:hidden;}
+.calc-out{margin-top:6px;}
+.calc-card{background:rgba(37,99,235,.06);border:1px solid rgba(37,99,235,.16);border-radius:12px;padding:12px 14px;margin-top:6px;}
+.calc-card .cc-row{display:flex;justify-content:space-between;gap:10px;font-size:13.5px;padding:4px 0;}
+.calc-card .cc-row b{font-weight:800;}
+.calc-card .cc-big{font-size:15.5px;font-weight:800;color:var(--navy);border-top:1px solid rgba(37,99,235,.18);margin-top:4px;padding-top:8px;}
+.calc-card .cc-save{color:var(--green);}
+.calc-card .cc-warn{color:var(--red);}
+
+/* ---- 영업백과 용어정리 (단일 열림 아코디언) ---- */
+.gl-search{width:100%;padding:11px 12px;border:1.5px solid var(--line);border-radius:10px;font-size:15px;margin-bottom:12px;background:#fff;}
+.gl-cat{font-size:12.5px;font-weight:800;color:var(--sub);letter-spacing:.3px;margin:14px 0 8px;}
+.gl-group:first-of-type .gl-cat{margin-top:0;}
+.gl-item{margin-bottom:8px;}
+.gl-term{width:100%;text-align:left;display:flex;justify-content:space-between;align-items:center;gap:8px;
+  background:rgba(255,255,255,.62);border:1px solid rgba(255,255,255,.65);
+  -webkit-backdrop-filter:saturate(180%) blur(20px);backdrop-filter:saturate(180%) blur(20px);
+  color:var(--navy);border-radius:12px;padding:13px 14px;font-size:14px;font-weight:700;
+  box-shadow:0 2px 8px rgba(20,30,60,.06);position:relative;overflow:hidden;transition:transform .1s ease;}
+.gl-term:active{transform:scale(.98);}
+.gl-term .gl-arrow{color:var(--sub);font-size:12px;transition:transform .25s ease;flex-shrink:0;}
+.gl-term.open{border-color:var(--blue);color:var(--blue);}
+.gl-term.open .gl-arrow{transform:rotate(180deg);}
+.gl-body{max-height:0;overflow:hidden;transition:max-height .3s ease;}
+.gl-body .gl-inner{padding:11px 14px 4px;font-size:13px;line-height:1.65;color:#37425c;}
 </style>
 </head>
 <body>
@@ -499,19 +604,22 @@ select{-webkit-appearance:none;appearance:none;background-image:url("data:image/
     <!-- ===================== HOME ===================== -->
     <section class="screen active" id="screen-home">
       <div class="home-print-row">
-        <button class="hp-print-btn" onclick="openPrintSetup()">🖨️ 업체 목록 인쇄 / PDF저장</button>
+        <button class="hp-print-btn" onclick="openPrintSetup()">
+          <span class="ico tile navy"><svg viewBox="0 0 24 24"><path d="M6 9V3h12v6"/><path d="M6 18H4a2 2 0 0 1-2-2v-4a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="7" rx="1"/></svg></span>
+          <span>업체 목록 인쇄 / PDF저장</span>
+        </button>
       </div>
       <div class="section-title">방문 기록</div>
       <button class="big-btn primary" onclick="openForm()">
-        <div class="ico">📝</div>
+        <div class="ico tile blue"><svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/></svg></div>
         <div><div>직접입력</div><div class="desc">지금 방문 중인 업체를 바로 기록</div></div>
       </button>
       <button class="big-btn outline" onclick="openRegionSearch()">
-        <div class="ico">🎯</div>
+        <div class="ico tile green"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.6"/></svg></div>
         <div><div>지역·조건으로 찾기</div><div class="desc">리(里)/보험가입여부/근로자수 등으로 찾기</div></div>
       </button>
       <button class="big-btn outline" onclick="openNameSearch()">
-        <div class="ico">🔍</div>
+        <div class="ico tile indigo"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg></div>
         <div><div>업체명 검색</div><div class="desc">이름으로 바로 검색해서 선택</div></div>
       </button>
 
@@ -547,9 +655,9 @@ select{-webkit-appearance:none;appearance:none;background-image:url("data:image/
     <section class="screen" id="screen-data">
 
       <div class="quick-nav-row">
-        <button onclick="switchTab('home')"><span class="qn-ic">🏠</span>홈</button>
-        <button onclick="switchTab('settings')"><span class="qn-ic">⚙️</span>설정</button>
-        <button class="qn-primary" onclick="openPrintSetup()"><span class="qn-ic">🖨️</span>인쇄/PDF</button>
+        <button onclick="switchTab('home')"><span class="qn-ic"><svg viewBox="0 0 24 24"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/><path d="M9 20v-6h6v6"/></svg></span>홈</button>
+        <button onclick="switchTab('settings')"><span class="qn-ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></span>설정</button>
+        <button class="qn-primary" onclick="openPrintSetup()"><span class="qn-ic"><svg viewBox="0 0 24 24"><path d="M6 9V3h12v6"/><path d="M6 18H4a2 2 0 0 1-2-2v-4a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="7" rx="1"/></svg></span>인쇄/PDF</button>
       </div>
 
       <!-- ① 엑셀 파일 추가 -->
@@ -567,7 +675,7 @@ select{-webkit-appearance:none;appearance:none;background-image:url("data:image/
 
       <!-- ② 현재 업체 데이터 소스 (지역별) -->
       <div class="dm-section">
-        <div class="dm-section-head"><span>📁</span> 현재 업체 데이터 소스 (지역별) <span id="totalCompBadge" style="margin-left:auto;font-size:11.5px;background:rgba(255,255,255,.22);padding:3px 9px;border-radius:10px;font-weight:700;"></span></div>
+        <div class="dm-section-head"><span>📁</span> 현재 업체 데이터 소스 (지역별) <span id="totalCompBadge" style="margin-left:auto;font-size:11.5px;background:rgba(15,31,61,.10);color:var(--navy);padding:3px 9px;border-radius:10px;font-weight:700;"></span></div>
         <div class="dm-section-body">
           <div class="dm-section-note">토글을 켜둔 지역만 검색·일지작성에 사용됩니다. 이름변경 버튼으로 지역명을 정해두면 다음에 다시 첨부하지 않아도 바로 전환해 쓸 수 있어요.</div>
           <div id="srcList"></div>
@@ -660,7 +768,7 @@ select{-webkit-appearance:none;appearance:none;background-image:url("data:image/
           카톡·이메일로 백업 공유, 지역별 엑셀 관리, 백업 파일 복원은 <b style="color:var(--navy);">데이터관리 탭</b>에서 진행하실 수 있습니다.
         </div>
         <button class="big-btn outline" style="margin-top:12px;margin-bottom:0;" onclick="switchTab('data')">
-          <div class="ico">🗂️</div>
+          <div class="ico tile navy"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18"/><path d="M8 4v5"/></svg></div>
           <div><div>데이터관리 탭으로 이동</div><div class="desc">백업 · 복원 · 지역별 엑셀 소스 관리</div></div>
         </button>
       </div>
@@ -668,14 +776,21 @@ select{-webkit-appearance:none;appearance:none;background-image:url("data:image/
       <div class="section-title">기타</div>
       <div class="card">
         <button class="big-btn outline" style="margin-bottom:0;color:var(--red);" onclick="confirmReset()">
-          <div class="ico">🗑️</div>
+          <div class="ico tile red"><svg viewBox="0 0 24 24"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M6 6l1 14h10l1-14"/><path d="M10 11v6M14 11v6"/></svg></div>
           <div><div>전체 데이터 초기화</div><div class="desc">방문일지·추가업체 전체 삭제</div></div>
         </button>
+      </div>
+      <div style="text-align:center;margin-top:12px;">
+        <a href="privacy.html" target="_blank" rel="noopener"
+           style="color:var(--sub);font-size:12px;text-decoration:underline;">개인정보처리방침</a>
       </div>
       <div style="text-align:center;color:var(--sub);font-size:11px;margin-top:10px;">
         세일즈맵 모바일 v4 · PC v47 데이터와 동일한 저장 방식 사용
       </div>
     </section>
+
+    <!-- ===================== 영업백과 (컨설턴트 지식) ===================== -->
+    <section class="screen" id="screen-guide"></section>
 
   </div><!-- /#screens -->
 
@@ -971,6 +1086,11 @@ select{-webkit-appearance:none;appearance:none;background-image:url("data:image/
 
   <!-- ===================== SUB SCREEN: 업체명 검색 ===================== -->
   <div class="sub-screen" id="screen-namesearch">
+    <div class="sub-topbar">
+      <button class="sbtn" onclick="history.back()">‹ 뒤로</button>
+      <span class="sp"></span>
+      <button class="sbtn" onclick="switchTab('home')">🏠 홈</button>
+    </div>
     <div class="card">
       <div class="field" style="margin-bottom:0;">
         <label>업체명</label>
@@ -990,11 +1110,16 @@ select{-webkit-appearance:none;appearance:none;background-image:url("data:image/
     </div>
   </div>
 
+  <!-- ===================== SUB SCREEN: 영업백과 항목목록 / 상세 ===================== -->
+  <div class="sub-screen" id="screen-guide-list"><div id="guideListBody"></div></div>
+  <div class="sub-screen" id="screen-guide-detail"><div id="guideDetailBody"></div></div>
+
   <nav id="tabbar">
-    <button data-tab="home" onclick="switchTab('home')"><span class="ic">🏠</span>홈</button>
-    <button data-tab="list" onclick="switchTab('list')"><span class="ic">📂</span>방문기록</button>
-    <button data-tab="data" onclick="switchTab('data')"><span class="ic">🗂️</span>데이터관리</button>
-    <button data-tab="settings" onclick="switchTab('settings')"><span class="ic">⚙️</span>설정</button>
+    <button data-tab="home" onclick="switchTab('home')"><span class="ic"><svg viewBox="0 0 24 24"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/><path d="M9 20v-6h6v6"/></svg></span>홈</button>
+    <button data-tab="list" onclick="switchTab('list')"><span class="ic"><svg viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg></span>방문기록</button>
+    <button data-tab="guide" onclick="switchTab('guide')"><span class="ic"><svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></span>영업백과</button>
+    <button data-tab="data" onclick="switchTab('data')"><span class="ic"><svg viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v6c0 1.7 3.6 3 8 3s8-1.3 8-3V5"/><path d="M4 11v6c0 1.7 3.6 3 8 3s8-1.3 8-3v-6"/></svg></span>데이터관리</button>
+    <button data-tab="settings" onclick="switchTab('settings')"><span class="ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></span>설정</button>
   </nav>
 
 </div>
@@ -1320,6 +1445,7 @@ function switchTab(tab){
   if(tab==='list') renderList();
   if(tab==='data') renderDataScreen();
   if(tab==='settings') fillSettings();
+  if(tab==='guide') renderGuide();
   history.replaceState({tab:tab, sub:null}, '');
 }
 
@@ -1363,19 +1489,422 @@ function applyBack(){
     if(target==='home') renderHome();
     if(target==='list') renderList();
     if(target==='data') renderDataScreen();
+    if(target==='guide') renderGuide();
   }
 }
 
 window.addEventListener('popstate', function(e){ applyBack(); });
 
 /* ---------------- Home ---------------- */
+let homeExpanded = false;   // 최근 방문기록 '더보기' 펼침 상태
 function renderHome(){
   const wrap = document.getElementById('recentList');
   const titleEl = document.getElementById('recentTitle');
-  const recent = journals.slice(0,3);
+  const recent = journals.slice(0,10);   // 최근 최대 10개까지만
   if(!recent.length){ wrap.innerHTML=''; titleEl.style.display='none'; return; }
   titleEl.style.display='';
-  wrap.innerHTML = recent.map(j => journalCardHTML(j, false)).join('');
+  // 기본은 3개만 보이고, 나머지는 '더보기'를 눌러야 표시
+  const shown = homeExpanded ? recent : recent.slice(0,3);
+  let html = shown.map(j => journalCardHTML(j, false)).join('');
+  const hiddenCount = recent.length - 3;
+  if(hiddenCount > 0){
+    html += homeExpanded
+      ? `<button class="home-more-btn" onclick="toggleHomeMore()">접기 ▲</button>`
+      : `<button class="home-more-btn" onclick="toggleHomeMore()">최근 방문 ${hiddenCount}개 더보기 ▼</button>`;
+  }
+  wrap.innerHTML = html;
+}
+function toggleHomeMore(){ homeExpanded = !homeExpanded; renderHome(); }
+
+/* ---------------- 영업백과 (컨설턴트 지식) ----------------
+   대분류 카드 → 항목 목록 → 상세(정의·요건·혜택·영업포인트) 2단계 구조.
+   세율 등 수치는 개정될 수 있어 각 항목에 기준연도·확인 안내를 포함. */
+const GUIDE = [
+  { id:'tax', title:'세무·과세 기준', desc:'소득세·법인세 과세표준과 세율', tile:'green',
+    svg:'<path d="M19 5 5 19"/><circle cx="6.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/>',
+    items:[
+      { t:'개인 종합소득세 계산기', html:`
+        <h3>개인 종합소득세 계산기</h3>
+        <p>과세표준(대략 '연간 순이익')을 만원 단위로 입력하면 예상 세액을 계산합니다.</p>
+        <div class="calc-row">
+          <input id="calc-ptax-base" type="number" inputmode="numeric" placeholder="예: 8000">
+          <span class="unit">만원</span>
+          <button class="calc-btn" onclick="runIncomeTaxCalc()">계산</button>
+        </div>
+        <div id="calc-ptax-out" class="calc-out"></div>
+        <h3>세율표 (2025년 기준)</h3>
+        <table class="guide-table"><thead><tr><th>과세표준</th><th>세율</th><th>누진공제</th></tr></thead><tbody>
+        <tr><td>1,400만원 이하</td><td>6%</td><td>-</td></tr>
+        <tr><td>1,400만~5,000만원</td><td>15%</td><td>126만원</td></tr>
+        <tr><td>5,000만~8,800만원</td><td>24%</td><td>576만원</td></tr>
+        <tr><td>8,800만~1.5억원</td><td>35%</td><td>1,544만원</td></tr>
+        <tr><td>1.5억~3억원</td><td>38%</td><td>1,994만원</td></tr>
+        <tr><td>3억~5억원</td><td>40%</td><td>2,594만원</td></tr>
+        <tr><td>5억~10억원</td><td>42%</td><td>3,594만원</td></tr>
+        <tr><td>10억원 초과</td><td>45%</td><td>6,594만원</td></tr>
+        </tbody></table>
+        <div class="guide-note">⚠️ 소득공제·세액공제·필요경비를 반영하지 않은 단순 계산입니다. 실제 세액은 다를 수 있어 세무전문가 확인이 필요합니다. (2025년 기준, 세법 개정 시 변동)</div>` },
+      { t:'법인세 계산기', html:`
+        <h3>법인세 계산기</h3>
+        <p>법인 과세표준(대략 '연간 순이익')을 만원 단위로 입력하세요.</p>
+        <div class="calc-row">
+          <input id="calc-ctax-base" type="number" inputmode="numeric" placeholder="예: 30000">
+          <span class="unit">만원</span>
+          <button class="calc-btn" onclick="runCorpTaxCalc()">계산</button>
+        </div>
+        <div id="calc-ctax-out" class="calc-out"></div>
+        <h3>세율표 (2025년 기준)</h3>
+        <table class="guide-table"><thead><tr><th>과세표준</th><th>세율</th></tr></thead><tbody>
+        <tr><td>2억원 이하</td><td>9%</td></tr>
+        <tr><td>2억~200억원</td><td>19%</td></tr>
+        <tr><td>200억~3,000억원</td><td>21%</td></tr>
+        <tr><td>3,000억원 초과</td><td>24%</td></tr>
+        </tbody></table>
+        <div class="guide-note">⚠️ 각종 세액공제·감면을 반영하지 않은 단순 계산입니다. (지방소득세 10% 포함해 표기)</div>` },
+      { t:'개인 vs 법인 비교·전환 시뮬레이터', html:`
+        <h3>개인 vs 법인 세부담 비교</h3>
+        <p>연간 과세소득(대략 순이익)을 입력하면 개인/법인 세금을 한눈에 비교합니다.</p>
+        <div class="calc-row">
+          <input id="calc-cmp-base" type="number" inputmode="numeric" placeholder="예: 15000">
+          <span class="unit">만원</span>
+          <button class="calc-btn" onclick="runCompareCalc()">비교</button>
+        </div>
+        <div id="calc-cmp-out" class="calc-out"></div>
+        <h3>세율로 보는 장단점</h3>
+        <table class="guide-table"><thead><tr><th>구분</th><th>개인</th><th>법인</th></tr></thead><tbody>
+        <tr><td>세율</td><td>6~45%</td><td>9~24%</td></tr>
+        <tr><td>자금사용</td><td>자유</td><td>급여·배당 절차</td></tr>
+        <tr><td>대외신용</td><td>낮음</td><td>높음</td></tr>
+        <tr><td>설립·유지비</td><td>낮음</td><td>상대적 높음</td></tr>
+        <tr><td>대표책임</td><td>무한책임</td><td>유한책임</td></tr>
+        </tbody></table>
+        <div class="guide-tip">💡 법인세율(9~24%)이 개인(6~45%)보다 낮아 이익을 회사에 유보할 때 유리. 다만 대표가 급여·배당으로 자금을 꺼내면 추가 과세가 있어 '무조건 법인이 유리'한 것은 아님.</div>
+        <div class="guide-note">⚠️ 급여·배당·4대보험·설립유지비 등을 제외한 단순 세율 비교입니다. 실제 전환 판단은 세무전문가 상담이 필요합니다.</div>` },
+    ] },
+
+  { id:'corp', title:'법인영업·법인전환', desc:'법인전환 절차, 첫 방문 체크, 가지급금·승계', tile:'navy',
+    svg:'<rect x="4" y="3" width="16" height="18" rx="1"/><path d="M9 21v-4h6v4"/><path d="M8 7h.01M12 7h.01M16 7h.01M8 11h.01M12 11h.01M16 11h.01"/>',
+    items:[
+      { t:'법인전환 절차·장단점', html:`
+        <h3>법인전환이란</h3>
+        <p>개인사업자가 사업의 동일성을 유지하며 법인으로 조직을 바꾸는 것. 세부담 절감·대외신용 제고·가업승계 목적.</p>
+        <h3>주요 방법</h3>
+        <ul><li>사업양수도: 개인 자산·부채를 신설 법인에 양도</li>
+        <li>현물출자: 개인사업 자산을 출자하고 주식 취득(양도세 이월과세 특례)</li>
+        <li>세감면 포괄양수도: 요건 충족 시 양도세 이월·취득세 감면</li></ul>
+        <h3>장점</h3>
+        <ul><li>낮은 법인세율, 대외신용 상승</li><li>가업승계·자본조달 유리</li><li>대표 유한책임</li></ul>
+        <h3>유의점</h3>
+        <ul><li>설립·기장 등 유지비용, 자금 인출 제약</li><li>부동산 이전 시 취득세 등 비용 검토</li></ul>
+        <div class="guide-tip">💡 전환 시점에 CEO 퇴직금 규정·경영인정기보험 설계를 함께 제안하면 니즈 연결이 자연스러움.</div>
+        <div class="guide-note">⚠️ 요건·감면은 조세특례제한법 개정에 따라 달라짐. 세무사 확인 필수.</div>` },
+      { t:'법인 첫 방문 체크리스트', html:`
+        <h3>첫 방문 시 확인할 것</h3>
+        <ul><li>업종·설립연도·근로자수(규모 파악)</li>
+        <li>개인/법인 여부, 대표 연령대(승계·보장 니즈)</li>
+        <li>매출·순이익 추이(세부담·자금 여력)</li>
+        <li>단체보험·퇴직연금 가입 여부</li>
+        <li>가지급금·미처분이익 존재 여부(정리 니즈)</li>
+        <li>기존 거래 보험사·설계사 관계</li></ul>
+        <div class="guide-tip">💡 세일즈맵의 지역·조건 검색으로 '근로자수 5인 이상 & 단체보험 미가입' 같은 타깃을 뽑아 동선을 짜면 효율적.</div>` },
+      { t:'가지급금 / 가업승계 개요', html:`
+        <h3>가지급금</h3>
+        <p>법인 자금이 대표 등에게 나갔지만 근거가 명확치 않은 대여금 성격의 자금. 인정이자·대손 불인정 등 세무 리스크로 정리 니즈가 큼.</p>
+        <h3>가업승계</h3>
+        <p>요건을 갖춘 중소·중견기업 대표가 자녀 등에게 가업을 물려줄 때 상속·증여세를 완화해주는 제도(가업상속공제·증여특례).</p>
+        <div class="guide-tip">💡 승계·가지급금 정리 재원 마련에 CEO플랜(경영인정기보험) 활용 여지가 큼.</div>
+        <div class="guide-note">⚠️ 공제 한도·요건은 수시 개정. 정확한 적용은 세무전문가 상담 필요.</div>` },
+    ] },
+
+  { id:'ins', title:'보험 설계', desc:'단체보험·경영인정기보험(CEO보장)', tile:'blue',
+    svg:'<path d="M12 3l8 3v6c0 4.5-3.2 7.5-8 9-4.8-1.5-8-4.5-8-9V6z"/>',
+    items:[
+      { t:'단체보험 설계 요령', html:`
+        <h3>단체보험이란</h3>
+        <p>기업이 계약자가 되어 소속 임직원을 피보험자로 일괄 가입하는 보장성 보험(단체상해·단체정기 등). 복리후생·위험관리 목적.</p>
+        <h3>설계 포인트</h3>
+        <ul><li>피보험자 동의·규약 확인(근로자 동의 필요)</li>
+        <li>보장범위: 업무상/외 재해, 사망·후유장해·실손 등</li>
+        <li>보험료 손금 처리 요건 확인(복리후생 성격)</li>
+        <li>수익자 지정(회사/유족)에 따른 세무 효과</li></ul>
+        <div class="guide-tip">💡 근로자수 증가·산재 리스크가 큰 제조업 타깃에 특히 유효. '근로자수 필터'로 대상 발굴.</div>
+        <div class="guide-note">⚠️ 손금·과세 처리는 계약형태에 따라 상이. 세무 검토 병행.</div>` },
+      { t:'경영인정기보험(CEO보장)', html:`
+        <h3>경영인정기보험이란</h3>
+        <p>법인이 계약자·수익자, 대표이사를 피보험자로 하는 정기보험. 대표 유고 시 기업 리스크 대비 + 퇴직금 재원·가지급금 정리 등 자금설계에 활용.</p>
+        <h3>활용 포인트</h3>
+        <ul><li>대표 퇴직금 지급 재원 마련</li><li>가지급금·차입금 상환 재원</li><li>정관·임원 퇴직금 규정 정비와 연계</li></ul>
+        <div class="guide-tip">💡 '법인 & 대표 50~60대 & 순이익 존재' 조건에서 니즈가 큼.</div>
+        <div class="guide-note">⚠️ 손금산입·해지환급 관련 과세는 사안별로 상이. 세무 확인 필수.</div>` },
+    ] },
+
+  { id:'cert', title:'기업 인증제도', desc:'벤처·이노비즈·메인비즈·기업부설연구소', tile:'gold',
+    svg:'<circle cx="12" cy="8" r="5"/><path d="M8.5 12.5 7 22l5-3 5 3-1.5-9.5"/>',
+    items:[
+      { t:'벤처기업 인증', html:`
+        <h3>벤처기업 인증</h3>
+        <p>기술성·성장성이 인정되는 중소기업에 부여(벤처투자·연구개발·혁신성장 유형 등).</p>
+        <h3>주요 혜택</h3>
+        <ul><li>법인세·소득세 감면(창업벤처 등 요건 시)</li><li>취득세·재산세 감면</li><li>정책자금·보증 우대, 코스닥 상장 특례</li></ul>
+        <div class="guide-tip">💡 인증기업은 자금 여력·성장성이 있어 보장·자금설계 니즈로 연결 가능.</div>
+        <div class="guide-note">⚠️ 유형별 요건·감면은 벤처기업법·조특법 개정에 따라 달라질 수 있음.</div>` },
+      { t:'이노비즈 (기술혁신형)', html:`
+        <h3>이노비즈(Inno-Biz)</h3>
+        <p>기술혁신 역량을 평가해 인증하는 기술혁신형 중소기업 제도. 기술·경영혁신 지표로 심사.</p>
+        <h3>주요 혜택</h3>
+        <ul><li>정책자금·보증·R&D 지원 우대</li><li>공공조달·판로 가점</li><li>병역지정업체 등 부가 혜택</li></ul>
+        <div class="guide-note">⚠️ 평가기준·혜택은 중소벤처기업부 고시에 따름.</div>` },
+      { t:'메인비즈 (경영혁신형)', html:`
+        <h3>메인비즈(Main-Biz)</h3>
+        <p>마케팅·조직·생산 등 '경영혁신' 역량을 평가해 인증. 이노비즈가 '기술', 메인비즈는 '경영' 혁신에 초점.</p>
+        <h3>주요 혜택</h3>
+        <ul><li>정책자금·보증 우대</li><li>공공조달 가점, 각종 지원사업 우대</li></ul>
+        <div class="guide-note">⚠️ 세부 혜택은 관계기관 고시 기준.</div>` },
+      { t:'기업부설연구소 / 전담부서', html:`
+        <h3>기업부설연구소 / 연구개발전담부서</h3>
+        <p>일정 인력·공간 요건을 갖춰 한국산업기술진흥협회(KOITA)에 인정받는 기업 내 연구조직.</p>
+        <h3>요건(개요)</h3>
+        <ul><li>연구전담요원 최소 인원(기업 규모별 상이)</li><li>독립된 연구공간·기자재</li></ul>
+        <h3>주요 혜택</h3>
+        <ul><li>연구·인력개발비 세액공제</li><li>연구원 인건비 지원, 병역특례 지정 가능</li></ul>
+        <div class="guide-tip">💡 R&D 세액공제와 연결되는 대표 아이템. 제조·기술 기업 방문 시 확인 포인트.</div>
+        <div class="guide-note">⚠️ 인정요건·공제율은 개정될 수 있음(KOITA·조특법 확인).</div>` },
+    ] },
+
+  { id:'fund', title:'정책자금·기타', desc:'정책자금 개요, R&D 세액공제', tile:'indigo',
+    svg:'<path d="M3 17l6-6 4 4 7-7"/><path d="M17 8h4v4"/>',
+    items:[
+      { t:'정책자금 개요', html:`
+        <h3>정책자금이란</h3>
+        <p>정부·공공기관이 중소기업에 저리·장기로 지원하는 자금(운전·시설자금 등). 중진공, 신·기보 보증 등.</p>
+        <h3>핵심 포인트</h3>
+        <ul><li>업력·업종·재무·인증 보유에 따라 한도·금리 우대</li><li>사업계획·재무제표 준비가 관건</li></ul>
+        <div class="guide-tip">💡 인증(벤처·이노비즈 등) 보유 기업은 우대 폭이 커, 인증 니즈와 함께 접근 가능.</div>
+        <div class="guide-note">⚠️ 연도별 예산·요건 변동. 각 기관 공고 확인.</div>` },
+      { t:'연구·인력개발비 세액공제', html:`
+        <h3>R&D 세액공제</h3>
+        <p>기업의 R&D 지출에 대해 일정 비율을 법인세(소득세)에서 공제. 중소기업 공제율이 상대적으로 높음.</p>
+        <h3>핵심 포인트</h3>
+        <ul><li>기업부설연구소·전담부서 요건과 연계</li><li>당기분·증가분 방식 중 유리한 것 적용</li></ul>
+        <div class="guide-note">⚠️ 공제율·대상은 조특법 개정에 따라 달라짐. 세무 확인 필수.</div>` },
+    ] },
+];
+
+function renderGuide(){
+  const wrap = document.getElementById('screen-guide');
+  if(!wrap) return;
+  wrap.innerHTML = `<div class="page-title"><span>📚</span> 영업백과</div>
+    <div class="guide-intro">보험컨설턴트가 현장에서 자주 찾는 핵심 지식을 주제별로 정리했습니다. 카테고리를 눌러 확인하세요.</div>`
+    + GUIDE.map(c=>`<button class="big-btn outline" onclick="openGuideCategory('${c.id}')">
+        <div class="ico tile ${c.tile}"><svg viewBox="0 0 24 24">${c.svg}</svg></div>
+        <div style="flex:1;min-width:0;"><div>${escapeHTML(c.title)}</div><div class="desc">${escapeHTML(c.desc)}</div></div>
+        <span class="guide-chev">›</span>
+      </button>`).join('')
+    + `<button class="big-btn outline" onclick="openGuideGlossary()">
+        <div class="ico tile gray"><svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/><path d="M9 7h7M9 11h7"/></svg></div>
+        <div style="flex:1;min-width:0;"><div>용어정리</div><div class="desc">보험·법인영업 필수 용어 사전 (검색·아코디언)</div></div>
+        <span class="guide-chev">›</span>
+      </button>`;
+}
+
+// 서브 화면 상단 뒤로/홈 바 (상단 남색바가 가려지는 화면에서 사용)
+function subBackBarHTML(){
+  return `<div class="sub-topbar">
+      <button class="sbtn" onclick="history.back()">‹ 뒤로</button>
+      <span class="sp"></span>
+      <button class="sbtn" onclick="switchTab('home')">🏠 홈</button>
+    </div>`;
+}
+
+function openGuideCategory(id){
+  const c = GUIDE.find(x=>x.id===id);
+  if(!c) return;
+  document.getElementById('guideListBody').innerHTML =
+    subBackBarHTML()
+    + `<div class="page-title" style="margin-bottom:6px;">${escapeHTML(c.title)}</div>`
+    + `<div class="guide-intro">${escapeHTML(c.desc)}</div>`
+    + c.items.map((it,i)=>`<button class="big-btn outline" onclick="openGuideItem('${id}',${i})">
+        <div style="flex:1;min-width:0;"><div>${escapeHTML(it.t)}</div></div>
+        <span class="guide-chev">›</span>
+      </button>`).join('');
+  pushSub('screen-guide-list', c.title);
+}
+
+function openGuideItem(id, i){
+  const c = GUIDE.find(x=>x.id===id);
+  if(!c || !c.items[i]) return;
+  document.getElementById('guideDetailBody').innerHTML =
+    subBackBarHTML()
+    + `<div class="card guide-detail">${c.items[i].html}</div>`;
+  pushSub('screen-guide-detail', c.items[i].t);
+}
+
+/* ---------------- 세금 계산기 (영업백과) ---------------- */
+function fmtWon(n){ return Math.round(n).toLocaleString('ko-KR') + '원'; }
+function readMan(id){
+  const v = parseFloat(String(document.getElementById(id).value||'').replace(/[, ]/g,''));
+  return (isFinite(v) && v > 0) ? v * 10000 : 0;   // 만원 → 원
+}
+// 개인 종합소득세 산출세액 (누진공제 방식, 2025 기준)
+function calcIncomeTax(base){
+  const b = [[14000000,.06,0],[50000000,.15,1260000],[88000000,.24,5760000],
+    [150000000,.35,15440000],[300000000,.38,19940000],[500000000,.40,25940000],
+    [1000000000,.42,35940000],[Infinity,.45,65940000]];
+  for(const [cap,rate,ded] of b){ if(base<=cap) return Math.max(0, base*rate-ded); }
+  return 0;
+}
+// 법인세 산출세액 (누진공제 방식, 2025 기준)
+function calcCorpTax(base){
+  if(base<=200000000) return base*.09;
+  if(base<=20000000000) return base*.19-20000000;
+  if(base<=300000000000) return base*.21-420000000;
+  return base*.24-9042000000;
+}
+function runIncomeTaxCalc(){
+  const out = document.getElementById('calc-ptax-out'); const base = readMan('calc-ptax-base');
+  if(!base){ out.innerHTML=''; return; }
+  const tax=calcIncomeTax(base), local=tax*.1, total=tax+local;
+  out.innerHTML = `<div class="calc-card">
+    <div class="cc-row"><span>과세표준</span><b>${fmtWon(base)}</b></div>
+    <div class="cc-row"><span>산출세액(소득세)</span><b>${fmtWon(tax)}</b></div>
+    <div class="cc-row"><span>지방소득세(10%)</span><b>${fmtWon(local)}</b></div>
+    <div class="cc-row cc-big"><span>총 예상세액</span><b>${fmtWon(total)}</b></div>
+    <div class="cc-row"><span>실효세율</span><b>${(total/base*100).toFixed(1)}%</b></div>
+  </div>`;
+}
+function runCorpTaxCalc(){
+  const out = document.getElementById('calc-ctax-out'); const base = readMan('calc-ctax-base');
+  if(!base){ out.innerHTML=''; return; }
+  const tax=calcCorpTax(base), local=tax*.1, total=tax+local;
+  out.innerHTML = `<div class="calc-card">
+    <div class="cc-row"><span>과세표준</span><b>${fmtWon(base)}</b></div>
+    <div class="cc-row"><span>산출세액(법인세)</span><b>${fmtWon(tax)}</b></div>
+    <div class="cc-row"><span>지방소득세(10%)</span><b>${fmtWon(local)}</b></div>
+    <div class="cc-row cc-big"><span>총 예상세액</span><b>${fmtWon(total)}</b></div>
+    <div class="cc-row"><span>실효세율</span><b>${(total/base*100).toFixed(1)}%</b></div>
+  </div>`;
+}
+function runCompareCalc(){
+  const out = document.getElementById('calc-cmp-out'); const base = readMan('calc-cmp-base');
+  if(!base){ out.innerHTML=''; return; }
+  const p=calcIncomeTax(base)*1.1, c=calcCorpTax(base)*1.1, save=p-c;
+  const line = save>=0
+    ? `<div class="cc-row cc-big cc-save"><span>법인 전환 시 절감</span><b>약 ${fmtWon(save)}</b></div>`
+    : `<div class="cc-row cc-big cc-warn"><span>이 구간은 개인이 유리</span><b>약 ${fmtWon(-save)}</b></div>`;
+  out.innerHTML = `<div class="calc-card">
+    <div class="cc-row"><span>연간 과세소득</span><b>${fmtWon(base)}</b></div>
+    <div class="cc-row"><span>개인 세금(지방세 포함)</span><b>${fmtWon(p)}</b></div>
+    <div class="cc-row"><span>법인 세금(지방세 포함)</span><b>${fmtWon(c)}</b></div>
+    ${line}
+  </div>`;
+}
+
+/* ---------------- 용어정리 (단일 열림 아코디언) ---------------- */
+const GLOSSARY = [
+  { cat:'세무·재무', terms:[
+    {t:'과세표준', d:'세금을 매기는 기준 금액. 소득·이익에서 각종 공제를 뺀 뒤 세율을 곱하는 대상이 된다.'},
+    {t:'누진공제', d:'누진세율 구간 계산을 간편히 하려고 빼주는 금액. 세액 = 과세표준 × 세율 − 누진공제.'},
+    {t:'소득공제', d:'과세표준 자체를 줄여주는 항목(인적공제 등). 세율을 적용하기 "전" 단계에서 차감된다.'},
+    {t:'세액공제', d:'산출된 세액에서 직접 빼주는 항목(연금저축·R&D 등). 같은 금액이면 소득공제보다 절세 효과가 크다.'},
+    {t:'종합소득', d:'이자·배당·사업·근로·연금·기타소득을 합산한 개인의 소득. 이를 기준으로 종합소득세를 계산한다.'},
+    {t:'원천징수', d:'소득을 지급할 때 지급자가 세금을 미리 떼어 국가에 대신 납부하는 것.'},
+    {t:'손금·익금', d:'법인세에서 비용으로 인정되는 것이 손금, 수익으로 잡히는 것이 익금. (익금−손금)이 과세소득.'},
+    {t:'가지급금', d:'명확한 근거 없이 법인에서 대표 등에게 나간 대여금 성격의 자금. 인정이자 등 세무 리스크가 크다.'},
+    {t:'미처분이익잉여금', d:'배당·처분되지 않고 회사에 쌓인 이익. 승계·가지급금 정리와 밀접하게 연결된다.'},
+    {t:'이월결손금', d:'과거의 사업 손실(적자)을 이후 연도의 이익과 상계해 세금을 줄이는 것.'},
+    {t:'감가상각', d:'건물·기계 등 자산의 가치 감소를 한 번에 처리하지 않고 여러 해에 나눠 비용으로 반영.'},
+    {t:'이월과세', d:'세금을 지금 매기지 않고 나중 시점으로 미뤄주는 것(법인전환·현물출자 특례 등).'},
+    {t:'부가가치세', d:'재화·용역 거래에 붙는 10% 세금. 매출세액에서 매입세액을 빼 납부한다.'},
+    {t:'양도소득세', d:'부동산·주식 등 자산을 팔 때 발생한 차익에 매기는 세금.'},
+    {t:'상속세·증여세', d:'사망으로 물려받으면 상속세, 살아서 무상으로 받으면 증여세가 부과된다.'},
+    {t:'실효세율', d:'실제 부담한 세액 ÷ 소득. 명목 최고세율과 달리 평균적인 실제 부담률을 뜻한다.'},
+  ]},
+  { cat:'법인·경영', terms:[
+    {t:'법인전환', d:'개인사업자를 법인으로 조직 변경하는 것. 세율 절감·대외신용·가업승계 등이 목적.'},
+    {t:'현물출자', d:'현금 대신 사업·부동산 등 자산을 회사에 출자하고 그 대가로 주식을 받는 것.'},
+    {t:'가업승계', d:'요건을 갖춘 기업을 자녀 등에게 물려줄 때 상속·증여세 부담을 완화해주는 제도.'},
+    {t:'정관', d:'회사의 기본 규칙을 정한 문서. 임원 퇴직금 규정 등 손금 처리의 근거가 된다.'},
+    {t:'임원퇴직금', d:'임원에게 지급하는 퇴직금. 정관·규정의 근거가 있어야 비용(손금)으로 인정된다.'},
+    {t:'배당', d:'회사 이익을 주주에게 나눠주는 것. 배당소득세가 과세된다.'},
+    {t:'자본금', d:'주주가 회사에 출자한 기본 자금.'},
+    {t:'대표이사', d:'회사를 대표해 업무를 집행하는 임원.'},
+    {t:'이사회', d:'회사의 주요 의사결정을 담당하는 이사들의 회의체.'},
+  ]},
+  { cat:'보험', terms:[
+    {t:'계약자', d:'보험료를 내고 계약을 체결·관리하는 사람. 계약상의 권리를 갖는다.'},
+    {t:'피보험자', d:'보험의 대상이 되는 사람. 이 사람의 사망·질병·상해 등이 보장 대상이 된다.'},
+    {t:'수익자', d:'보험사고 발생 시 보험금을 받는 사람.'},
+    {t:'보장성보험', d:'사망·질병·상해 등 위험 보장이 주된 목적인 보험.'},
+    {t:'저축성보험', d:'만기·해지 시 환급 등 저축·목돈 마련 기능이 큰 보험.'},
+    {t:'정기보험', d:'정해진 기간 동안만 사망을 보장하는 보험. 보험료가 저렴하다.'},
+    {t:'종신보험', d:'사망 시점과 무관하게 평생 사망을 보장하는 보험.'},
+    {t:'경영인정기보험', d:'법인이 계약자·수익자, 대표를 피보험자로 가입하는 정기보험. 퇴직금 재원·CEO 리스크 대비에 활용.'},
+    {t:'단체보험', d:'기업이 계약자가 되어 소속 임직원을 일괄로 가입시키는 보장성 보험.'},
+    {t:'해지환급금', d:'계약을 중도 해지할 때 돌려받는 금액.'},
+    {t:'예정이율', d:'보험사가 보험료를 산정할 때 적용하는 가정 이율. 높을수록 보험료가 낮아진다.'},
+    {t:'공시이율', d:'저축성보험의 적립금에 적용되는 변동 이율. 시장금리 등에 따라 바뀐다.'},
+    {t:'사업비', d:'납입 보험료 중 보험사의 운영·모집 등에 쓰이는 비용.'},
+    {t:'위험보험료', d:'보험료 중 실제 보장(사고 대비)에 쓰이는 부분.'},
+    {t:'실손의료보험', d:'실제 부담한 의료비를 보장하는 보험. "제2의 건강보험"으로 불린다.'},
+    {t:'고지의무', d:'계약 시 병력 등 중요한 사항을 사실대로 알릴 의무. 위반 시 계약 해지·보험금 부지급 가능.'},
+    {t:'면책기간', d:'보험금을 지급하지 않는 일정 기간(예: 가입 후 2년 내 자살 면책 등).'},
+    {t:'청약철회', d:'가입 후 일정 기간 내에 계약을 무를 수 있는 소비자 권리.'},
+    {t:'부활', d:'보험료 미납으로 실효된 계약을 일정 요건을 갖춰 다시 살리는 것.'},
+    {t:'감액완납', d:'이후 보험료 납입을 멈추는 대신 보장을 줄여서 계약을 유지하는 방식.'},
+    {t:'연금보험', d:'노후에 연금 형태로 나눠 받는 것을 목적으로 하는 보험.'},
+    {t:'변액보험', d:'보험료의 일부를 펀드에 투자해 운용 실적에 따라 환급금이 변동되는 보험.'},
+    {t:'책임준비금', d:'보험사가 미래의 보험금 지급을 위해 회계상 쌓아두는 적립금.'},
+    {t:'언더라이팅', d:'보험 가입 심사. 피보험자의 위험을 평가해 인수 여부·조건을 결정한다.'},
+  ]},
+  { cat:'영업·재무진단', terms:[
+    {t:'니즈환기', d:'고객이 스스로 필요를 인식하도록 이끄는 상담 기법.'},
+    {t:'클로징', d:'상담을 계약 체결로 마무리하는 단계.'},
+    {t:'재무제표', d:'기업의 재무상태와 경영성과를 보여주는 표의 총칭(재무상태표·손익계산서 등).'},
+    {t:'손익계산서', d:'일정 기간의 매출·비용·이익을 보여주는 표.'},
+    {t:'재무상태표', d:'특정 시점의 자산·부채·자본을 보여주는 표(과거 명칭: 대차대조표).'},
+    {t:'현금흐름표', d:'일정 기간 현금의 유입·유출을 보여주는 표.'},
+    {t:'매출·영업이익·순이익', d:'매출액, 영업활동으로 번 이익(영업이익), 모든 비용·세금 차감 후 최종 이익(순이익).'},
+    {t:'부채비율', d:'부채 ÷ 자기자본. 재무 안정성을 보는 지표로, 낮을수록 안정적.'},
+    {t:'ROE·ROA', d:'자기자본이익률(ROE)·총자산이익률(ROA). 얼마나 효율적으로 이익을 냈는지 보는 수익성 지표.'},
+  ]},
+];
+
+function openGuideGlossary(){
+  document.getElementById('guideListBody').innerHTML =
+    subBackBarHTML()
+    + `<div class="page-title" style="margin-bottom:6px;">📖 용어정리</div>`
+    + `<input class="gl-search" id="gl-search" placeholder="🔍 용어 검색 (예: 과세표준, 종신보험)" oninput="filterGloss()">`
+    + GLOSSARY.map(g=>`<div class="gl-group">
+        <div class="gl-cat">${escapeHTML(g.cat)}</div>
+        ${g.terms.map(tm=>`<div class="gl-item" data-k="${escapeHTML((tm.t+' '+tm.d).toLowerCase())}">
+          <button class="gl-term" onclick="toggleGloss(this)">${escapeHTML(tm.t)}<span class="gl-arrow">▾</span></button>
+          <div class="gl-body"><div class="gl-inner">${escapeHTML(tm.d)}</div></div>
+        </div>`).join('')}
+      </div>`).join('');
+  pushSub('screen-guide-list', '용어정리');
+}
+// 단일 열림: 다른 용어를 누르면 기존에 펼쳐진 설명은 접힌다
+function toggleGloss(btn){
+  const wasOpen = btn.classList.contains('open');
+  document.querySelectorAll('#guideListBody .gl-term.open').forEach(b=>{
+    b.classList.remove('open'); b.nextElementSibling.style.maxHeight = null;
+  });
+  if(!wasOpen){
+    btn.classList.add('open');
+    const body = btn.nextElementSibling;
+    body.style.maxHeight = body.scrollHeight + 'px';
+  }
+}
+function filterGloss(){
+  const kw = String(document.getElementById('gl-search').value||'').trim().toLowerCase();
+  document.querySelectorAll('#guideListBody .gl-group').forEach(g=>{
+    let vis = 0;
+    g.querySelectorAll('.gl-item').forEach(it=>{
+      const show = !kw || (it.dataset.k||'').indexOf(kw) >= 0;
+      it.style.display = show ? '' : 'none'; if(show) vis++;
+    });
+    g.style.display = vis ? '' : 'none';
+  });
 }
 
 /* ---------------- 방문 기록 관리 (PC "📂 방문 기록 관리"와 동일 로직) ---------------- */
@@ -1441,6 +1970,7 @@ function renderList(){
   const selMoveEl = document.getElementById('selCountMove'); if(selMoveEl) selMoveEl.textContent = selectedIds.size;
   document.getElementById('btnSelectMode').classList.toggle('on', selectMode);
   document.getElementById('btnOrderMode').classList.toggle('on', orderMode);
+  setupOrderDrag();   // 드래그 순서변경 핸들러 바인딩(최초 1회)
 }
 function setListResultFilter(v){ listResultFilter = v; renderList(); }
 
@@ -1553,15 +2083,14 @@ function toggleFolder(regionKey){
 
 function renameFolder(regionKey){
   // 현재 화면에 보이는 전체 라벨(지역 + 방문자)을 기본값으로 제시
+  // iOS 설치형(PWA)에서는 native prompt()가 차단되므로 커스텀 모달을 사용한다.
   const grp = (window._lastGroups || []).find(g => g.key === regionKey);
   const cur = grp ? grp.label : folderLabel(regionKey);
-  const next = prompt('폴더 이름을 입력하세요', cur);
-  if(next === null) return;
-  const trimmed = next.trim();
-  if(!trimmed){ delete folderRenames[regionKey]; }
-  else { folderRenames[regionKey] = trimmed; }
-  persistFolderState();
-  renderList();
+  showPrompt('폴더 이름 변경', '이 폴더에 표시할 이름을 입력하세요.', cur, function(v){
+    folderRenames[regionKey] = v.trim();
+    persistFolderState();
+    renderList();
+  });
 }
 
 // journals를 폴더별로 묶어 반환. 일지에 folderKey(수동 지정)가 있으면 그 폴더로, 없으면 주소 기반 자동 분류.
@@ -1613,6 +2142,7 @@ function bulkDelete(){
   showConfirm('선택 항목 삭제', `${selectedIds.size}건의 방문일지를 삭제합니다. 되돌릴 수 없습니다.`, function(){
     journals = journals.filter(j=>!selectedIds.has(j.id));
     persistJournals();
+    cleanupOrphanPhotos();   // 삭제된 일지의 사진을 IndexedDB에서 함께 정리
     selectedIds.clear();
     selectMode = false;
     toast('삭제되었습니다.');
@@ -1684,11 +2214,14 @@ function moveToFolder(key){
   renderList();
 }
 function moveToNewFolder(){
-  const name = prompt('새 폴더 이름을 입력하세요 (예: 핵심관리, 재방문예정)');
-  if(name === null) return;
-  const key = name.trim();
-  if(!key){ toast('폴더 이름을 입력해주세요.'); return; }
-  moveToFolder(key);
+  // 이동 대상 id를 보존한 뒤 이동 모달을 닫고, 커스텀 프롬프트로 새 폴더명을 받는다.
+  // (native prompt()는 iOS PWA에서 막히고, 두 오버레이가 겹치는 문제도 방지)
+  const ids = moveTargetIds.slice();
+  closeMoveFolder();
+  showPrompt('새 폴더 만들기', '새 폴더 이름을 입력하세요 (예: 핵심관리, 재방문예정)', '', function(v){
+    moveTargetIds = ids;
+    moveToFolder(v.trim());
+  });
 }
 function bulkMove(){
   if(!selectedIds.size){ toast('이동할 항목을 선택해주세요.'); return; }
@@ -1705,13 +2238,15 @@ function moveJournal(idx, dir){
 function journalCardHTML(j, withTools, idx){
   const checkbox = (withTools && selectMode) ? `<input type="checkbox" class="chk" onclick="event.stopPropagation();toggleCheck(${j.id})" ${selectedIds.has(j.id)?'checked':''}>` : '';
   const orderBtns = (withTools && orderMode) ? `<div class="ord" onclick="event.stopPropagation();">
-      <button onclick="moveJournal(${idx},-1)">▲</button><button onclick="moveJournal(${idx},1)">▼</button>
+      <button onclick="moveJournal(${idx},-1)">▲</button>
+      <div class="drag-handle" title="끌어서 이동">⠿</div>
+      <button onclick="moveJournal(${idx},1)">▼</button>
     </div>` : '';
   // 폴더 이동 버튼 (일반 보기에서만 표시)
   const moveBtn = (withTools && !selectMode && !orderMode) ? `<button type="button" class="j-move" onclick="event.stopPropagation();openMoveFolder([${j.id}])">📁 폴더이동</button>` : '';
   const clickable = (selectMode) ? `onclick="toggleCheck(${j.id});renderList();"` : (orderMode ? '' : `onclick="openDetail(${j.id})"`);
   const resultClass = j.result ? 'r-'+j.result : '';
-  return `<div class="j-card ${resultClass}" ${clickable}>
+  return `<div class="j-card ${resultClass}" data-jid="${j.id}" ${clickable}>
     ${checkbox}${orderBtns}
     <div class="body">
       <div class="top-row">
@@ -1730,6 +2265,100 @@ function journalCardHTML(j, withTools, idx){
 
 function escapeHTML(s){
   return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+/* ---------------- 드래그로 순서변경 (방문기록 순서변경 모드) ----------------
+   손잡이(⠿)를 잡고 끌면 카드가 떠올라 손가락을 따라오고, 다른 카드 중앙을 지나면
+   실시간으로 자리를 바꿔 iOS처럼 자연스럽게 정렬됩니다. 놓으면 순서를 저장합니다. */
+function setupOrderDrag(){
+  const listEl = document.getElementById('journalList');
+  if(!listEl || listEl._dragBound) return;
+  listEl._dragBound = true;
+  listEl.addEventListener('pointerdown', function(e){
+    const handle = e.target.closest('.drag-handle');
+    if(!handle) return;
+    const card = handle.closest('.j-card');
+    if(!card) return;
+    e.preventDefault();
+    startCardDrag(card, e, listEl);
+  });
+}
+
+function startCardDrag(card, e, listEl){
+  const pid = e.pointerId;
+  try{ card.setPointerCapture(pid); }catch(_){}
+  const offsetY = e.clientY - card.getBoundingClientRect().top;
+  card.classList.add('dragging');
+
+  function naturalTop(){
+    const t = card.style.transform; card.style.transform = '';
+    const top = card.getBoundingClientRect().top;
+    card.style.transform = t;
+    return top;
+  }
+  function follow(fingerY){
+    card.style.transform = `translateY(${fingerY - offsetY - naturalTop()}px) scale(1.03)`;
+  }
+  function onMove(ev){
+    if(ev.pointerId !== pid) return;
+    ev.preventDefault();
+    const fingerY = ev.clientY;
+    const sibs = Array.from(listEl.querySelectorAll('.j-card:not(.dragging)'));
+    for(const sib of sibs){
+      const r = sib.getBoundingClientRect();
+      const mid = r.top + r.height / 2;
+      const rel = card.compareDocumentPosition(sib);
+      if(fingerY < mid && (rel & Node.DOCUMENT_POSITION_FOLLOWING)){
+        listEl.insertBefore(card, sib); break;
+      } else if(fingerY > mid && (rel & Node.DOCUMENT_POSITION_PRECEDING)){
+        listEl.insertBefore(card, sib.nextSibling); break;
+      }
+    }
+    follow(fingerY);
+  }
+  function onUp(ev){
+    if(ev.pointerId !== pid) return;
+    card.classList.remove('dragging');
+    card.style.transform = '';
+    listEl.removeEventListener('pointermove', onMove);
+    listEl.removeEventListener('pointerup', onUp);
+    listEl.removeEventListener('pointercancel', onUp);
+    commitOrderFromDOM();
+  }
+  listEl.addEventListener('pointermove', onMove);
+  listEl.addEventListener('pointerup', onUp);
+  listEl.addEventListener('pointercancel', onUp);
+}
+
+function commitOrderFromDOM(){
+  const listEl = document.getElementById('journalList');
+  const ids = Array.from(listEl.querySelectorAll('.j-card')).map(c => Number(c.dataset.jid));
+  const byId = {}; journals.forEach(j => { byId[j.id] = j; });
+  const newArr = ids.map(id => byId[id]).filter(Boolean);
+  journals.forEach(j => { if(!ids.includes(j.id)) newArr.push(j); }); // 누락 방지
+  journals = newArr;
+  persistJournals();
+  renderList();
+  renderHome();
+}
+
+/* ---------------- 물결(리플) + 눌림 반응 ----------------
+   버튼·칩·탭 등을 누르면 터치 지점에서 물결이 퍼진다. currentColor를 써서
+   밝은 버튼은 남색, 어두운 버튼은 흰색 물결로 자연스럽게 대비된다. */
+function attachRipple(){
+  document.addEventListener('pointerdown', function(e){
+    const host = e.target.closest('.big-btn, .chip, #tabbar button, .quick-nav-row button, .hp-print-btn, .home-more-btn, .sub-topbar .sbtn, .move-item, .pp-fchip, .tool-row button, .gl-term, .calc-btn');
+    if(!host) return;
+    const rect = host.getBoundingClientRect();
+    const size = Math.max(rect.width, rect.height);
+    const r = document.createElement('span');
+    r.className = 'ripple';
+    r.style.width = r.style.height = size + 'px';
+    r.style.left = (e.clientX - rect.left - size / 2) + 'px';
+    r.style.top = (e.clientY - rect.top - size / 2) + 'px';
+    host.appendChild(r);
+    setTimeout(() => r.remove(), 600);
+  }, { passive: true });
 }
 
 function currentFilteredJournals(){
@@ -2431,6 +3060,7 @@ function deleteFromDetail(){
   showConfirm('방문일지 삭제', '이 방문일지를 삭제하시겠습니까? 삭제 후에는 복구할 수 없습니다.', function(){
     journals = journals.filter(x=>x.id!==detailId);
     persistJournals();
+    cleanupOrphanPhotos();   // 삭제된 일지의 사진을 IndexedDB에서 함께 정리
     toast('삭제되었습니다.');
     history.back();
     setTimeout(()=>{ renderList(); renderHome(); }, 50);
@@ -2707,7 +3337,14 @@ function openForm(prefillOrJournal){
     selectedChips.materials = (j.materialsDelivered||[]).slice();
     selectedChips.insurers = (j.currentInsurers||[]).slice();
     selectedChips.companion = (j.companions||[]).slice();
-    pendingAttachments = getJournalAttachments(j);
+    // 저장된 사진 참조를 {id, url}로 복원. 구버전 base64가 섞여 있으면 IndexedDB로 옮겨둔다.
+    pendingAttachments = getJournalAttachmentIds(j).map(ref=>{
+      if(typeof ref === 'string' && ref.startsWith('data:')){
+        const id = newPhotoId(); photoCache.set(id, ref); idbPutPhoto(id, ref).catch(()=>{});
+        return { id, url: ref };
+      }
+      return { id: ref, url: photoCache.get(ref) || '' };
+    }).filter(a => a.url);
     renderAttachThumbs();
     renderChips();
   } else if(prefillOrJournal && prefillOrJournal.기업명){
@@ -2731,13 +3368,107 @@ function openForm(prefillOrJournal){
   pushSub('screen-form', editingId ? '방문일지 수정' : '직접입력');
 }
 
-let pendingAttachments = [];   // data URL 배열 (여러 장 지원)
+let pendingAttachments = [];   // [{ id, url }] — url은 화면표시용 dataURL, id는 IndexedDB 저장키
 
-// 일지의 첨부 사진 목록 — 신버전 attachments 배열 우선, 구버전 attachment 단일값도 지원
-function getJournalAttachments(j){
+/* ---------------- 사진 저장소 (IndexedDB) ----------------
+   사진(base64)을 localStorage에 넣으면 5MB 한도를 금방 넘겨 저장이 통째로 실패한다.
+   그래서 사진은 IndexedDB('photos')에 개별 저장하고, 방문일지에는 사진 id만 보관한다.
+   앱 시작 시 photoCache(Map)에 한 번에 올려 기존 동기 렌더 코드가 그대로 동작하게 한다. */
+const PHOTO_DB_NAME = 'gfc-photos', PHOTO_STORE = 'photos';
+const photoCache = new Map();   // id -> dataURL
+let _photoDBPromise = null;
+function photoDB(){
+  if(_photoDBPromise) return _photoDBPromise;
+  _photoDBPromise = new Promise((resolve, reject)=>{
+    if(!('indexedDB' in window)){ reject(new Error('no-indexeddb')); return; }
+    const req = indexedDB.open(PHOTO_DB_NAME, 1);
+    req.onupgradeneeded = ()=>{ req.result.createObjectStore(PHOTO_STORE); };
+    req.onsuccess = ()=> resolve(req.result);
+    req.onerror = ()=> reject(req.error);
+  });
+  return _photoDBPromise;
+}
+function photoStore(mode){ return photoDB().then(db => db.transaction(PHOTO_STORE, mode).objectStore(PHOTO_STORE)); }
+function idbPutPhoto(id, dataURL){
+  return photoStore('readwrite').then(store => new Promise((res, rej)=>{
+    const r = store.put(dataURL, id); r.onsuccess = ()=>res(); r.onerror = ()=>rej(r.error);
+  }));
+}
+function idbDeletePhoto(id){
+  return photoStore('readwrite').then(store => new Promise((res)=>{
+    const r = store.delete(id); r.onsuccess = ()=>res(); r.onerror = ()=>res();
+  }));
+}
+function idbClearPhotos(){
+  return photoStore('readwrite').then(store => new Promise((res)=>{
+    const r = store.clear(); r.onsuccess = ()=>res(); r.onerror = ()=>res();
+  }));
+}
+function idbAllPhotos(){
+  return photoStore('readonly').then(store => new Promise((res, rej)=>{
+    const out = {};
+    const req = store.openCursor();
+    req.onsuccess = ()=>{ const cur = req.result; if(cur){ out[cur.key] = cur.value; cur.continue(); } else res(out); };
+    req.onerror = ()=> rej(req.error);
+  }));
+}
+function newPhotoId(){ return 'ph_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2,8); }
+
+// 시작 시 IndexedDB의 사진을 메모리 캐시로 올린다 (실패해도 앱은 동작)
+async function loadPhotoCache(){
+  try{
+    const all = await idbAllPhotos();
+    Object.keys(all).forEach(k => photoCache.set(k, all[k]));
+  }catch(e){ /* IndexedDB 미지원/차단 — 사진 없이 계속 */ }
+}
+
+// 예전 버전에서 방문일지에 base64로 박혀 있던 사진을 IndexedDB로 이관하고,
+// 일지에는 사진 id만 남겨 localStorage 용량을 크게 줄인다.
+async function migratePhotosToIDB(){
+  let changed = false;
+  for(const j of journals){
+    const items = getJournalAttachmentIds(j);
+    if(!items.length) continue;
+    const newIds = [];
+    for(const item of items){
+      if(typeof item === 'string' && item.startsWith('data:')){
+        const id = newPhotoId();
+        try{ await idbPutPhoto(id, item); photoCache.set(id, item); newIds.push(id); changed = true; }
+        catch(e){ newIds.push(item); }   // 저장 실패 시 원본(base64) 유지
+      } else {
+        newIds.push(item);   // 이미 id
+      }
+    }
+    j.attachments = newIds;
+    if('attachment' in j) j.attachment = null;
+  }
+  if(changed){ try{ persistJournals(); }catch(e){} }
+}
+
+// 어떤 일지에서도 참조하지 않는 IndexedDB 사진을 정리 (저장/삭제 후 호출)
+async function cleanupOrphanPhotos(){
+  try{
+    const used = new Set();
+    journals.forEach(j => getJournalAttachmentIds(j).forEach(id => used.add(id)));
+    const all = await idbAllPhotos();
+    for(const id of Object.keys(all)){
+      if(!used.has(id)){ await idbDeletePhoto(id); photoCache.delete(id); }
+    }
+  }catch(e){}
+}
+
+// 일지에 저장된 첨부 참조(id 또는 구버전 base64) 목록 그대로
+function getJournalAttachmentIds(j){
   if(Array.isArray(j.attachments) && j.attachments.length) return j.attachments.slice();
   if(j.attachment) return [j.attachment];
   return [];
+}
+
+// 화면 표시용 — 참조를 실제 dataURL로 변환 (id는 캐시 조회, 구버전 base64는 그대로)
+function getJournalAttachments(j){
+  return getJournalAttachmentIds(j)
+    .map(ref => (typeof ref === 'string' && ref.startsWith('data:')) ? ref : (photoCache.get(ref) || ''))
+    .filter(Boolean);
 }
 
 
@@ -2758,7 +3489,11 @@ function handleAttach(e){
         canvas.height = img.height * scale;
         const ctx = canvas.getContext('2d');
         ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-        pendingAttachments.push(canvas.toDataURL('image/jpeg', 0.6));
+        const url = canvas.toDataURL('image/jpeg', 0.6);
+        const id = newPhotoId();
+        photoCache.set(id, url);
+        idbPutPhoto(id, url).catch(()=>{});   // 사진 본체는 IndexedDB에 즉시 저장
+        pendingAttachments.push({ id, url });
         remaining--;
         if(remaining <= 0) renderAttachThumbs();
       };
@@ -2772,13 +3507,13 @@ function handleAttach(e){
 function renderAttachThumbs(){
   const wrap = document.getElementById('attachThumbs');
   if(!wrap) return;
-  wrap.innerHTML = pendingAttachments.map((src,i)=>
+  wrap.innerHTML = pendingAttachments.map((a,i)=>
     `<div class="attach-thumb">
-      <img src="${src}" onclick="openLightbox(window._formAtt, ${i})">
+      <img src="${a.url}" onclick="openLightbox(window._formAtt, ${i})">
       <button type="button" class="thumb-del" onclick="event.stopPropagation();removeAttach(${i})">✕</button>
     </div>`
   ).join('');
-  window._formAtt = pendingAttachments;
+  window._formAtt = pendingAttachments.map(a => a.url);
 }
 
 function removeAttach(i){
@@ -2953,7 +3688,7 @@ function doSaveJournal(){
     visit2: document.getElementById('f-visit2').value,
     visit3: document.getElementById('f-visit3').value,
     visit4: document.getElementById('f-visit4').value,
-    attachments: pendingAttachments.slice(),
+    attachments: pendingAttachments.map(a => a.id),   // 사진 본체는 IndexedDB, 일지엔 id만 저장
     attachment: null,   // 구버전 단일 필드는 더 이상 사용 안 함
     savedAt: new Date().toISOString(),
   };
@@ -2968,6 +3703,7 @@ function doSaveJournal(){
     journals.unshift(j);
   }
   persistJournals();
+  cleanupOrphanPhotos();   // 수정하며 뺀 사진 등 참조 없는 IndexedDB 사진 정리
   toast(`${companyName || '방문일지'}가 저장되었습니다.`);
   history.back();
   setTimeout(()=>switchTab('list'), 60);
@@ -3272,7 +4008,9 @@ function runRegionSearch(){
 
 function resultItemHTML(c){
   const c2 = applyOverride(c);
-  return `<div class="result-item" onclick='selectCompanyFromSearch(${JSON.stringify(c2.기업명)})'>
+  // 업체명을 JS 문자열로 직접 넣으면 따옴표(')가 든 이름에서 onclick이 깨진다.
+  // data 속성(HTML 이스케이프)에 담고 클릭 시 dataset에서 안전하게 읽는다.
+  return `<div class="result-item" data-name="${escapeHTML(c2.기업명||'')}" onclick="selectCompanyFromSearch(this.dataset.name)">
     <div class="rname">${escapeHTML(c2.기업명||'')}</div>
     <div class="raddr">${escapeHTML(c2.통합주소||'-')}<br>${escapeHTML(c2.본사전화번호||'-')} · 근로자 ${c2.최신근로자수?escapeHTML(c2.최신근로자수)+'명':'-'} · 단체보험 ${escapeHTML(c2.단체보험가입여부||'-')} · 법인명의 ${escapeHTML(c2.법인명의가입여부||'-')}</div>
   </div>`;
@@ -3283,6 +4021,9 @@ function selectCompanyFromSearch(name){
   if(!c) return;
   openForm(c);
 }
+
+// 검색 결과가 없을 때 입력한 키워드를 기업명으로 새 일지 작성
+function openFormNewCompany(name){ openForm({ 기업명: name }); }
 
 /* ---------------- 업체명 검색 ---------------- */
 function openNameSearch(){
@@ -3299,7 +4040,7 @@ function runNameSearch(){
   const list = getAllCompanies().filter(c=>c.기업명 && c.기업명.includes(kw)).slice(0,30);
   if(!list.length){
     wrap.innerHTML = `<div class="empty-hint">"${escapeHTML(kw)}" 검색 결과가 없습니다.<br>직접입력으로 새로 기록할 수 있습니다.</div>
-      <button class="big-btn primary" onclick='openForm({"기업명":${JSON.stringify(kw)}})'>
+      <button class="big-btn primary" data-name="${escapeHTML(kw)}" onclick="openFormNewCompany(this.dataset.name)">
         <div class="ico">📝</div><div><div>"${escapeHTML(kw)}" 직접 입력하기</div></div>
       </button>`;
     return;
@@ -3372,17 +4113,19 @@ function selectPrintText(hex){
 }
 
 /* ---------------- Backup export / share ---------------- */
-function buildBackupJSON(){
+async function buildBackupJSON(){
   const backup = { _meta: { app: 'gfc-visit-log-backup', exportedAt: new Date().toISOString() } };
   BACKUP_KEYS.forEach(k=>{
     const v = localStorage.getItem(k);
     if(v !== null) backup[k] = v;
   });
+  // 사진은 IndexedDB에 있으므로 백업 JSON에 함께 담아 기기 간 이동에서도 유지되게 한다
+  try{ backup._photos = await idbAllPhotos(); }catch(e){ backup._photos = {}; }
   return JSON.stringify(backup);
 }
 
 async function shareBackup(){
-  const json = buildBackupJSON();
+  const json = await buildBackupJSON();
   const ts = new Date().toISOString().slice(0,10);
   const filename = `세일즈맵_백업_${ts}.json`;
   const blob = new Blob([json], { type:'application/json' });
@@ -3408,7 +4151,7 @@ function importBackup(e){
   e.target.value = '';
   if(!file) return;
   const reader = new FileReader();
-  reader.onload = function(ev){
+  reader.onload = async function(ev){
     let data;
     try{ data = JSON.parse(ev.target.result); }
     catch(err){ toast('백업 파일을 읽지 못했습니다.'); return; }
@@ -3419,6 +4162,10 @@ function importBackup(e){
       }
     });
     if(!restored){ toast('복원할 데이터를 찾지 못했습니다.'); return; }
+    // 사진(IndexedDB) 복원 — 구버전 백업(사진이 일지에 base64로 든 경우)은 새로고침 후 자동 이관됨
+    if(data._photos && typeof data._photos === 'object'){
+      try{ for(const id of Object.keys(data._photos)){ await idbPutPhoto(id, data._photos[id]); } }catch(e){}
+    }
     toast(`복원 완료 (${restored}개 항목). 새로고침합니다...`);
     setTimeout(()=>location.reload(), 1200);
   };
@@ -3645,16 +4392,25 @@ function importExcel(e){
 
 /* ---------------- Reset ---------------- */
 function confirmReset(){
-  showConfirm('전체 데이터 초기화', '저장된 방문일지와 추가한 업체 데이터가 모두 삭제됩니다. 이 작업은 되돌릴 수 없습니다. 계속하시겠습니까?', function(){
-    localStorage.removeItem('visitJournals');
-    localStorage.removeItem('manualCompanies');
+  showConfirm('전체 데이터 초기화', '저장된 방문일지와 추가한 업체 데이터가 모두 삭제됩니다. (담당자·동행자·인쇄 설정은 유지됩니다) 이 작업은 되돌릴 수 없습니다. 계속하시겠습니까?', function(){
+    // 방문일지 + 추가 업체소스 + 폴더/수정본/캐시 + 기본데이터 on·off 상태까지 깨끗이 초기화
+    // (담당자·인쇄 설정인 appSettings 는 일부러 남겨둔다)
+    ['visitJournals','manualCompanies','extraSources','companyOverrides','companyMeta',
+     'folderRenames','openFolders','riGeoCache','addrGeoCache',
+     'builtinDeleted','builtinActive','builtinName'].forEach(k=>{
+      try{ localStorage.removeItem(k); }catch(e){}
+    });
+    idbClearPhotos();   // 첨부 사진(IndexedDB)도 함께 삭제
     toast('초기화되었습니다.');
     setTimeout(()=>location.reload(), 800);
   });
 }
 
 /* ---------------- Init ---------------- */
-function init(){
+async function init(){
+  // 사진(IndexedDB)을 메모리 캐시로 올리고, 예전 base64 사진을 IndexedDB로 이관
+  await loadPhotoCache();
+  await migratePhotosToIDB();
   // 이전 버전에서 manualCompanies에 저장된 엑셀 데이터가 있으면 extraSources로 자동 이관
   migrateManualToExtraSources();
   fillSettings();
@@ -3663,6 +4419,7 @@ function init(){
   setupChipHandlers();
   setupCompanionDelegation();
   initLightboxGestures();
+  attachRipple();
   renderHome();
   history.replaceState({tab:'home', sub:null}, '');
 
