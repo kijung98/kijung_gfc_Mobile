@@ -586,6 +586,57 @@ select{-webkit-appearance:none;appearance:none;background-image:url("data:image/
 .gl-term.open .gl-arrow{transform:rotate(180deg);}
 .gl-body{max-height:0;overflow:hidden;transition:max-height .3s ease;}
 .gl-body .gl-inner{padding:11px 14px 4px;font-size:13px;line-height:1.65;color:#37425c;}
+
+/* ---- 자료 뷰어 (HTML 슬라이드 재구성) ---- */
+.doc-tag{font-size:10.5px;font-weight:800;color:#a9861d;letter-spacing:.5px;margin-bottom:4px;}
+.doc-slide{margin-bottom:10px;}
+.doc-script{background:linear-gradient(135deg,var(--navy),var(--navy2));color:#e9edf7;border-radius:12px;
+  padding:12px 14px;font-size:13px;line-height:1.65;margin:8px 0;}
+.doc-script .dl{display:block;font-size:10.5px;font-weight:800;color:var(--gold-soft);letter-spacing:.5px;margin-bottom:5px;}
+.doc-check{list-style:none;padding-left:0;margin:6px 0 0;}
+.doc-check li{position:relative;padding-left:20px;font-size:13px;line-height:1.6;margin-bottom:5px;}
+.doc-check li::before{content:'✓';position:absolute;left:0;color:var(--green);font-weight:800;}
+/* 태그 앞 다이아몬드 아이콘 */
+.doc-tag::before{content:'';display:inline-block;width:6px;height:6px;background:#c9a227;border-radius:2px;transform:rotate(45deg);margin-right:6px;vertical-align:middle;}
+/* 스탯(큰 숫자 타이포) */
+.doc-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(88px,1fr));gap:8px;margin:8px 0;}
+.doc-stat{background:rgba(37,99,235,.07);border:1px solid rgba(37,99,235,.16);border-radius:12px;padding:12px 8px;text-align:center;}
+.doc-stat .n{font-size:22px;font-weight:900;color:var(--navy);line-height:1.1;}
+.doc-stat .n.g{color:var(--green);} .doc-stat .n.r{color:var(--red);} .doc-stat .n.a{color:var(--amber);} .doc-stat .n.b{color:var(--blue);} .doc-stat .n.p{color:var(--purple);}
+.doc-stat .l{font-size:11px;color:var(--sub);margin-top:4px;line-height:1.3;}
+/* 단계 스텝 */
+.doc-steps{display:flex;flex-direction:column;gap:9px;margin:8px 0;}
+.doc-step{display:flex;gap:10px;align-items:flex-start;}
+.doc-step .sn{flex-shrink:0;width:24px;height:24px;border-radius:50%;background:var(--navy);color:#fff;font-size:12px;font-weight:800;display:flex;align-items:center;justify-content:center;}
+.doc-step .st{font-size:13px;line-height:1.55;}
+.doc-step .st b{color:var(--navy);}
+/* 2열 비교 */
+.doc-vs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:8px 0;}
+.doc-vs > div{border-radius:12px;padding:12px;font-size:12.5px;line-height:1.55;}
+.doc-vs .ok{background:rgba(22,163,74,.08);border:1px solid rgba(22,163,74,.25);}
+.doc-vs .no{background:rgba(220,38,38,.06);border:1px solid rgba(220,38,38,.22);}
+.doc-vs h4{margin:0 0 6px;font-size:13px;}
+.doc-vs .ok h4{color:#15803d;} .doc-vs .no h4{color:var(--red);}
+/* 구간 바 */
+.doc-bar{display:flex;border-radius:10px;overflow:hidden;margin:8px 0;font-size:11.5px;font-weight:800;color:#fff;text-align:center;}
+.doc-bar > div{padding:9px 4px;line-height:1.3;}
+.doc-bar span{font-weight:600;font-size:9.5px;opacity:.9;}
+/* 컬러 pill */
+.doc-pills{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0;}
+.doc-pill{font-size:12px;font-weight:700;padding:6px 12px;border-radius:999px;background:var(--navy);color:#fff;}
+.doc-pill.g{background:var(--green);} .doc-pill.gold{background:#b8901f;} .doc-pill.b{background:var(--blue);}
+/* 히어로 강조 */
+.doc-hero{background:linear-gradient(135deg,var(--navy),var(--navy2));color:#fff;border-radius:14px;padding:16px;text-align:center;margin:8px 0;}
+.doc-hero .big{font-size:18px;font-weight:900;line-height:1.35;}
+.doc-hero .sm{font-size:12px;color:var(--gold-soft);margin-top:5px;line-height:1.5;}
+/* 번호 판별 그리드 */
+.doc-numgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(96px,1fr));gap:6px;margin:8px 0;}
+.doc-numcell{border-radius:10px;padding:8px 9px;font-size:11px;line-height:1.35;border:1px solid;}
+.doc-numcell.ok{background:rgba(22,163,74,.08);border-color:rgba(22,163,74,.3);}
+.doc-numcell.no{background:rgba(220,38,38,.06);border-color:rgba(220,38,38,.25);}
+.doc-numcell .code{font-size:14px;font-weight:900;color:var(--navy);}
+.doc-numcell .ox{float:right;font-weight:900;font-size:14px;}
+.doc-numcell.ok .ox{color:var(--green);} .doc-numcell.no .ox{color:var(--red);}
 </style>
 </head>
 <body>
@@ -1616,7 +1667,7 @@ const GUIDE = [
         <div class="guide-note">⚠️ 공제 한도·요건은 수시 개정. 정확한 적용은 세무전문가 상담 필요.</div>` },
     ] },
 
-  { id:'ins', title:'보험 설계', desc:'단체보험·경영인정기보험(CEO보장)', tile:'blue',
+  { id:'ins', title:'보험 설계', desc:'단체보험·CEO보장·기업재해보장·실손보험', tile:'blue',
     svg:'<path d="M12 3l8 3v6c0 4.5-3.2 7.5-8 9-4.8-1.5-8-4.5-8-9V6z"/>',
     items:[
       { t:'단체보험 설계 요령', html:`
@@ -1636,30 +1687,109 @@ const GUIDE = [
         <ul><li>대표 퇴직금 지급 재원 마련</li><li>가지급금·차입금 상환 재원</li><li>정관·임원 퇴직금 규정 정비와 연계</li></ul>
         <div class="guide-tip">💡 '법인 & 대표 50~60대 & 순이익 존재' 조건에서 니즈가 큼.</div>
         <div class="guide-note">⚠️ 손금산입·해지환급 관련 과세는 사안별로 상이. 세무 확인 필수.</div>` },
+      { t:'기업재해보장보험 (중대재해 대비)', html:`
+        <h3>왜 필요한가 — 중대재해처벌법</h3>
+        <p>2024.1.27부터 <b>상시근로자 5인 이상 모든 사업장</b>에 전면 적용. 제조업은 기계·설비 사고 위험이 커 특히 취약합니다.</p>
+        <ul><li>근로자 사망 시 경영책임자: <b>1년 이상 징역 또는 10억원 이하 벌금</b></li>
+        <li>민사상 손해액의 <b>최대 5배</b> 징벌적 손해배상</li>
+        <li>2026년부터 중대재해 발생 사업장명·업종·원인 공개 → 평판 리스크</li></ul>
+        <h3>산재보험만으로 부족한 이유</h3>
+        <p>산재보험은 평균임금 기준 <b>법정 상한 내</b>에서만 보상합니다. 실제 손해액(일실수익·위자료·개호비 등)과의 차액, 사업주 형사처벌·징벌적 배상은 산재보험으로 해결되지 않습니다.</p>
+        <h3>산재보험 vs 기업재해보장보험</h3>
+        <table class="guide-table"><thead><tr><th>구분</th><th>산재(국가)</th><th>기업재해보장</th></tr></thead><tbody>
+        <tr><td>보상기준</td><td>법정 상한 내</td><td>설계 보장금액(초과분까지)</td></tr>
+        <tr><td>초과 손해배상</td><td>미보장</td><td>특약으로 재원 마련</td></tr>
+        <tr><td>징벌적 배상(최대5배)</td><td>대상 아님</td><td>특약 설계로 대비</td></tr>
+        <tr><td>복리후생</td><td>법정 최소</td><td>수익자 근로자 지정 시 강화</td></tr>
+        </tbody></table>
+        <h3>핵심 활용 포인트</h3>
+        <ul><li>주보험: 재해 사망·장해 / 특약: 산재 초과 손해배상금·합의금 재원</li>
+        <li>신속한 합의 → 형사재판 양형에 유리한 <b>정상참작</b> 확보</li>
+        <li>근로자 중도 퇴직 시 피보험자만 교체해 계약 유지</li></ul>
+        <h3>가입 시 필요서류(요약)</h3>
+        <ul><li>사업자등록증·법인등기부등본·대표자 신분증</li>
+        <li>근로자명부(피보험자)·<b>근로자 서면동의서</b>(상법상 필수)</li>
+        <li>보험료 자동이체 통장, 법인인감증명서(법인계약 시)</li></ul>
+        <div class="guide-tip">💡 '제조업 & 5인 이상'이면 사실상 전 사업장이 대상. 대표 형사·재무 리스크를 함께 낮추는 강력한 접근 포인트.</div>
+        <div class="guide-note">⚠️ 형사처벌(징역·벌금) 자체를 보험으로 대납·면제할 수는 없습니다. 신속한 손해배상·합의로 양형 정상참작에 도움. 정확한 보장·서류는 약관·상품설명서 및 상담으로 확인.</div>` },
+      { t:'실손보험 1~5세대 완전정리', html:`
+        <h3>실손이 자꾸 바뀌는 이유</h3>
+        <p>보험사가 임의로 바꾸는 게 아니라 <b>①나라 정책 → ②병원(진료·환자구성) → ③보험 반영</b> 순으로 바뀝니다. 지금 방향은 <b>'중증 집중, 비중증·비급여 축소'</b>.</p>
+        <h3>세대별 특징 (가입시기 따라 내 부담이 다름)</h3>
+        <table class="guide-table"><thead><tr><th>세대</th><th>별칭·시기</th><th>자기부담(입원)</th></tr></thead><tbody>
+        <tr><td>1세대</td><td>구실손 (~’09.9)</td><td>0%</td></tr>
+        <tr><td>2세대</td><td>표준화 (’09.10~’17.3)</td><td>10~20%</td></tr>
+        <tr><td>3세대</td><td>착한실손 (’17.4~’21.6)</td><td>급여10/비급여20%</td></tr>
+        <tr><td>4세대</td><td>유지형 (’21.7~’26.3)</td><td>급여20/비급여30%</td></tr>
+        <tr><td>5세대</td><td>개편(안) (’26~)</td><td>중증30/비중증50%</td></tr>
+        </tbody></table>
+        <p>세대가 올라갈수록 <b>보험료는 낮아지고 내 몫은 커집니다.</b> 재가입 주기도 짧아짐(4세대 5년).</p>
+        <h3>5세대(안) 핵심 변화</h3>
+        <ul><li><b>중증(특약1)</b>: 지금과 비슷(연 5천만·입원한도 없음, 부담 30%) + 종합병원 이상 입원 본인부담 500만원 상한</li>
+        <li><b>비중증(특약2)</b>: 크게 축소(연 1천만·부담 50%). 도수·체외충격파·증식치료 등 <b>일부 비급여 미보장</b></li></ul>
+        <div class="guide-tip">💡 오프너: "지금 실손이 몇 세대인지 같이 확인해보실래요?" — 세대별 본인부담 차이가 니즈환기 포인트.</div>
+        <div class="guide-note">⚠️ 5세대는 개혁방안 토론회(’25.1.9) 발표안 기준으로 확정 시 달라질 수 있습니다. 정확한 보장은 약관·상품설명서 확인.</div>` },
+      { t:'치료비(실손) vs 진단비 — 왜 둘 다?', html:`
+        <h3>한국은 '걸려도 고치는' 나라</h3>
+        <p>세계 암치료 병원 TOP10에 국내 3곳(삼성서울 3위·서울아산 4위·서울대 8위). 남는 문제는 <b>①치료비 ②치료받는 동안의 생활</b>.</p>
+        <h3>실손 vs 진단비, 메우는 영역</h3>
+        <table class="guide-table"><thead><tr><th></th><th>실손(치료비)</th><th>진단비</th></tr></thead><tbody>
+        <tr><td>메우는 것</td><td>병원비 일부(자기부담 제외)</td><td>치료 중 생활·소득 공백</td></tr>
+        <tr><td>못 메우는 것</td><td>소득단절·간병·교통·재료비</td><td>실제 병원비</td></tr>
+        </tbody></table>
+        <p>둘은 경쟁이 아니라 <b>'짝'</b>입니다. 하나만 있으면 반드시 한쪽이 빕니다.</p>
+        <h3>현장 사례 포인트</h3>
+        <ul><li>같은 인공관절 수술도 <b>급여 400만 vs 비급여 신제품 1,300만원</b> — 차이는 실력이 아니라 '재료값'</li>
+        <li>치매는 병명이 아니라 '증상'. 치료제(레켐비)는 <b>진행을 늦추는</b> 약 → '빨리 시작할 준비'가 중요</li>
+        <li>'실버(돌봄)'가 아니라 <b>'시니어(관리·활동)'</b> — 나빠지면 빨리 고쳐 오래 활동</li></ul>
+        <div class="guide-tip">💡 실손 세대 점검 + 진단비 보유수준 점검을 세트로: "진단비는 어디까지 준비돼 있는지 같이 볼까요?"</div>
+        <div class="guide-note">⚠️ 수술비·병원 순위는 출처 기준 예시(뉴스위크·스태티스타 2026 등). 보장 여부는 약관·상품설명서 확인.</div>` },
     ] },
 
-  { id:'cert', title:'기업 인증제도', desc:'벤처·이노비즈·메인비즈·기업부설연구소', tile:'gold',
+  { id:'cert', title:'기업 인증제도', desc:'3종 인증·기업부설연구소 (혜택·요건 상세)', tile:'gold',
     svg:'<circle cx="12" cy="8" r="5"/><path d="M8.5 12.5 7 22l5-3 5 3-1.5-9.5"/>',
     items:[
-      { t:'벤처기업 인증', html:`
-        <h3>벤처기업 인증</h3>
-        <p>기술성·성장성이 인정되는 중소기업에 부여(벤처투자·연구개발·혁신성장 유형 등).</p>
-        <h3>주요 혜택</h3>
-        <ul><li>법인세·소득세 감면(창업벤처 등 요건 시)</li><li>취득세·재산세 감면</li><li>정책자금·보증 우대, 코스닥 상장 특례</li></ul>
-        <div class="guide-tip">💡 인증기업은 자금 여력·성장성이 있어 보장·자금설계 니즈로 연결 가능.</div>
-        <div class="guide-note">⚠️ 유형별 요건·감면은 벤처기업법·조특법 개정에 따라 달라질 수 있음.</div>` },
-      { t:'이노비즈 (기술혁신형)', html:`
-        <h3>이노비즈(Inno-Biz)</h3>
-        <p>기술혁신 역량을 평가해 인증하는 기술혁신형 중소기업 제도. 기술·경영혁신 지표로 심사.</p>
-        <h3>주요 혜택</h3>
-        <ul><li>정책자금·보증·R&D 지원 우대</li><li>공공조달·판로 가점</li><li>병역지정업체 등 부가 혜택</li></ul>
-        <div class="guide-note">⚠️ 평가기준·혜택은 중소벤처기업부 고시에 따름.</div>` },
-      { t:'메인비즈 (경영혁신형)', html:`
-        <h3>메인비즈(Main-Biz)</h3>
-        <p>마케팅·조직·생산 등 '경영혁신' 역량을 평가해 인증. 이노비즈가 '기술', 메인비즈는 '경영' 혁신에 초점.</p>
-        <h3>주요 혜택</h3>
-        <ul><li>정책자금·보증 우대</li><li>공공조달 가점, 각종 지원사업 우대</li></ul>
-        <div class="guide-note">⚠️ 세부 혜택은 관계기관 고시 기준.</div>` },
+      { t:'인증 3종 세트 (벤처·이노비즈·메인비즈)', html:`
+        <h3>동시 보유가 가능합니다</h3>
+        <p>세 인증은 <b>평가 초점이 달라</b> 함께 보유할 수 있습니다. 같이 보유하면 <b>보증료 감면·정책자금 우대·조달 가점이 중복 적용</b>됩니다.</p>
+        <table class="guide-table"><thead><tr><th>인증</th><th>평가 초점(강점)</th></tr></thead><tbody>
+        <tr><td>벤처기업</td><td>기술성·성장 잠재력 (세제혜택)</td></tr>
+        <tr><td>이노비즈</td><td>기술혁신 역량 (보증·조달)</td></tr>
+        <tr><td>메인비즈</td><td>경영혁신 역량 (컨설팅·판로)</td></tr>
+        </tbody></table>
+        <div class="guide-tip">💡 인증 보유 기업은 자금 여력·성장성이 있어 보장·자금·CEO플랜 니즈로 연결이 자연스러움.</div>` },
+      { t:'벤처기업 확인(인증)', html:`
+        <h3>제도</h3>
+        <p>기술력·성장 잠재력이 높은 중소기업을 공식 확인해 세제·금융·판로 전반에서 우대.</p>
+        <h3>핵심 혜택</h3>
+        <ul><li><b>법인세·소득세 50% 감면</b> (창업 후 3년 이내 확인 시, 최초 소득발생연도부터 5년)</li>
+        <li>신·기보 보증한도 확대 및 보증료 감면</li>
+        <li>특허 우선심사, 코스닥 상장심사 우대(설립연수 특례)</li>
+        <li>임직원 스톡옵션 세제혜택, 정책자금·R&D 가점</li></ul>
+        <h3>요건</h3>
+        <ul><li>벤처투자 / 연구개발 / 혁신성장 유형 중 하나 이상 충족</li><li>벤처기업확인위원회 평가 통과</li></ul>
+        <div class="guide-note">⚠️ 업력이 짧고 R&D·특허·투자유치 실적이 없으면 통과가 어려움. 대기업 계열·휴폐업 제외. 유형별 준비서류 상이(요건·감면은 개정 가능).</div>` },
+      { t:'이노비즈 인증 (기술혁신형)', html:`
+        <h3>제도</h3>
+        <p>기술혁신 역량과 경영 안정성을 갖춘 중소기업 인증(업력 3년 이상).</p>
+        <h3>핵심 혜택</h3>
+        <ul><li>기술보증기금 보증한도 <b>기업당 30억원</b>, 신용등급별 50~90% 부분보증 자동적용</li>
+        <li>평가등급 A·AA 시 보증료율 <b>0.2%p 감면</b></li>
+        <li>병역지정업체 심사 시 산업기능요원 <b>가점 2점</b></li>
+        <li>조달청 적격심사 가점, 정책자금 우대금리</li></ul>
+        <h3>요건</h3>
+        <ul><li>기술사업화역량·R&D 투자비중·특허 등 기술평가 통과(innobiz.net)</li></ul>
+        <div class="guide-note">⚠️ R&D·특허 실적이 없으면 통과 어려움. 세금체납·신용불량·최근 인증취소 이력 시 제한.</div>` },
+      { t:'메인비즈 인증 (경영혁신형)', html:`
+        <h3>제도</h3>
+        <p>마케팅·조직·프로세스 등 경영혁신 역량이 우수한 중소기업 인증(업력 3년 이상, 기술실적보다 경영역량 중심).</p>
+        <h3>핵심 혜택</h3>
+        <ul><li>정책자금 우대·조달 가점·신용보증 우대(이노비즈와 유사 수준)</li>
+        <li>경영컨설팅·해외마케팅·판로개척 프로그램 연계(강점)</li>
+        <li><b>2026.6 개편</b> — ESG(사회신뢰활동) 평가비중 강화</li></ul>
+        <h3>요건</h3>
+        <ul><li>경영역량·재무건전성·조직혁신 종합평가 통과</li><li>현장평가 시 ESG·노사관계 증빙(2026 개편)</li></ul>
+        <div class="guide-note">⚠️ 이노비즈보다 기술실적 부담은 적으나 준비서류가 많음. 세금체납·신용불량 시 결격.</div>` },
       { t:'기업부설연구소 / 전담부서', html:`
         <h3>기업부설연구소 / 연구개발전담부서</h3>
         <p>일정 인력·공간 요건을 갖춰 한국산업기술진흥협회(KOITA)에 인정받는 기업 내 연구조직.</p>
@@ -1671,7 +1801,7 @@ const GUIDE = [
         <div class="guide-note">⚠️ 인정요건·공제율은 개정될 수 있음(KOITA·조특법 확인).</div>` },
     ] },
 
-  { id:'fund', title:'정책자금·기타', desc:'정책자금 개요, R&D 세액공제', tile:'indigo',
+  { id:'fund', title:'정책자금·지원제도', desc:'두루누리·스마트공장·청년채용·정책자금·세액공제', tile:'indigo',
     svg:'<path d="M3 17l6-6 4 4 7-7"/><path d="M17 8h4v4"/>',
     items:[
       { t:'정책자금 개요', html:`
@@ -1681,6 +1811,54 @@ const GUIDE = [
         <ul><li>업력·업종·재무·인증 보유에 따라 한도·금리 우대</li><li>사업계획·재무제표 준비가 관건</li></ul>
         <div class="guide-tip">💡 인증(벤처·이노비즈 등) 보유 기업은 우대 폭이 커, 인증 니즈와 함께 접근 가능.</div>
         <div class="guide-note">⚠️ 연도별 예산·요건 변동. 각 기관 공고 확인.</div>` },
+      { t:'두루누리 사회보험료 지원', html:`
+        <h3>제도</h3>
+        <p>영세 사업장의 사회보험 사각지대 해소·인건비 부담 완화. <b>상시근로자 10인 미만</b> 전 업종(제조업 포함).</p>
+        <h3>핵심 혜택</h3>
+        <ul><li>신규가입자 1인당 사업주+근로자 합산 <b>최대 월 24만원 절감</b>(보수 270만 기준)</li>
+        <li><b>최대 36개월</b> 지원 — 5명 약 4,000만, 8명 약 6,400만원 절감 효과</li></ul>
+        <h3>절감 예시 (월평균보수 250만원 가정)</h3>
+        <table class="guide-table"><thead><tr><th>직원</th><th>연간 절감</th><th>36개월 누적</th></tr></thead><tbody>
+        <tr><td>5명</td><td>약 1,326만원</td><td>약 3,978만원</td></tr>
+        <tr><td>8명</td><td>약 2,121만원</td><td>약 6,365만원</td></tr>
+        </tbody></table>
+        <h3>요건</h3>
+        <ul><li>지속적으로 10인 미만, 근로자 월보수 270만원 미만</li>
+        <li><b>신규가입자만</b> — 직전 1년 고용보험·국민연금 취득 이력 없어야 함</li>
+        <li>사회보험료 매월 완납</li></ul>
+        <div class="guide-tip">💡 근로자별 신규가입 이력 확인이 까다로워 놓치기 쉬움 — 대상자 확인이 핵심.</div>
+        <div class="guide-note">⚠️ 경력직(1년 내 가입이력)·재산 과세표준 6억 이상 근로자·체납 사업장은 지원 곤란. 금액은 4대사회보험정보연계센터 모의계산 기준.</div>` },
+      { t:'스마트공장 구축 지원', html:`
+        <h3>제도</h3>
+        <p>중소 제조기업의 생산성·품질 강화를 위해 IoT·자동화 설비 도입비를 정부가 분담.</p>
+        <h3>핵심 혜택</h3>
+        <ul><li>구축비용의 <b>30~50%</b> 정부 부담(트랙별 상이)</li><li>설비·센서·솔루션 구입비 국비 지원</li></ul>
+        <h3>요건</h3>
+        <ul><li>smart-factory.kr 통한 사업계획서 제출(공급기업과 함께 수립)</li><li>구축 전 스마트공장 교육 이수</li></ul>
+        <div class="guide-note">⚠️ 이미 구축 기업은 중복지원 불가(고도화만), 체납·휴폐업·일부 업종 제외. 사업계획서·공급기업 선정이 관건.</div>` },
+      { t:'청년일자리도약장려금', html:`
+        <h3>제도</h3>
+        <p>청년 고용 촉진·중소기업 인건비 완화. <b>5인 이상</b> 우선지원대상기업(일부 5인 미만 가능).</p>
+        <h3>핵심 혜택</h3>
+        <ul><li>청년 1인당 <b>1년간 최대 720만원</b>(수도권, 월 60만원)</li><li>비수도권은 확대 적용(지역별 상이)</li></ul>
+        <h3>요건</h3>
+        <ul><li>만 15~34세 정규직 신규채용, 6개월 이상 고용유지</li><li>최저임금 이상·4대보험 가입</li></ul>
+        <div class="guide-note">⚠️ 임금체불·고용보험 체납 기업, 특수관계인(배우자·직계존비속) 채용, 동일 사업장 재입사는 제한.</div>` },
+      { t:'소상공인 정책자금·소액지원', html:`
+        <h3>소상공인 정책자금(융자)</h3>
+        <p>시중은행 대비 저금리로 운전·시설자금 조달. 신용보증 연계 시 무보증·저금리 가능성 확대.</p>
+        <ul><li>중소기업기본법상 중소기업, 신용·재무 심사 통과</li><li>휴폐업·체납·기존 정책자금 연체·자본잠식 시 곤란</li></ul>
+        <h3>경영안정 바우처</h3>
+        <p>고정비(공과금·4대보험료 등) 완화. <b>1개사당 25만원</b> 한도(연매출 1억400만 미만).</p>
+        <h3>고효율 기기 구매지원</h3>
+        <p>고효율 인증 기기 구매비 <b>40% 즉시 절감</b> + 전기료 절감(2026.2.10~12.31, 예산 소진 시 조기마감).</p>
+        <div class="guide-note">⚠️ 업종·매출·체납 등 제외요건 있음. 예산 소진 전 신청이 중요.</div>` },
+      { t:'지역 특화 지원 (김포·인천·경기)', html:`
+        <h3>지역별 주요 창구</h3>
+        <ul><li><b>김포</b> — 김포산업진흥원(gopa.or.kr): 건강검진비·IoT 측정기기 부착 지원 등</li>
+        <li><b>인천</b> — 인천테크노파크·신용보증재단: 희망인천 특례보증(5천만 이내), 정보보호·디자인개발 지원</li>
+        <li><b>경기(시흥 등)</b> — 경기도경제과학진흥원 G-PMS(pms.gbsa.or.kr): 기술개발·창업지원</li></ul>
+        <div class="guide-note">⚠️ 방문 업체 소재지 확정 시 최신 공고를 추가 확인해 맞춤 안내 권장.</div>` },
       { t:'연구·인력개발비 세액공제', html:`
         <h3>R&D 세액공제</h3>
         <p>기업의 R&D 지출에 대해 일정 비율을 법인세(소득세)에서 공제. 중소기업 공제율이 상대적으로 높음.</p>
@@ -1703,6 +1881,11 @@ function renderGuide(){
     + `<button class="big-btn outline" onclick="openGuideGlossary()">
         <div class="ico tile gray"><svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/><path d="M9 7h7M9 11h7"/></svg></div>
         <div style="flex:1;min-width:0;"><div>용어정리</div><div class="desc">보험·법인영업 필수 용어 사전 (검색·아코디언)</div></div>
+        <span class="guide-chev">›</span>
+      </button>`
+    + `<button class="big-btn outline" onclick="openGuideDocs()">
+        <div class="ico tile navy"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M8 13h8M8 17h6"/></svg></div>
+        <div style="flex:1;min-width:0;"><div>자료</div><div class="desc">강의·교육자료 모음 (슬라이드 뷰어)</div></div>
         <span class="guide-chev">›</span>
       </button>`;
 }
@@ -1905,6 +2088,383 @@ function filterGloss(){
     });
     g.style.display = vis ? '' : 'none';
   });
+}
+
+/* ---------------- 자료 (강의·PPT를 HTML 슬라이드로 재구성) ----------------
+   PDF/PPT 원본을 그대로 넣는 대신, 텍스트·표·실전화법을 앱 디자인의 카드로 재구성.
+   용량이 매우 작고 오프라인·검색에 유리하다. */
+function scriptBox(text){ return `<div class="doc-script"><span class="dl">실전 화법 (그대로 사용 가능)</span>${text}</div>`; }
+const DOCS = [
+  { id:'brain', title:'뇌과학 기반 CEO 법인·건강보험 컨설팅', sub:'2026.07.15 GFC 특강 학습정리 · 김세진 강사 강의 / 정리: 최기정', tile:'navy',
+    slides:[
+      { tag:'PART 0 · 설득의 뇌과학', title:'뇌는 변화를 위험으로 인지한다', html:`
+        <p>뇌는 새 정보·논리적 접근을 '변화=위험'으로 인지하고 통각(통증)을 자극해 방어기제를 켠다. 고객의 '거절'은 진짜 거절이 아니라 뇌의 방어반응.</p>
+        <p><b>핵심 공식: 이익보다 손실의 고통이 2배 더 강력하다 → 설득은 항상 '손실'에서 시작.</b></p>
+        <p style="color:var(--sub);font-size:12.5px;">예) "20~30년 열심히 해도 10억도 못 건질 수 있습니다" — 손실 프레임이 관심을 만든다.</p>` },
+      { tag:'PART 0 · 원리 2', title:'팩트로 이해하지만, 결정은 감정으로', html:`
+        <ul><li>논리·숫자로 먼저 접근하면 좌뇌가 '비교 검토'부터 시작 → 영업이 어려워짐</li>
+        <li>이미지는 텍스트보다 약 <b>6만 배</b> 빠르게 인지 → '설명' 대신 '보여주기'</li>
+        <li>인지부하: 정보량이 많으면 뇌가 처리를 포기 → PT는 <b>3~4페이지·15분 이내</b>로 압축</li></ul>` },
+      { tag:'PART 0 · 원리 3', title:'AEC 3단계 화법 시퀀스', html:`
+        <ul><li><b>A (Attention)</b> — 생존본능·공포 자극으로 관심 유도(손실 먼저)</li>
+        <li><b>E (Engagement)</b> — 비유·시각화로 참여 유도(아는 언어로 공감)</li>
+        <li><b>C (Conversion)</b> — 논리적 해결책으로 전환(근거는 마지막에만)</li></ul>
+        <div class="guide-note">순서를 절대 바꾸지 않는다. 논리부터 시작하면 고객은 '비교 대상'을 찾기 시작한다.</div>` },
+      { tag:'PART 0 · 보조기법', title:'이유 제시(Because) & 사회적 증거', html:`
+        <p>뇌는 '이유'가 제시되면 깊이 따지지 않고 휴리스틱(직관)으로 수용한다.</p>
+        <ul class="doc-check"><li>열거는 금물 — 이유는 한 번에 하나로 승부(근거를 나열할수록 설득력↓)</li>
+        <li>사회적 증거: '다수의 선택(통계)'을 따르려는 동조 본능 활용</li>
+        <li>메타포 코칭: 전문용어 대신 익숙한 개념으로 은유</li></ul>` },
+
+      { tag:'PART A-1 · 오프닝', title:'"CEO는 회사의 핵심 자산" 리프레이밍', html:`
+        <p>중소기업 정책자금 신청서를 보여주며 시작 — 국가·은행이 대출을 결정할 때 보는 것은 결국 학력·경력·자격 등 <b>'CEO 개인'</b>. 즉 CEO 한 사람을 보고 자금을 지급한다.</p>
+        <p>→ CEO는 단순 경영자가 아니라 <b>'회사의 자산'</b>이자 국가·은행 투자의 근거.</p>
+        ${scriptBox(`"대표님, 정책자금 받아보신 적 있으세요? 이 신청서를 보면 국가·은행이 결국 CEO 본인의 학력·경력·자격을 봅니다. 대표님을 보고 돈을 빌려주는 거죠. 그럼 대표님은 회사의 무엇일까요? 회사의 핵심 자산입니다."`)}
+        <p style="color:var(--sub);font-size:12.5px;">반도체 창고 비유: 핵심 자산은 온도·보안·경비까지 회사가 지킨다 → 대표님도 회사 자산이면 회사가 지켜야.</p>` },
+      { tag:'PART A-2 · 위험 인식', title:'대표 부재 시 4단계 도미노', html:`
+        <ul><li>① 의사결정 마비·매출 급락 — 중소기업 영업력의 <b>70~80%</b>가 대표 개인 역량</li>
+        <li>② 신용도 하락·자금 압박 — 대출 회수·금리 인상·펀딩 중단</li>
+        <li>③ 고정비 지속 — 대표 부재에도 급여·임대료·리스료 발생</li>
+        <li>④ 핵심 인력 동요·이탈 — 불안감이 조직 전체로 확산</li></ul>
+        ${scriptBox(`"CEO의 건강보험금은 개인 병원비가 아닙니다. CEO의 부재를 방어하는 긴급 비상경영자금(비상유동성)입니다."`)}
+        <p style="color:var(--sub);font-size:12.5px;">은행은 대표가 아프다고 금리를 내려주지 않는다 — 오히려 회수·고금리·추가담보를 요구한다.</p>` },
+      { tag:'PART A-3 · 가치 프레이밍', title:"'치료비'가 아니라 '경영 유지 자금'", html:`
+        <p>일반 인식(소멸성 지출·마이너스) → 컨설팅 프레임(유동성 자산·플러스)</p>
+        <ul><li><b>프레임1(대체 인력 고용비)</b>: 6개월 치료 전념 시 전문경영인(C-level) 대체 인건비 재원</li>
+        <li><b>프레임2(합법적 자금 출처)</b>: 법인자금 임의 사용은 가지급금·세무조사 리스크 → 보험을 통한 정당한 보상 규정이 가장 안전한 출구</li></ul>
+        ${scriptBox(`"이 자금은 병원비가 아닙니다. 6개월 치료에 전념하실 때 대표님 빈자리를 대신할 전문경영인의 6개월치 연봉입니다. 법인 자금을 마음대로 쓰면 가지급금·세무조사 타깃이 됩니다 — 보험을 통한 정당한 보상 규정이 가장 안전한 출구 전략입니다."`)}` },
+      { tag:'PART A-4 · 종신/정기보험', title:'CEO 종신(정기)보험 3대 활용', html:`
+        <ul><li>① <b>퇴직금 재원</b> — 보험료 손비로 법인세 절감, 해약환급금으로 CEO 퇴직금</li>
+        <li>② <b>키맨리스크 헤지</b> — 대표 유고 시 사망보험금 즉시 현금화(대출상환·고정비·대체인력)</li>
+        <li>③ <b>상속세 재원</b> — 비상장주식 가치 상승분 상속세 현금 납부, 지분 분산 방어</li></ul>
+        ${scriptBox(`"만기환급금·수령액만 자꾸 설명하는 사람은 전문가가 아니라고 생각하셔도 됩니다. 저희는 위험 관리를 하는 사람인데, 어떤 위험도 없다는 전제로 확정 금액을 말하는 건 무책임하기 때문입니다."`)}` },
+      { tag:'PART A-5 · 건강보험', title:'CEO 건강보험 3대 활용 + 세트 제안', html:`
+        <ul><li>① 전문경영인(C-level) 대체 인력 연봉</li>
+        <li>② '업무무관 가지급금' 세금폭탄 방어(정관 근거 합법 지원)</li>
+        <li>③ 경영 안정화를 위한 '비상경영자금'</li></ul>
+        ${scriptBox(`"저희 삼성생명은 대표님을 웰스(Wealth)와 헬스(Health) 두 프로그램으로 케어합니다. 목표(웰스)와 그 목표를 가능케 하는 방법(헬스)을 함께 제안 — 이게 다른 회사와의 실제 차이입니다."`)}
+        <ul class="doc-check"><li>종신부터 급하다고 건강보험을 미루지 말 것 — 처음부터 세트로 제안해야 차별화</li></ul>` },
+      { tag:'PART A-6 · 세무 근거', title:'건강보험금은 비과세 — 법적 근거', html:`
+        <p><b>소득세법 제12조 3호 다목</b>: '근로 제공으로 인한 부상·질병·사망과 관련해 받는 배상·보상 또는 위자 성질의 급여'는 비과세.</p>
+        <ul><li>CEO 단독 가입 → 상여금으로 볼 위험(근로소득 합산 과세)</li>
+        <li>단체보험 성격(임원 전체·근속 5년↑ 등 합리적 규정) → 복리후생비 처리, 법인세 절감 + 소득세 비과세</li></ul>
+        ${scriptBox(`"회계 담당자(경리)가 누구시죠? 그분을 불러주시겠어요? 제 말을 믿지 마시고 가장 신뢰하시는 분께 직접 확인해보시라는 거예요."`)}
+        <p style="color:var(--sub);font-size:12.5px;">역질문 선점: "'CEO 단독 가입은 문제 되지 않냐' 물으실 텐데 맞습니다. 그래서 사규에 따른 합리적 단체 가입을 함께 검토드립니다."</p>` },
+
+      { tag:'PART B-1 · 문제 제기', title:'호모헌드레드(100세)와 진짜 위험', html:`
+        <ul><li>한국 100세 인구: 2008년 1,835명 → 2025년 8,577명(467%↑) → 2040년 5만 명+ 전망</li>
+        <li>진짜 위험은 '사망 확률'이 아니라 <b>'생존 확률'</b> — 오래 사는 것 자체가 리스크</li>
+        <li>유병기간(아프며 사는 기간): 2011년 11.6년 → 2020년 11.8년 → 2030년 15년(여성)</li></ul>
+        ${scriptBox(`"100세 시대라는 말 당연하게 들으시죠? 진짜 위험은 언제 죽느냐가 아니라 어떻게 오래 사느냐입니다."`)}` },
+      { tag:'PART B-2 · 수술 트렌드', title:'수술의 3非 트렌드 & 고령 수술 급증', html:`
+        <p>개복 → 복강경 → 로봇 단일공 → 무일공/비침습. <b>3非 = 비관혈·비입원</b> → 비급여 수술 비중↑</p>
+        <p>80대 이상 고령 수술환자 4년 새 <b>74% 증가</b>. 고정소득 없는 시기의 천만 원대 지출은 치명적.</p>
+        <table class="guide-table"><thead><tr><th>연령</th><th>1순위 수술</th><th>비용대</th></tr></thead><tbody>
+        <tr><td>50대</td><td>백내장수술</td><td>128만원</td></tr>
+        <tr><td>60대</td><td>일반척추수술</td><td>473만원</td></tr>
+        <tr><td>70대</td><td>슬관절치환술</td><td>982만원</td></tr>
+        <tr><td>80대+</td><td>내시경적피담도수술</td><td>767만원</td></tr>
+        </tbody></table>
+        <p style="color:var(--sub);font-size:12px;">출처: 국민건강보험공단 2024</p>` },
+      { tag:'PART B-3 · 프레임 전환', title:'"치료는 장애를 부릅니다"', html:`
+        <p>의(醫)高·생(生)高·치(治)高 = 의료기술 고도화 + 생존율↑ + 치료비·치료기간 폭증.</p>
+        <p>치료 목적이 <b>생존 중심 → 삶의 질 중심</b>으로 변화. 3대 질병(암·뇌·심)은 흔적을 남긴다(간암→간장애, 폐암→호흡기장애, 대장암→장루 등).</p>
+        <div class="guide-tip">"지금 의학의 목적은 '살리는 것'이 아니라 '어떻게 살게 할 것인가'입니다." — 보장 테마를 '치료'가 아닌 '삶의 질'로 전환.</div>` },
+      { tag:'PART B-4 · 이미지 화법', title:'갑상선암: 절개 vs 레보아이(Revo-i)', html:`
+        <p>같은 갑상선암 수술, 다른 결과. 절개(급여 130~200만) vs 레보아이(비급여 700~1,000만). 절개는 목 앞 흉터, 레보아이는 겨드랑이·구강 접근으로 흉터 거의 없음.</p>
+        <p>레보아이 = 다빈치에 없는 <b>촉각 피드백</b> + 넓은 움직임. <b>삼성생명은 다빈치·레보아이 모두 약관 명시.</b></p>
+        ${scriptBox(`"이 두 분은 똑같은 갑상선암 수술을 하셨습니다. 한 분은 절개라 목 앞에 흉터가 남고, 다른 분은 겨드랑이·구강으로 수술해 흉터가 거의 없습니다. 따님은 어떤 수술이세요? 어떤 보장을 선택하셨나요?"`)}
+        <ul class="doc-check"><li>특약 설명 대신 이미지 2장으로 승부 — '단 한 장 승부'</li></ul>` },
+      { tag:'PART B-5 · 유방암', title:'유방암 — "10년 전쟁"과 타목시펜', html:`
+        <p>유방암의 특성 = <b>지연 재발</b>. 완치 후에도 재발 방지를 위해 최소 5년, 길게는 10년 관리. 대표약 '타목시펜'은 에스트로겐 대신 인식되어 암세포를 굶겨 죽이는 원리.</p>
+        <table class="guide-table"><thead><tr><th>항암</th><th>대상</th><th>특징</th></tr></thead><tbody>
+        <tr><td>약물</td><td>전신 암세포</td><td>전신 치료 / 강한 부작용</td></tr>
+        <tr><td>방사선</td><td>국소 덩어리</td><td>정밀 제거 / 국소 손상</td></tr>
+        <tr><td>호르몬(타목시펜)</td><td>유방·전립선암</td><td>부작용 경미 / 5~10년 장기복용</td></tr>
+        </tbody></table>
+        ${scriptBox(`"타사는 '급여 됐잖아, 몇십만 원이면 되는데 왜 비싸냐'고 합니다. 하지만 문제는 약값이 아니라 10년간 반복되는 정기 MRI·영상·피검사 등 비급여 관리비용입니다. 삼성생명은 진단 후 10년간 연 1회 한도로 이 모든 것을 보장합니다."`)}` },
+
+      { tag:'마무리 · 퀴즈', title:'강의 마무리 퀴즈', html:`
+        <table class="guide-table"><thead><tr><th>문제</th><th>정답</th></tr></thead><tbody>
+        <tr><td>CEO 보장을 '병원비' 아닌 무엇으로?</td><td>긴급 비상경영자금(유동성)</td></tr>
+        <tr><td>'3고 트렌드'에서 폭증하는 것?</td><td>치료비(치高)</td></tr>
+        <tr><td>다빈치 외 삼성이 명시한 로봇수술?</td><td>레보아이(Revo-i)</td></tr>
+        <tr><td>타목시펜 관련 삼성 지급 방식?</td><td>진단 후 최대 10년, 연 1회 한도</td></tr>
+        </tbody></table>` },
+      { tag:'마무리 · 전체 요약', title:'전체 핵심 요약', html:`
+        <table class="guide-table"><thead><tr><th>구분</th><th>핵심 메시지</th></tr></thead><tbody>
+        <tr><td>설득 원리</td><td>감정(우뇌) 먼저 → AEC 순서 고정</td></tr>
+        <tr><td>CEO 법인보험</td><td>"보험료=지출" 아닌 "CEO=핵심자산 지키는 유동성 자금"</td></tr>
+        <tr><td>세무 근거</td><td>소득세법 12조 3호 다목 + 단체보험 설계 + 회계담당자 활용</td></tr>
+        <tr><td>건강보험</td><td>생존확률 위험 → 3高 → 레보아이 이미지 → 타목시펜 10년</td></tr>
+        <tr><td>실행 원칙</td><td>설명 대신 보여주기 / 이유 하나 / 종신+건강 세트</td></tr>
+        </tbody></table>
+        <div class="guide-note">핵심은 하나 — 팩트가 아니라 감정으로 문을 열고, 마지막에 근거로 닫는다.</div>` },
+    ] },
+
+  { id:'uw', title:'언더라이팅 & 선심사 (신입 GFC 실무교육)', sub:'2026.07.14 경인법인지역단 · 구자희·임소희 프로 / 정리: 최기정', tile:'blue',
+    slides:[
+      { tag:'개요', title:'오늘 배울 6가지', html:`
+        <div class="doc-steps">
+        <div class="doc-step"><div class="sn">1</div><div class="st"><b>위험평가의 기초</b> — 4대 위험요소·표준체/할증체</div></div>
+        <div class="doc-step"><div class="sn">2</div><div class="st"><b>질환별 일반보험 판단</b> — 고혈압·당뇨 실전 사례</div></div>
+        <div class="doc-step"><div class="sn">3</div><div class="st"><b>간편보험과 완화질병</b> — 3No 고지·N년 규정</div></div>
+        <div class="doc-step"><div class="sn">4</div><div class="st"><b>법인계약 실무</b> — 자격요건·재정심사·CEO정기</div></div>
+        <div class="doc-step"><div class="sn">5</div><div class="st"><b>선심사란</b> — 후심사와 다른 점</div></div>
+        <div class="doc-step"><div class="sn">6</div><div class="st"><b>선심사 실전 매뉴얼</b> — 동사병·인심사·미결보완</div></div>
+        </div>
+        <div class="guide-tip">💡 1부 "되는 상품 찾기", 2부 "미결 없이 증권 받기"</div>` },
+      { tag:'PART 1 · 위험평가', title:'무엇을, 어떤 자료로 평가하나', html:`
+        <p>언더라이팅은 <b>4가지 위험</b>을 봅니다.</p>
+        <div class="doc-pills"><span class="doc-pill">신체적</span><span class="doc-pill">환경적</span><span class="doc-pill b">재정적</span><span class="doc-pill b">도덕적</span></div>
+        <p>병력·직업·소득·수익자·가입금액 등을 <b>4대 자료</b>로 확인:</p>
+        <div class="doc-stats">
+        <div class="doc-stat"><div class="n b">1</div><div class="l">청약서<br>알릴의무</div></div>
+        <div class="doc-stat"><div class="n b">2</div><div class="l">병원서류<br>진단·검사</div></div>
+        <div class="doc-stat"><div class="n b">3</div><div class="l">소득서류<br>재정확인</div></div>
+        <div class="doc-stat"><div class="n b">4</div><div class="l">지급정보<br>신정원 이력</div></div>
+        </div>` },
+      { tag:'PART 1 · 판정값', title:'표준체 vs 할증체 — E0의 함정', html:`
+        <div class="doc-vs">
+        <div class="no"><h4>흔한 오해</h4>"파란색이니 표준체다" — 색이 아니라 <b>글자</b>를 읽어야 함</div>
+        <div class="ok"><h4>핵심</h4><b>할증(E0, 표준요율)</b>은 등급만 할증, 보험료는 표준체와 동일 = 사실상 표준체(우량체만 불가)</div>
+        </div>
+        <table class="guide-table"><thead><tr><th>판정</th><th>처리</th></tr></thead><tbody>
+        <tr><td>표준체 / 할증(E0)</td><td>표준체 취급 (E0는 우량체 불가)</td></tr>
+        <tr><td>할증(순수 점수)</td><td>간편보험 검토</td></tr>
+        <tr><td>거절</td><td>간편보험 검토</td></tr>
+        </tbody></table>
+        <div class="guide-note">"고혈압·고지혈증은 약을 먹는데도 우량체 신청하시는 분들이 있어요. 할증(E0)은 우량체만 안 되는 표준체입니다." — 구자희 프로</div>` },
+      { tag:'PART 1 · 할증점수', title:'할증점수 구조 (100부터 시작)', html:`
+        <div class="doc-bar">
+        <div style="background:#2563eb;flex:1;">0~99<br><span>우량체</span></div>
+        <div style="background:#16a34a;flex:.55;">100<br><span>표준</span></div>
+        <div style="background:#d97706;flex:2;">101~300<br><span>할증</span></div>
+        <div style="background:#dc2626;flex:.7;">300+<br><span>거절</span></div>
+        </div>
+        <p>우량체 할인구간(0~99)을 비워두려고 <b>100을 표준체 기준점</b>으로 삼습니다. 화면 할증값에서 <b>100을 빼야</b> 실제 할증폭.</p>
+        <div class="doc-hero"><div class="big">당뇨 · 사망담보 = 할증 200</div><div class="sm">실제 할증폭 = 200 − 100 = 100점 가산</div></div>` },
+      { tag:'PART 2 · 판단원칙', title:'외우지 말고 돌려본다', html:`
+        <div class="doc-steps">
+        <div class="doc-step"><div class="sn">1</div><div class="st"><b>고객 정보 입력</b> — 나이·성별·병력·투약</div></div>
+        <div class="doc-step"><div class="sn">2</div><div class="st"><b>판정값 확인</b> — 급부별(사망/암/뇌심/입원/LTC)</div></div>
+        <div class="doc-step"><div class="sn">3</div><div class="st"><b>상품 대입</b> — 심사대상 급부 하나라도 할증이면 탈락</div></div>
+        <div class="doc-step"><div class="sn">4</div><div class="st"><b>대안 제시</b> — 전부 불가→간편, 일부만→되는 플랜만</div></div>
+        </div>
+        <div class="doc-hero"><div class="big">"심사 대상 급부" 중 하나라도 할증(순수)이면 불가</div><div class="sm">표준체이거나 할증(E0)이면 가능</div></div>` },
+      { tag:'PART 2 · 사례①', title:'고혈압·고지혈증 (55세 남)', html:`
+        <table class="guide-table"><thead><tr><th>상품</th><th>사망</th><th>암</th><th>뇌심</th></tr></thead><tbody>
+        <tr><td>인생대표</td><td>E0</td><td>표준</td><td>할증150</td></tr>
+        <tr><td>가족대표</td><td>E0</td><td>표준</td><td>할증150</td></tr>
+        <tr><td>플러스원</td><td>E0</td><td>표준</td><td>-</td></tr>
+        </tbody></table>
+        <div class="doc-vs">
+        <div class="ok"><h4>가능</h4>인생대표(암플랜만) · 플러스원(사망·암만 심사→전체)</div>
+        <div class="no"><h4>간편으로</h4>가족대표·시니어(뇌 할증150 → 전체 불가)</div>
+        </div>` },
+      { tag:'PART 2 · 사례②', title:'당뇨 (55세 남) — 전면 불가', html:`
+        <table class="guide-table"><thead><tr><th>급부</th><th>판정</th></tr></thead><tbody>
+        <tr><td>사망</td><td>할증 200</td></tr>
+        <tr><td>암</td><td>표준체</td></tr>
+        <tr><td>뇌심 / 입원 / LTC</td><td>거절</td></tr>
+        </tbody></table>
+        <p>건강상품은 <b>사망담보를 주보험</b>으로 깔고 있는데, 당뇨는 사망이 할증(순수 200)이라 주보험 단계에서 걸림.</p>
+        <div class="doc-hero"><div class="big">당뇨 = 일반 건강상품 전체 불가</div><div class="sm">→ 무조건 간편보험으로 진행</div></div>` },
+      { tag:'PART 2 · 사례③', title:'다발 병력 고객 (60세 여)', html:`
+        <p>병력: 철결핍성빈혈(투약 기왕)·수면무호흡증(입원 2일)·갑상선기능저하증(투약중). 요청: 암·뇌·심 10만원대.</p>
+        <table class="guide-table"><thead><tr><th>사망</th><th>암</th><th>뇌심</th></tr></thead><tbody>
+        <tr><td>E0(표준취급)</td><td>부담보(갑상선5년)</td><td>표준체</td></tr>
+        </tbody></table>
+        <p>사망 E0로 주보험 통과, 암은 부담보 처리 → <b>인생/가족/플러스원 모두 통과</b>.</p>
+        <div class="guide-note">"3개 상품 다 되네. 한도 초과, 어떤 상품 할 거예요? — 이게 100점 답안." — 구자희 프로</div>` },
+      { tag:'PART 3 · 간편', title:'일반 vs 간편 — 간편이 더 비쌀까?', html:`
+        <table class="guide-table"><thead><tr><th>구분</th><th>일반</th><th>간편</th></tr></thead><tbody>
+        <tr><td>심사</td><td>고지+서류+진단</td><td>고지 only</td></tr>
+        <tr><td>알릴의무</td><td>13개</td><td>7개</td></tr>
+        <tr><td>심사기일</td><td>3~5일</td><td>1일</td></tr>
+        </tbody></table>
+        <div class="doc-hero"><div class="big">보험료 역전 구간이 있다</div><div class="sm">할증이 높은 고객은 오히려 간편이 저렴할 수 있음 — 병력 많으면 간편 견적도 비교</div></div>` },
+      { tag:'PART 3 · 완화질병', title:'3개월 소견 함정 · N년 완화질병', html:`
+        <p>최근 <b>3개월 내 소견</b>(입원·수술·재검사·확정진단·의심소견)에 "예" 체크 시 자동심사 불가. 완치 "아니오"면 완화질환도 반송.</p>
+        <table class="guide-table"><thead><tr><th>구분</th><th>중증(2·1년)</th><th>경증(10·5년)</th></tr></thead><tbody>
+        <tr><td>개수</td><td>3개</td><td>7개</td></tr>
+        <tr><td>입원일수</td><td>10일</td><td>20일</td></tr>
+        <tr><td>수술횟수</td><td>2회</td><td>4회</td></tr>
+        </tbody></table>
+        <div class="guide-note">완화질환 입원·수술 시 가입 불가(완치 후 3개월 경과 필수). "입원일수는 둘 중 큰 것만 잡습니다" — 구자희 프로</div>` },
+      { tag:'PART 4 · 법인', title:'법인 판별 — 사업자번호 중간 2자리', html:`
+        <div class="doc-numgrid">
+        <div class="doc-numcell ok"><span class="ox">O</span><div class="code">01~79</div>개인과세</div>
+        <div class="doc-numcell no"><span class="ox">X</span><div class="code">80</div>비법인단체</div>
+        <div class="doc-numcell ok"><span class="ox">O</span><div class="code">81</div>영리법인 본점</div>
+        <div class="doc-numcell no"><span class="ox">X</span><div class="code">82</div>비영리법인</div>
+        <div class="doc-numcell no"><span class="ox">X</span><div class="code">83</div>국가·지자체</div>
+        <div class="doc-numcell no"><span class="ox">X</span><div class="code">84</div>외국법인</div>
+        <div class="doc-numcell no"><span class="ox">X</span><div class="code">85</div>영리법인 지점</div>
+        <div class="doc-numcell ok"><span class="ox">O</span><div class="code">86·87·88</div>법인사업자</div>
+        <div class="doc-numcell no"><span class="ox">X</span><div class="code">89</div>비법인 종교</div>
+        <div class="doc-numcell no"><span class="ox">X</span><div class="code">90~99</div>개인 면세</div>
+        </div>
+        <div class="guide-note">가입 불가 4대: 지점격·비법인단체·임의단체·해외법인. 보험계약자는 <b>본점만</b> 가능(대법 80누295).</div>` },
+      { tag:'PART 4 · 자격', title:'자격요건 & CEO정기 재정심사', html:`
+        <table class="guide-table"><thead><tr><th></th><th>대표/임원</th><th>미등기</th><th>종업원</th></tr></thead><tbody>
+        <tr><td>경영인·CEO정기</td><td>O</td><td>X</td><td>X</td></tr>
+        <tr><td>자산운용</td><td>O</td><td>O</td><td>X</td></tr>
+        <tr><td>수익자 법인</td><td>O</td><td>O</td><td>X</td></tr>
+        </tbody></table>
+        <p><b>CEO정기 재정심사</b> — 셋 중 <b>최댓값 하나만</b>(합산 불가):</p>
+        <div class="doc-stats">
+        <div class="doc-stat"><div class="n b">1</div><div class="l">당기순이익<br>×배수×지분율</div></div>
+        <div class="doc-stat"><div class="n b">2</div><div class="l">총자본<br>×지분율</div></div>
+        <div class="doc-stat"><div class="n b">3</div><div class="l">개인 연소득<br>×배수</div></div>
+        </div>
+        <div class="guide-note">가입배수 ~70세 30배 / 71세+ 20배. 2년 내 신설법인 불가, 금감원 건별 확인(유도리 없음).</div>` },
+      { tag:'PART 5 · 선심사', title:'후심사 vs 선심사', html:`
+        <div class="doc-vs">
+        <div class="no"><h4>후심사(지금까지)</h4>사인→제출→심사→<b>미결·반송</b>→부담보 서명 or 환불</div>
+        <div class="ok"><h4>선심사(지금부터)</h4>만나기 전 심사→병력 자동표시→청약 자동입력→서명만→<b>바로 증권</b></div>
+        </div>
+        <div class="doc-hero"><div class="big">"고객에게 다시 찾아가야 하는 상황"이 사라진다</div></div>` },
+      { tag:'PART 5 · 오해', title:'선심사 = 모든 청약이 지나가는 길', html:`
+        <div class="doc-vs">
+        <div class="no"><h4>오해</h4>"아픈 사람만 쓰는 기능 아냐?"</div>
+        <div class="ok"><h4>진실</h4>건강한 고객도 선심사로 진행하면 <b>그대로 자동 승낙</b> — 표준 프로세스</div>
+        </div>
+        <p>적용 상품:</p>
+        <div class="doc-pills"><span class="doc-pill">건강</span><span class="doc-pill">종신</span><span class="doc-pill">연금</span><span class="doc-pill gold">간편</span><span class="doc-pill gold">치아</span></div>
+        <div class="doc-hero"><div class="big">2028년 "설계 AI화"</div><div class="sm">이름만 입력하면 여러 상품·플랜을 자동으로 다 돌려 "이 고객은 이것만 가능"까지 — 그 근간이 선심사</div></div>` },
+      { tag:'PART 6 · 매뉴얼', title:'선심사 시작 — "동사병" 구조', html:`
+        <div class="doc-stats">
+        <div class="doc-stat"><div class="n b">동</div><div class="l">지급정보 동의</div></div>
+        <div class="doc-stat"><div class="n b">사</div><div class="l">사전정보(고지)</div></div>
+        <div class="doc-stat"><div class="n b">병</div><div class="l">질병상세정보</div></div>
+        </div>
+        <div class="doc-steps">
+        <div class="doc-step"><div class="sn">1</div><div class="st">고객·상품·특약 선택</div></div>
+        <div class="doc-step"><div class="sn">2</div><div class="st">보험료 계산 → 심사 키</div></div>
+        <div class="doc-step"><div class="sn">3</div><div class="st">파란 "선심사" 키 → 동사병 입력 → 결과</div></div>
+        </div>` },
+      { tag:'PART 6 · 함정', title:'필수 vs 선택정보 · 인심사 vs 선인심사', html:`
+        <div class="doc-vs">
+        <div class="no"><h4>필수정보</h4>신정원 자동 병력 · 삭제 시 <b>자동심사 불가→인심사</b></div>
+        <div class="ok"><h4>선택정보</h4>GFC가 직접 추가 · 삭제 시 <b>깔끔히 없던 일</b></div>
+        </div>
+        <div class="doc-vs">
+        <div class="no"><h4>인심사</h4>사람이 직접 판정(서류필요·한도초과)</div>
+        <div class="ok"><h4>선인심사</h4>청약 전 미리 요청 → 확정 후 자동심사</div>
+        </div>
+        <div class="guide-note">예) 지방간은 "서류필요"만 뜸 → 선인심사로 간수치 서류 미리 제출하면 이후 청약 자동심사.</div>` },
+      { tag:'PART 6 · 결과값', title:'선심사 결과값 6가지', html:`
+        <table class="guide-table"><thead><tr><th>결과값</th><th>청약발행</th><th>선인심사</th></tr></thead><tbody>
+        <tr><td>심사완료</td><td>O</td><td>최고값X/그외O</td></tr>
+        <tr><td>심사필요</td><td>O</td><td>서류O/진단X</td></tr>
+        <tr><td>거절</td><td>X</td><td>O(재검토)</td></tr>
+        <tr><td>재설계 필요</td><td>X</td><td>X</td></tr>
+        <tr><td>미결</td><td>O</td><td>X</td></tr>
+        <tr><td>심사중</td><td>X</td><td>-</td></tr>
+        </tbody></table>
+        <div class="guide-note">인심사 요청은 <b>숫자·사실로 명확하게</b>("유방결절 5년 경과 5일 남음") + 근거서류 첨부해야 빠름.</div>` },
+      { tag:'PART 6 · 실수', title:'놓치기 쉬운 실수 Top 3 & 요약', html:`
+        <div class="doc-steps">
+        <div class="doc-step"><div class="sn">1</div><div class="st"><b>선심사 유효기간 = 영업일 5일</b> → 만료 시 "이전 질병정보 불러오기"로 재활용</div></div>
+        <div class="doc-step"><div class="sn">2</div><div class="st"><b>재설계 시 "다른 이름으로 저장"</b> 필수(아니오 누르면 앞 건 소멸)</div></div>
+        <div class="doc-step"><div class="sn">3</div><div class="st"><b>"심사중" 상태</b>에선 수정·삭제·발행 전부 불가</div></div>
+        </div>
+        <div class="doc-hero"><div class="big">사망 표준/E0 → 일반, 순수할증·거절 → 간편</div><div class="sm">법인=사업자번호 중간2자리 · 선심사=동사병→결과→발행 · 유효기간 5일</div></div>` },
+    ] },
+
+  { id:'silson', title:'실손 치료비·진단비 고객설명자료', sub:'삼성생명 GFC · 병원이 바뀌면 보험도 바뀝니다', tile:'green',
+    slides:[
+      { tag:'도입', title:'한국은 "걸려도 고치는" 나라', html:`
+        <p>세계 암치료 병원 TOP10에 국내 3곳 (뉴스위크·스태티스타 2026).</p>
+        <div class="doc-stats">
+        <div class="doc-stat"><div class="n g">3위</div><div class="l">삼성서울병원</div></div>
+        <div class="doc-stat"><div class="n b">4위</div><div class="l">서울아산병원</div></div>
+        <div class="doc-stat"><div class="n a">8위</div><div class="l">서울대병원</div></div>
+        </div>
+        <div class="doc-hero"><div class="big">남는 문제는 둘</div><div class="sm">① 치료비를 어떻게 낼 것인가  ② 치료받는 동안 생활은 어떻게 할 것인가</div></div>` },
+      { tag:'배경', title:'보험은 왜 자꾸 바뀔까', html:`
+        <div class="doc-steps">
+        <div class="doc-step"><div class="sn">1</div><div class="st"><b>나라 정책</b>이 방향을 정함</div></div>
+        <div class="doc-step"><div class="sn">2</div><div class="st"><b>병원</b>이 검사·치료·환자구성으로 따라 바뀜</div></div>
+        <div class="doc-step"><div class="sn">3</div><div class="st"><b>보험</b>이 새 보장·진단비로 반영</div></div>
+        </div>
+        <p>예) 2018 검사비 급여화 → 뇌동맥류·초기 협심증 발견 급증 → 2019 <b>뇌혈관·허혈성심장질환 진단비</b> 신설.</p>` },
+      { tag:'방향', title:'지금 방향은 "중증 집중"', html:`
+        <div class="doc-vs">
+        <div class="ok"><h4>더 챙김</h4>중증(암·뇌·심·폐) — 사망률 낮추기</div>
+        <div class="no"><h4>조임</h4>비중증·비급여(도수·주사제 등 '필요 이상')</div>
+        </div>
+        <div class="guide-note">'풍선효과'(과잉진료→병원비·손해율↑→보험료↑)를 줄이려는 게 관리급여 신설 + 5세대 개편. (2026.7 기준, 변동 가능)</div>` },
+      { tag:'세대', title:'실손 1~4세대, 내 부담이 다르다', html:`
+        <table class="guide-table"><thead><tr><th>세대</th><th>별칭·시기</th><th>자기부담(입원)</th></tr></thead><tbody>
+        <tr><td>1세대</td><td>구실손 (~’09.9)</td><td>0%</td></tr>
+        <tr><td>2세대</td><td>표준화 (’09.10~’17.3)</td><td>10~20%</td></tr>
+        <tr><td>3세대</td><td>착한실손 (’17.4~’21.6)</td><td>급여10/비급여20%</td></tr>
+        <tr><td>4세대</td><td>유지형 (’21.7~’26.3)</td><td>급여20/비급여30%</td></tr>
+        </tbody></table>
+        <div class="guide-note">세대가 올라갈수록 보험료↓·내 몫↑, 재가입 주기도 짧아짐(4세대 5년).</div>` },
+      { tag:'5세대(안)', title:'5세대 — 중증 vs 비중증', html:`
+        <div class="doc-vs">
+        <div class="ok"><h4>중증(특약1)</h4>연 5천만·입원한도 없음 · 부담 30% · 종합병원↑ 본인부담 500만 상한</div>
+        <div class="no"><h4>비중증(특약2)</h4>연 1천만 · 부담 <b>50%</b> · 도수·체외충격파·증식치료 등 일부 비급여 미보장</div>
+        </div>
+        <div class="doc-hero"><div class="big">보험료는 내려가지만, 큰 병이 아닌 치료는 '내 지갑에서'</div></div>
+        <div class="guide-note">⚠️ 개혁방안 토론회(’25.1.9) 발표안 기준 — 확정 시 달라질 수 있음.</div>` },
+      { tag:'핵심', title:'치료비(실손) vs 진단비 — 짝', html:`
+        <div class="doc-vs">
+        <div class="ok"><h4>실손(치료비)</h4>병원 영수증 일부(자기부담 제외) · <b>못 메움:</b> 소득단절·간병·교통</div>
+        <div class="no"><h4>진단비</h4>치료 중 생활·소득 공백 · <b>못 메움:</b> 실제 병원비</div>
+        </div>
+        <div class="doc-hero"><div class="big">둘은 경쟁이 아니라 '짝'</div><div class="sm">하나만 있으면 반드시 한쪽이 빈다</div></div>` },
+      { tag:'사례', title:'시니어 시대 — 인공관절 영수증', html:`
+        <div class="doc-stats">
+        <div class="doc-stat"><div class="n g">400만</div><div class="l">급여 인공관절</div></div>
+        <div class="doc-stat"><div class="n r">1,300만</div><div class="l">비급여 신제품</div></div>
+        </div>
+        <p>같은 수술, 다른 영수증 — 차이는 실력이 아니라 <b>'재료값'</b>. 준비된 만큼 선택지가 달라짐.</p>
+        <div class="guide-tip">💡 수술 전 단계: 줄기세포 치료로 인공관절 시점을 미루는 방향 — 보장이 수술 이전 단계로 확대 중.</div>` },
+      { tag:'사례', title:'치매는 병명이 아니라 "증상"', html:`
+        <div class="doc-pills"><span class="doc-pill">알츠하이머</span><span class="doc-pill">혈관성</span><span class="doc-pill">기타(알코올 등)</span></div>
+        <p>치료제 '레켐비'는 엉킨 단백질을 풀어주는 <b>진행을 늦추는</b> 약(반복 투여, 늦으면 효과↓).</p>
+        <div class="guide-note">→ '빨리 시작할 준비'가 중요. '실버(돌봄)'가 아니라 '시니어(관리·활동)' 시대.</div>` },
+      { tag:'마무리', title:'오늘 기억할 3가지', html:`
+        <div class="doc-steps">
+        <div class="doc-step"><div class="sn">1</div><div class="st">한국은 <b>걸려도 고친다</b> — 남는 건 '비용과 시간'</div></div>
+        <div class="doc-step"><div class="sn">2</div><div class="st">실손은 <b>세대마다 내 부담이 다르다</b></div></div>
+        <div class="doc-step"><div class="sn">3</div><div class="st">치료비와 진단비는 <b>짝</b></div></div>
+        </div>
+        <div class="doc-hero"><div class="big">"지금 실손이 몇 세대인지, 진단비는 어디까지 준비돼 있는지 같이 확인해볼까요?"</div></div>
+        <div class="guide-note">⚠️ 이해를 돕는 요약본입니다. 정확한 보장은 약관·상품설명서 확인.</div>` },
+    ] },
+];
+
+function openGuideDocs(){
+  document.getElementById('guideListBody').innerHTML =
+    subBackBarHTML()
+    + `<div class="page-title" style="margin-bottom:6px;">📄 자료</div>`
+    + `<div class="guide-intro">강의·교육자료를 앱에서 바로 볼 수 있게 정리한 모음입니다.</div>`
+    + DOCS.map(d=>`<button class="big-btn outline" onclick="openGuideDoc('${d.id}')">
+        <div class="ico tile ${d.tile||'navy'}"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M8 13h8M8 17h6"/></svg></div>
+        <div style="flex:1;min-width:0;"><div>${escapeHTML(d.title)}</div><div class="desc">${escapeHTML(d.sub)}</div></div>
+        <span class="guide-chev">›</span>
+      </button>`).join('');
+  pushSub('screen-guide-list', '자료');
+}
+
+function openGuideDoc(id){
+  const d = DOCS.find(x=>x.id===id);
+  if(!d) return;
+  document.getElementById('guideDetailBody').innerHTML =
+    subBackBarHTML()
+    + `<div class="page-title" style="margin-bottom:4px;">${escapeHTML(d.title)}</div>`
+    + `<div class="guide-intro">${escapeHTML(d.sub)}</div>`
+    + d.slides.map(s=>`<div class="card doc-slide guide-detail">
+        ${s.tag?`<div class="doc-tag">${escapeHTML(s.tag)}</div>`:''}
+        <h3 style="margin-top:0;">${escapeHTML(s.title)}</h3>
+        ${s.html}
+      </div>`).join('');
+  pushSub('screen-guide-detail', d.title);
 }
 
 /* ---------------- 방문 기록 관리 (PC "📂 방문 기록 관리"와 동일 로직) ---------------- */
