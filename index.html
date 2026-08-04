@@ -20,7 +20,7 @@
   --red:#dc2626; --gray-400:#9ca3af; --purple:#7c3aed;
   --safe-top: env(safe-area-inset-top, 0px);
   --safe-bottom: env(safe-area-inset-bottom, 0px);
-  --print-th-bg: #1B3A6B; --print-th-text: #ffffff;
+  --print-th-bg: #8577D6; --print-th-text: #ffffff;
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
 html,body{margin:0;padding:0;height:100%;color:var(--text);
@@ -346,7 +346,8 @@ select{-webkit-appearance:none;appearance:none;background-image:url("data:image/
 .dm-section-body{padding:14px 14px 16px;}
 .dm-section-note{font-size:12.5px;color:var(--sub);line-height:1.55;margin-bottom:12px;}
 
-.dropzone{border:2px dashed #6a94f5;border-radius:12px;background:#f0f5ff;padding:26px 12px;text-align:center;color:#39435a;}
+.dropzone{border:2px dashed #6a94f5;border-radius:12px;background:#f0f5ff;padding:26px 12px;text-align:center;color:#39435a;cursor:pointer;transition:background .15s,border-color .15s;}
+.dropzone.dragover{background:#dbe7ff;border-color:var(--navy);border-style:solid;}
 .dropzone .ico{font-size:34px;margin-bottom:6px;}
 .dropzone .t{font-size:14px;font-weight:800;margin-bottom:4px;}
 .dropzone .s{font-size:11.5px;color:var(--sub);}
@@ -430,15 +431,37 @@ select{-webkit-appearance:none;appearance:none;background-image:url("data:image/
   touch-action:manipulation;}
 .pp-fchip.on{background:var(--navy);color:#fff;border-color:var(--navy);}
 .pp-scroll{flex:1;overflow:auto;-webkit-overflow-scrolling:touch;padding:12px 12px 4px;min-height:0;}
-.pp-print-head{margin-bottom:8px;}
-.pp-print-title{font-size:14px;font-weight:800;color:var(--navy);}
-.pp-print-org{font-size:11.5px;color:var(--navy);font-weight:700;margin-top:2px;}
-.pp-print-meta{font-size:11px;color:var(--sub);margin-top:2px;}
+.pp-print-head{margin-bottom:14px;text-align:center;padding-bottom:10px;border-bottom:2px solid #2b2b2b;}
+.pp-print-title{font-size:21px;font-weight:800;color:#1f2937;letter-spacing:-.3px;}
+.pp-print-org{font-size:12.5px;color:var(--navy);font-weight:700;margin-top:5px;}
+.pp-print-meta{font-size:12.5px;color:var(--sub);margin-top:5px;font-weight:600;}
+.pp-print-foot{margin-top:12px;padding-top:10px;border-top:1px solid var(--line);
+  text-align:right;font-size:11px;color:var(--sub);}
 .pp-table{border-collapse:collapse;font-size:11px;white-space:nowrap;min-width:900px;}
 .pp-table th{background:var(--print-th-bg);color:var(--print-th-text);padding:7px 8px;text-align:left;font-weight:700;
   position:sticky;top:0;}
-.pp-table td{padding:6px 8px;border-bottom:1px solid var(--line);color:var(--text);}
+.pp-table td{padding:7px 8px;border-bottom:1px solid var(--line);color:var(--text);}
 .pp-table tr:nth-child(even) td{background:#f7f9fc;}
+/* 회사명 컬럼 앞 색상 강조 바 — PDF 출력물과 동일 */
+.pp-table .pp-co{border-left:3px solid var(--print-th-bg);}
+/* ── 업체목록 PDF 양식(업체당 연도 3행: 자본금·매출·순이익·이익) ── */
+.pp-table.pp-multi{min-width:1040px;}
+.pp-table.pp-multi td{vertical-align:middle;}
+.pp-table .pp-co b{display:block;font-weight:800;color:var(--navy);}
+.pp-table .pp-sub{display:block;color:var(--sub);font-weight:500;font-size:.9em;margin-top:1px;}
+.pp-table td.pp-c{text-align:center;}
+.pp-table td.pp-no{font-weight:700;}
+.pp-table td.pp-yr{text-align:center;color:#6b5bd0;font-weight:700;}
+.pp-table td.pp-op{font-weight:700;}
+.pp-table td.pp-corp div{line-height:1.5;}
+.pp-table td.pp-wrap{white-space:normal;word-break:break-word;}
+.pp-table td.pp-cert{font-size:.92em;color:#374151;}
+/* 줄무늬는 행이 아니라 "업체 그룹" 단위로 교차 음영 */
+.pp-table.pp-multi tr:nth-child(even) td{background:transparent;}
+.pp-table.pp-multi tr.pp-grp td{background:#fff;}
+.pp-table.pp-multi tr.pp-alt td{background:#f6f7fb;}
+/* 최신연도(2024) 행 강조 — PDF의 노란 하이라이트 */
+.pp-table.pp-multi tr.pp-yr-latest td{background:#fff7d6;font-weight:700;}
 .pp-check-col{width:30px;text-align:center !important;}
 .pp-check-col input{width:17px;height:17px;}
 .pp-table tr.pp-off td{opacity:.32;}
@@ -469,10 +492,19 @@ select{-webkit-appearance:none;appearance:none;background-image:url("data:image/
     padding:5px 4px;font-size:9.5px;font-weight:700;text-align:center;}
   .pp-table td{padding:4px 4px;vertical-align:top;overflow:hidden;}
   .pp-table tr:nth-child(even) td{background:#eef2f9 !important;}
+  /* 업체목록(연도 3행) 양식: 줄무늬를 업체 그룹 단위로, 최신연도 노랑 강조 */
+  .pp-table.pp-multi td{vertical-align:middle;}
+  .pp-table.pp-multi tr:nth-child(even) td{background:transparent !important;}
+  .pp-table.pp-multi tr.pp-grp td{background:#fff !important;}
+  .pp-table.pp-multi tr.pp-alt td{background:#f2f3f9 !important;}
+  .pp-table.pp-multi tr.pp-yr-latest td{background:#fff2b8 !important;}
+  .pp-table td.pp-yr{color:#6b5bd0 !important;}
   .pp-table tr{page-break-inside:avoid;}
   .pp-table tr.pp-off td{opacity:1;}
   /* 숫자·짧은 항목은 가운데 정렬로 깔끔하게 */
-  .pp-print-title{font-size:15px;}
+  .pp-print-title{font-size:19px;}
+  .pp-print-head{border-bottom:2px solid #2b2b2b;}
+  .pp-print-foot{font-size:10px;margin-top:10px;padding-top:8px;}
   @page{ size: A4 landscape; margin:7mm; }
 }
 
@@ -715,10 +747,11 @@ select{-webkit-appearance:none;appearance:none;background-image:url("data:image/
       <div class="dm-section">
         <div class="dm-section-head"><span>📥</span> 엑셀 파일 추가</div>
         <div class="dm-section-body">
-          <div class="dropzone" onclick="document.getElementById('excelFile').click()">
+          <div class="dropzone" id="excelDropzone" onclick="document.getElementById('excelFile').click()"
+               ondragover="excelDragOver(event)" ondragleave="excelDragLeave(event)" ondrop="excelDrop(event)">
             <div class="ico">📁</div>
-            <div class="t">엑셀 파일을 탭하여 선택하세요</div>
-            <div class="s">지원 형식: .xlsx, .xls · 지역별로 저장되어 다음에 다시 첨부할 필요가 없어요</div>
+            <div class="t">엑셀 파일을 탭하거나 끌어다 놓으세요</div>
+            <div class="s">지원 형식: .xlsx, .xls · PC에서는 파일을 드래그해서 놓아도 됩니다 · 지역별로 저장되어 다음에 다시 첨부할 필요가 없어요</div>
           </div>
           <input type="file" id="excelFile" accept=".xlsx,.xls,.csv" class="hidden" onchange="importExcel(event)">
         </div>
@@ -1275,6 +1308,7 @@ select{-webkit-appearance:none;appearance:none;background-image:url("data:image/
           <div class="pp-print-meta" id="ppPrintMeta"></div>
         </div>
         <table class="pp-table" id="ppTable"><thead></thead><tbody></tbody></table>
+        <div class="pp-print-foot" id="ppPrintFoot"></div>
       </div>
     </div>
     <div class="pp-actions">
@@ -2974,6 +3008,99 @@ const JOURNAL_PP_COLS = [
   { key:'방문차수',   label:'방문차수',     w:4.5 },
 ];
 
+// ── PDF 출력물과 동일한 "업체목록" 인쇄 양식 (업체당 연도 3행: 자본금·매출·순이익·이익) ──
+const COMPANY_PRINT_COLS = [
+  { label:'NO',          w:3 },
+  { label:'기업명/대표',  w:10 },
+  { label:'사업자/전화',  w:9 },
+  { label:'업종',        w:10 },
+  { label:'주소',        w:15 },
+  { label:'인원',        w:4 },
+  { label:'연도',        w:5 },
+  { label:'자본금',      w:6 },
+  { label:'매출',        w:6 },
+  { label:'순이익',      w:6 },
+  { label:'이익(백만)',   w:6 },
+  { label:'단체/법인',    w:6 },
+  { label:'특허·인증',    w:14 },
+];
+const PRINT_YEARS = ['2022','2023','2024'];
+
+// 숫자를 천단위 콤마로. 빈값/비숫자는 그대로 또는 '-'
+function ppFmtNum(v){
+  if(v===undefined || v===null) return '-';
+  const s = String(v).trim();
+  if(s==='' || s==='-') return '-';
+  const n = Number(s.replace(/,/g,''));
+  return isFinite(n) ? n.toLocaleString() : s;
+}
+// 특정 연도의 재무값(자본/매출/순이익)
+function ppYearFin(c, year, key){
+  const f = c && c.재무 && c.재무[year];
+  return f ? ppFmtNum(f[key]) : '-';
+}
+// 인증·특허 문자열 (예: "기업부설연구소(20151019), 이노비즈(20241030), 특허 19건")
+function ppCertString(c){
+  const d = v => String(v||'').trim();
+  const parts = [];
+  if(c.기업부설연구소여부==='Y') parts.push('기업부설연구소'+(d(c.기업부설연구소일자)?`(${d(c.기업부설연구소일자)})`:''));
+  if(c.이노비즈여부==='Y')      parts.push('이노비즈'+(d(c.이노비즈일자)?`(${d(c.이노비즈일자)})`:''));
+  if(c.메인비즈여부==='Y')      parts.push('메인비즈'+(d(c.메인비즈일자)?`(${d(c.메인비즈일자)})`:''));
+  if(c.벤처인증여부==='Y')      parts.push('벤처인증'+(d(c.벤처인증일자)?`(${d(c.벤처인증일자)})`:''));
+  const patents = d(c.특허등록건수) || d(c.특허출원건수);
+  if(c.특허보유==='Y' && patents && patents!=='0') parts.push('특허 '+patents+'건');
+  return parts.length ? parts.join(', ') : '-';
+}
+
+// 업체목록 인쇄 표의 머리글 (체크박스 + PDF 양식 컬럼)
+function ppCompanyThead(){
+  return '<tr><th class="pp-check-col"><input type="checkbox" id="ppCheckAll" checked onclick="ppToggleAll(this.checked)"></th>'
+    + COMPANY_PRINT_COLS.map(c=>`<th style="width:${c.w}%">${c.label}</th>`).join('') + '</tr>';
+}
+// 한 연도 행의 셀 5개(연도·자본금·매출·순이익·이익). 이익은 최신연도(2024)에만 표시.
+function ppYearCells(c, year, opProfit){
+  const latest = (year === PRINT_YEARS[PRINT_YEARS.length-1]);
+  return `<td class="pp-yr">${year}년</td>`
+    + `<td class="pp-c">${ppYearFin(c,year,'자본')}</td>`
+    + `<td class="pp-c">${ppYearFin(c,year,'매출')}</td>`
+    + `<td class="pp-c">${ppYearFin(c,year,'순이익')}</td>`
+    + `<td class="pp-c pp-op">${latest ? ppFmtNum(opProfit) : '-'}</td>`;
+}
+// 업체 1곳 = 연도 3행. 좌측 공통정보는 rowspan=3 으로 병합.
+function ppCompanyRows(item, i){
+  const c = applyOverride(item);
+  const name  = escapeHTML(c.기업명 || '-');
+  const ceoNm = c.대표자이름 || '';
+  const ceoAge= c.대표자나이 || '';
+  const ceo   = ceoNm ? escapeHTML(ceoNm + (ceoAge?` (${ceoAge})`:'')) : '-';
+  const biz   = escapeHTML(formatBizNo(c.사업자번호));
+  const phone = escapeHTML(c.본사전화번호 || '-');
+  const ind   = escapeHTML(c.업종세부분류 || '-');
+  const addr  = escapeHTML(c.통합주소 || '-');
+  let workers = String(c.최신근로자수 || '').trim();
+  workers = workers ? (/^\d+$/.test(workers) ? workers+'명' : escapeHTML(workers)) : '-';
+  const danche = (c.단체보험가입여부==='Y') ? 'Y' : 'N';
+  const bubin  = (c.법인명의가입여부==='Y') ? 'Y' : 'N';
+  const cert   = escapeHTML(ppCertString(c));
+  const op     = c.영업이익;
+  const alt    = (i % 2 === 1) ? ' pp-alt' : '';
+
+  const head = `<tr data-i="${i}" class="pp-grp${alt}">`
+    + `<td class="pp-check-col" rowspan="3"><input type="checkbox" checked onclick="ppToggleRow(${i}, this.checked)"></td>`
+    + `<td class="pp-c pp-no" rowspan="3">${i+1}</td>`
+    + `<td class="pp-co" rowspan="3"><b>${name}</b><span class="pp-sub">${ceo}</span></td>`
+    + `<td rowspan="3"><b>${biz}</b><span class="pp-sub">${phone}</span></td>`
+    + `<td class="pp-wrap" rowspan="3">${ind}</td>`
+    + `<td class="pp-wrap" rowspan="3">${addr}</td>`
+    + `<td class="pp-c" rowspan="3">${workers}</td>`
+    + ppYearCells(c, PRINT_YEARS[0], op)
+    + `<td class="pp-c pp-corp" rowspan="3"><div>단체 ${danche}</div><div>법인 ${bubin}</div></td>`
+    + `<td class="pp-wrap pp-cert" rowspan="3">${cert}</td></tr>`;
+  const mid  = `<tr data-i="${i}" class="pp-grp${alt}">` + ppYearCells(c, PRINT_YEARS[1], op) + '</tr>';
+  const last = `<tr data-i="${i}" class="pp-grp${alt} pp-yr-latest">` + ppYearCells(c, PRINT_YEARS[2], op) + '</tr>';
+  return head + mid + last;
+}
+
 let ppCurrentList = [];
 let ppMode = 'company';       // 'company' | 'journal'
 let ppActiveCols = PP_COLS;
@@ -3087,6 +3214,8 @@ function openPrintPreview(list, title, opts){
   const who = appSettings.userName ? (appSettings.userName + ' · ') : '';
   document.getElementById('ppPrintMeta').textContent =
     who + new Date().toLocaleDateString('ko-KR') + ' · 총 ' + list.length.toLocaleString() + unit;
+  const footEl = document.getElementById('ppPrintFoot');
+  if(footEl) footEl.textContent = '출력일시: ' + new Date().toLocaleString('ko-KR') + ' · 방문영업 일지 시스템';
 
   const orgBits = [appSettings.deptName, appSettings.printTitle, appSettings.printPhone].filter(Boolean);
   const orgEl = document.getElementById('ppPrintOrg');
@@ -3095,15 +3224,25 @@ function openPrintPreview(list, title, opts){
     orgEl.style.display = orgBits.length ? '' : 'none';
   }
 
-  const theadHtml = '<tr>'
-    + '<th class="pp-check-col"><input type="checkbox" id="ppCheckAll" checked onclick="ppToggleAll(this.checked)"></th>'
-    + ppActiveCols.map(c=>`<th${c.w?` style="width:${c.w}%"`:''}>${c.label}</th>`).join('') + '</tr>';
-  const tbodyHtml = list.map((item,i)=>{
-    const cells = ppActiveCols.map(col=>`<td>${escapeHTML(String(ppCellValue(item, col.key)))}</td>`).join('');
-    return `<tr data-i="${i}">`
-      + `<td class="pp-check-col"><input type="checkbox" checked onclick="ppToggleRow(${i}, this.checked)"></td>`
-      + cells + '</tr>';
-  }).join('');
+  const table = document.getElementById('ppTable');
+  let theadHtml, tbodyHtml;
+  if(ppMode === 'company'){
+    // PDF 출력물과 동일한 연도 3행 양식
+    theadHtml = ppCompanyThead();
+    tbodyHtml = list.map((item,i)=> ppCompanyRows(item, i)).join('');
+    table.classList.add('pp-multi');
+  } else {
+    theadHtml = '<tr>'
+      + '<th class="pp-check-col"><input type="checkbox" id="ppCheckAll" checked onclick="ppToggleAll(this.checked)"></th>'
+      + ppActiveCols.map(c=>`<th${c.w?` style="width:${c.w}%"`:''}>${c.label}</th>`).join('') + '</tr>';
+    tbodyHtml = list.map((item,i)=>{
+      const cells = ppActiveCols.map(col=>`<td>${escapeHTML(String(ppCellValue(item, col.key)))}</td>`).join('');
+      return `<tr data-i="${i}">`
+        + `<td class="pp-check-col"><input type="checkbox" checked onclick="ppToggleRow(${i}, this.checked)"></td>`
+        + cells + '</tr>';
+    }).join('');
+    table.classList.remove('pp-multi');
+  }
   document.querySelector('#ppTable thead').innerHTML = theadHtml;
   document.querySelector('#ppTable tbody').innerHTML = tbodyHtml;
 
@@ -3168,8 +3307,8 @@ function clearPpFilterChips(){
 }
 function ppToggleRow(i, checked){
   ppChecked[i] = checked;
-  const tr = document.querySelector(`#ppTable tbody tr[data-i="${i}"]`);
-  if(tr) tr.classList.toggle('pp-off', !checked);
+  // 업체 모드는 한 업체가 3행이므로 같은 data-i 행을 모두 토글
+  document.querySelectorAll(`#ppTable tbody tr[data-i="${i}"]`).forEach(tr=>tr.classList.toggle('pp-off', !checked));
   // 전체선택 체크박스 동기화
   const allOn = ppChecked.every(Boolean);
   const chkAll = document.getElementById('ppCheckAll');
@@ -3224,6 +3363,8 @@ function ppPrintNow(){
   const who = appSettings.userName ? (appSettings.userName + ' · ') : '';
   const meta = document.getElementById('ppPrintMeta');
   if(meta) meta.textContent = who + new Date().toLocaleDateString('ko-KR') + ' · 총 ' + sel.length.toLocaleString() + unit;
+  const foot = document.getElementById('ppPrintFoot');
+  if(foot) foot.textContent = '출력일시: ' + new Date().toLocaleString('ko-KR') + ' · 방문영업 일지 시스템';
   window.print();
 }
 
@@ -3231,8 +3372,35 @@ function ppExportExcel(){
   const sel = ppSelectedItems();
   if(!sel.length){ toast('내보낼 항목을 하나 이상 선택해주세요.'); return; }
   ensureXLSX(function(){
-    const headers = ppActiveCols.map(c=>c.label);
-    const rows = [headers].concat(sel.map(item=>ppActiveCols.map(col=>ppCellValue(item, col.key))));
+    let headers, rows;
+    if(ppMode === 'company'){
+      // 인쇄물과 동일하게 업체당 연도 3행으로 내보냄
+      headers = ['NO','기업명','대표자','사업자번호','전화번호','업종','주소','인원','연도','자본금','매출','순이익','영업이익(백만)','단체보험','법인명의','특허·인증'];
+      rows = [headers];
+      sel.forEach((item, i)=>{
+        const c = applyOverride(item);
+        const ceo = c.대표자이름 ? (c.대표자이름 + (c.대표자나이 ? ` (${c.대표자나이})` : '')) : '';
+        const workers = String(c.최신근로자수 || '').trim();
+        const cert = ppCertString(c);
+        PRINT_YEARS.forEach((yr, yi)=>{
+          const f = (c.재무 && c.재무[yr]) || {};
+          const first = (yi === 0);
+          const latest = (yr === PRINT_YEARS[PRINT_YEARS.length-1]);
+          rows.push([
+            first ? (i+1) : '', first ? (c.기업명||'') : '', first ? ceo : '',
+            first ? formatBizNo(c.사업자번호) : '', first ? (c.본사전화번호||'') : '',
+            first ? (c.업종세부분류||'') : '', first ? (c.통합주소||'') : '', first ? workers : '',
+            yr+'년', f.자본||'', f.매출||'', f.순이익||'',
+            latest ? (c.영업이익||'') : '',
+            first ? (c.단체보험가입여부||'') : '', first ? (c.법인명의가입여부||'') : '',
+            first ? cert : '',
+          ]);
+        });
+      });
+    } else {
+      headers = ppActiveCols.map(c=>c.label);
+      rows = [headers].concat(sel.map(item=>ppActiveCols.map(col=>ppCellValue(item, col.key))));
+    }
     const ws = XLSX.utils.aoa_to_sheet(rows);
     const wb = XLSX.utils.book_new();
     const sheetName = ppMode === 'journal' ? '방문일지' : '업체목록';
@@ -4628,10 +4796,10 @@ function saveSettings(){
 
 /* ---------------- 인쇄물 상단메뉴(제목행) 색상 — PC v47과 동일 프리셋 구조(모바일은 5색) ---------------- */
 const PRINT_BG_PRESETS = [
-  { name:'남색(기본)', hex:'#1B3A6B' },
+  { name:'보라(기본)', hex:'#8577D6' },
+  { name:'남색',       hex:'#1B3A6B' },
   { name:'파랑',       hex:'#2563EB' },
   { name:'초록',       hex:'#16A34A' },
-  { name:'보라',       hex:'#7C3AED' },
   { name:'주황',       hex:'#D97706' },
 ];
 const PRINT_TEXT_PRESETS = [
@@ -4643,7 +4811,7 @@ const PRINT_TEXT_PRESETS = [
 ];
 
 function applyPrintHeaderColors(){
-  const bg = appSettings.printBgColor || '#1B3A6B';
+  const bg = appSettings.printBgColor || '#8577D6';
   const tx = appSettings.printTextColor || '#FFFFFF';
   document.documentElement.style.setProperty('--print-th-bg', bg);
   document.documentElement.style.setProperty('--print-th-text', tx);
@@ -4761,6 +4929,33 @@ function ensureXLSX(cb){
 function importExcel(e){
   const file = e.target.files[0];
   e.target.value = '';
+  handleExcelFile(file);
+}
+
+// 드래그앤드롭 (PC/데스크톱 지원) — 파일 선택과 동일하게 처리
+function excelDragOver(ev){
+  ev.preventDefault(); ev.stopPropagation();
+  const dz = document.getElementById('excelDropzone');
+  if(dz) dz.classList.add('dragover');
+}
+function excelDragLeave(ev){
+  ev.preventDefault(); ev.stopPropagation();
+  const dz = document.getElementById('excelDropzone');
+  if(dz) dz.classList.remove('dragover');
+}
+function excelDrop(ev){
+  ev.preventDefault(); ev.stopPropagation();
+  const dz = document.getElementById('excelDropzone');
+  if(dz) dz.classList.remove('dragover');
+  const files = ev.dataTransfer && ev.dataTransfer.files;
+  if(files && files.length) handleExcelFile(files[0]);
+}
+// 드롭존 밖에 실수로 파일을 놓아도 브라우저가 파일을 열어버리지 않게 방지
+window.addEventListener('dragover', function(e){ e.preventDefault(); });
+window.addEventListener('drop', function(e){ e.preventDefault(); });
+
+// 파일 1개를 받아 엑셀을 파싱 (파일 선택·드래그앤드롭 공용)
+function handleExcelFile(file){
   if(!file) return;
   // 확장자 사전 점검
   if(!/\.(xlsx|xls|csv)$/i.test(file.name)){
@@ -4914,6 +5109,25 @@ function importExcel(e){
             설립년도: (pickNorm(r, FOUND_KEYS).match(/\d{4}/) || [''])[0],
             단체보험가입여부: pickNorm(r, INS1_KEYS) || 'N',
             법인명의가입여부: pickNorm(r, INS2_KEYS) || 'N',
+            // 연도별 재무(자본/매출/순이익) — PDF 3행 출력물 양식용. 엑셀에 있을 때만 채워짐.
+            영업이익: pickNorm(r, ['영업이익']),
+            재무: {
+              '2022': { 자본: pickNorm(r,['2022년자본']), 매출: pickNorm(r,['2022년매출']), 순이익: pickNorm(r,['2022년순이익']) },
+              '2023': { 자본: pickNorm(r,['2023년자본']), 매출: pickNorm(r,['2023년매출']), 순이익: pickNorm(r,['2023년순이익']) },
+              '2024': { 자본: pickNorm(r,['2024년자본']), 매출: pickNorm(r,['2024년매출']), 순이익: pickNorm(r,['2024년순이익']) },
+            },
+            // 인증·특허 (특허·인증 컬럼 구성용)
+            기업부설연구소여부: pickNorm(r, ['기업부설연구소_여부','기업부설연구소여부']),
+            기업부설연구소일자: pickNorm(r, ['기업부설연구소_인정일자','기업부설연구소인정일자']),
+            이노비즈여부: pickNorm(r, ['이노비즈_여부','이노비즈여부']),
+            이노비즈일자: pickNorm(r, ['이노비즈_인정일자','이노비즈인정일자']),
+            메인비즈여부: pickNorm(r, ['메인비즈_여부','메인비즈여부']),
+            메인비즈일자: pickNorm(r, ['메인비즈_인정일자','메인비즈인정일자']),
+            벤처인증여부: pickNorm(r, ['벤처인증_여부','벤처인증여부']),
+            벤처인증일자: pickNorm(r, ['벤처인증_발급일자','벤처인증발급일자']),
+            특허보유: pickNorm(r, ['특허보유']),
+            특허등록건수: pickNorm(r, ['특허등록건수']),
+            특허출원건수: pickNorm(r, ['특허출원건수']),
           });
         });
 
