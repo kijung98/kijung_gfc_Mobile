@@ -432,13 +432,13 @@ select{-webkit-appearance:none;appearance:none;background-image:url("data:image/
 .pp-fchip.on{background:var(--navy);color:#fff;border-color:var(--navy);}
 .pp-scroll{flex:1;overflow:auto;-webkit-overflow-scrolling:touch;padding:12px 12px 4px;min-height:0;}
 .pp-print-head{margin-bottom:14px;text-align:center;padding-bottom:10px;border-bottom:2px solid #2b2b2b;}
-.pp-print-title{font-size:21px;font-weight:800;color:#1f2937;letter-spacing:-.3px;}
+.pp-print-title{font-size:25px;font-weight:800;color:#1f2937;letter-spacing:-.3px;}
 .pp-print-org{font-size:12.5px;color:var(--navy);font-weight:700;margin-top:5px;}
 .pp-print-meta{font-size:12.5px;color:var(--sub);margin-top:5px;font-weight:600;}
 .pp-print-foot{margin-top:12px;padding-top:10px;border-top:1px solid var(--line);
   text-align:right;font-size:11px;color:var(--sub);}
 .pp-table{border-collapse:collapse;font-size:11px;white-space:nowrap;min-width:900px;}
-.pp-table th{background:var(--print-th-bg);color:var(--print-th-text);padding:7px 8px;text-align:left;font-weight:700;
+.pp-table th{background:var(--print-th-bg);color:var(--print-th-text);padding:10px 8px;text-align:left;font-weight:700;
   position:sticky;top:0;}
 .pp-table td{padding:7px 8px;border-bottom:1px solid var(--line);color:var(--text);}
 .pp-table tr:nth-child(even) td{background:#f7f9fc;}
@@ -484,13 +484,14 @@ select{-webkit-appearance:none;appearance:none;background-image:url("data:image/
   .pp-table tr.pp-off{display:none !important;}
   .pp-check-col{display:none !important;}
   /* A4 가로에 맞춰 컬럼 폭(각 th의 width%)대로 배분. 폰트는 읽기 편하게 키움 */
-  .pp-table{font-size:9.5px;min-width:0;width:100%;table-layout:fixed;
+  /* 미리보기(뷰)와 동일한 11px로 인쇄 — 뷰=인쇄 글자 크기 일치 */
+  .pp-table{font-size:11px;min-width:0;width:100%;table-layout:fixed;
     white-space:normal;word-break:break-word;border-collapse:collapse;}
   .pp-table thead{display:table-header-group;}   /* 페이지가 넘어가도 헤더 반복 */
   .pp-table th{position:static;                    /* 화면용 sticky 해제(헤더가 밑으로 밀리는 문제 방지) */
     background:var(--print-th-bg) !important;color:#fff !important;
-    padding:5px 4px;font-size:9.5px;font-weight:700;text-align:center;}
-  .pp-table td{padding:4px 4px;vertical-align:top;overflow:hidden;}
+    padding:10px 4px;font-size:11px;font-weight:700;text-align:center;}
+  .pp-table td{padding:7px 5px;vertical-align:middle;overflow:hidden;}
   .pp-table tr:nth-child(even) td{background:#eef2f9 !important;}
   /* 업체목록(연도 3행) 양식: 줄무늬를 업체 그룹 단위로, 최신연도 노랑 강조 */
   .pp-table.pp-multi td{vertical-align:middle;}
@@ -501,11 +502,9 @@ select{-webkit-appearance:none;appearance:none;background-image:url("data:image/
   .pp-table td.pp-yr{color:#6b5bd0 !important;}
   .pp-table tr{page-break-inside:avoid;}
   .pp-table tr.pp-off td{opacity:1;}
-  /* 숫자·짧은 항목은 가운데 정렬로 깔끔하게 */
-  .pp-print-title{font-size:19px;}
-  .pp-print-head{border-bottom:2px solid #2b2b2b;}
-  .pp-print-foot{font-size:10px;margin-top:10px;padding-top:8px;}
-  @page{ size: A4 landscape; margin:7mm; }
+  /* 제목·푸터 크기는 미리보기와 동일하게(뷰=인쇄 일치) 화면 스타일 그대로 사용 */
+  /* 상단 제본용 여백(모든 페이지 적용): 위 18mm · 좌우 10mm · 아래 12mm */
+  @page{ size: A4 landscape; margin:18mm 10mm 12mm 10mm; }
 }
 
 /* ---------------- 인쇄 설정 모달 (PC v47 "업체 리스트 인쇄" 화면과 동일 구성) ---------------- */
@@ -1605,7 +1604,7 @@ function toggleHomeMore(){ homeExpanded = !homeExpanded; renderHome(); }
    대분류 카드 → 항목 목록 → 상세(정의·요건·혜택·영업포인트) 2단계 구조.
    세율 등 수치는 개정될 수 있어 각 항목에 기준연도·확인 안내를 포함. */
 const GUIDE = [
-  { id:'tax', title:'세무·과세 기준', desc:'소득세·법인세 과세표준과 세율', tile:'green',
+  { id:'tax', title:'세무·과세 기준', desc:'소득세·법인세 세율·과세표준 · 증여세 공제한도', tile:'green',
     svg:'<path d="M19 5 5 19"/><circle cx="6.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/>',
     items:[
       { t:'개인 종합소득세 계산기', html:`
@@ -1665,11 +1664,39 @@ const GUIDE = [
         </tbody></table>
         <div class="guide-tip">💡 법인세율(9~24%)이 개인(6~45%)보다 낮아 이익을 회사에 유보할 때 유리. 다만 대표가 급여·배당으로 자금을 꺼내면 추가 과세가 있어 '무조건 법인이 유리'한 것은 아님.</div>
         <div class="guide-note">⚠️ 급여·배당·4대보험·설립유지비 등을 제외한 단순 세율 비교입니다. 실제 전환 판단은 세무전문가 상담이 필요합니다.</div>` },
+      { t:'가족 간 증여세 면제(공제) 한도', html:`
+        <h3>증여세 공제 한도 (10년 합산 기준)</h3>
+        <p>10년 동안 받은 금액을 합산하여 아래 한도까지 증여세가 공제됩니다.</p>
+        <table class="guide-table"><thead><tr><th>증여하는 사람</th><th>증여받는 사람</th><th>공제 한도(10년)</th></tr></thead><tbody>
+        <tr><td>배우자</td><td>배우자</td><td><b>6억원</b></td></tr>
+        <tr><td>부모·조부모</td><td>성인 자녀·손자녀 (만 19세 이상)</td><td><b>5,000만원</b></td></tr>
+        <tr><td>부모·조부모</td><td>미성년 자녀·손자녀 (만 19세 미만)</td><td><b>2,000만원</b></td></tr>
+        <tr><td>자녀</td><td>부모</td><td><b>5,000만원</b></td></tr>
+        <tr><td>형제·자매 등 기타 친족</td><td>형제·자매 등 기타 친족</td><td><b>1,000만원</b></td></tr>
+        </tbody></table>
+        <h3>꼭 알아둘 점</h3>
+        <ul><li><b>10년 합산 기준</b> — 같은 사람에게서 10년 내 받은 금액을 모두 합산해 한도를 계산합니다.</li>
+        <li><b>부모는 동일인으로 합산</b> — 아버지·어머니를 한 사람으로 봅니다. 예) 아버지 3,000만 + 어머니 2,000만 = <b>5,000만원</b> 공제.</li>
+        <li><b>혼인·출산 시 추가 공제</b> — 요건 충족 시 직계존속으로부터 <b>1억원</b>을 추가로 공제받을 수 있습니다(기본 5,000만원과 별도).</li></ul>
+        <div class="guide-tip">💡 CEO 승계·가족 자금이전 상담 시 기본이 되는 표. 상속 대비 사전증여 설계와 연결하면 니즈가 커집니다.</div>
+        ${guideLink('corp','가업승계·사전증여 요약','가업승계·사전증여 요약 보기','법인영업·법인전환 섹션')}
+        <div class="guide-note">⚠️ 증여세는 신고·합산 규정이 복잡하고 10년 합산·평가액 산정이 사안마다 다릅니다. 정확한 내용은 국세청 확인 또는 세무전문가 상담이 필요합니다. (세법 개정 시 변동)</div>` },
     ] },
 
   { id:'corp', title:'법인영업·법인전환', desc:'법인전환 절차, 첫 방문 체크, 가지급금·승계', tile:'navy',
     svg:'<rect x="4" y="3" width="16" height="18" rx="1"/><path d="M9 21v-4h6v4"/><path d="M8 7h.01M12 7h.01M16 7h.01M8 11h.01M12 11h.01M16 11h.01"/>',
     items:[
+      { t:'가업승계·사전증여 요약', html:`
+        <h3>승계는 '미리, 나눠서'</h3>
+        <p>지분·자산을 한 번에 넘기면 세부담이 급증합니다. <b>10년 단위 증여공제</b>를 활용해 미리 나눠 이전하면 상속세 부담을 크게 줄일 수 있습니다.</p>
+        <ul><li>10년 단위 증여공제를 반복 활용(자녀 5,000만원 등)</li>
+        <li>주식가치가 낮을 때(설립 초·이익소각 후)의 증여가 유리</li>
+        <li>가업상속공제·가업승계 증여특례와 병행 검토</li></ul>
+        <h3>증여 공제 한도 요약 (10년)</h3>
+        <ul><li>배우자 <b>6억원</b> · 성인 자녀 <b>5,000만원</b> · 미성년 자녀 <b>2,000만원</b> · 기타 친족 <b>1,000만원</b></li></ul>
+        ${guideLink('tax','가족 간 증여세 면제(공제) 한도','가족 간 증여세 면제 한도 표 보기','세무·과세 기준 섹션')}
+        <div class="guide-tip">💡 법인 대표 50~60대 · 지분 집중 · 이익잉여금 누적 → 승계 니즈가 특히 큼.</div>
+        <div class="guide-note">⚠️ 가업상속공제·증여특례는 업력·업종·고용유지 등 요건이 엄격합니다. 반드시 세무전문가 상담이 필요합니다.</div>` },
       { t:'법인전환 절차·장단점', html:`
         <h3>법인전환이란</h3>
         <p>개인사업자가 사업의 동일성을 유지하며 법인으로 조직을 바꾸는 것. 세부담 절감·대외신용 제고·가업승계 목적.</p>
@@ -1682,6 +1709,7 @@ const GUIDE = [
         <h3>유의점</h3>
         <ul><li>설립·기장 등 유지비용, 자금 인출 제약</li><li>부동산 이전 시 취득세 등 비용 검토</li></ul>
         <div class="guide-tip">💡 전환 시점에 CEO 퇴직금 규정·경영인정기보험 설계를 함께 제안하면 니즈 연결이 자연스러움.</div>
+        ${guideLink('ins','경영인정기보험(CEO보장)','경영인정기보험(CEO보장) 보기','보험 설계 섹션')}
         <div class="guide-note">⚠️ 요건·감면은 조세특례제한법 개정에 따라 달라짐. 세무사 확인 필수.</div>` },
       { t:'법인 첫 방문 체크리스트', html:`
         <h3>첫 방문 시 확인할 것</h3>
@@ -1698,6 +1726,8 @@ const GUIDE = [
         <h3>가업승계</h3>
         <p>요건을 갖춘 중소·중견기업 대표가 자녀 등에게 가업을 물려줄 때 상속·증여세를 완화해주는 제도(가업상속공제·증여특례).</p>
         <div class="guide-tip">💡 승계·가지급금 정리 재원 마련에 CEO플랜(경영인정기보험) 활용 여지가 큼.</div>
+        ${guideLink('corp','가업승계·사전증여 요약','가업승계·사전증여 요약 보기','법인영업·법인전환 섹션')}
+        ${guideLink('ins','경영인정기보험(CEO보장)','경영인정기보험(CEO보장) 보기','보험 설계 섹션')}
         <div class="guide-note">⚠️ 공제 한도·요건은 수시 개정. 정확한 적용은 세무전문가 상담 필요.</div>` },
     ] },
 
@@ -1713,13 +1743,45 @@ const GUIDE = [
         <li>보험료 손금 처리 요건 확인(복리후생 성격)</li>
         <li>수익자 지정(회사/유족)에 따른 세무 효과</li></ul>
         <div class="guide-tip">💡 근로자수 증가·산재 리스크가 큰 제조업 타깃에 특히 유효. '근로자수 필터'로 대상 발굴.</div>
-        <div class="guide-note">⚠️ 손금·과세 처리는 계약형태에 따라 상이. 세무 검토 병행.</div>` },
+        <div class="guide-note">⚠️ 손금·과세 처리는 계약형태에 따라 상이. 세무 검토 병행.</div>
+        <h3>📋 설계 샘플 — 탄탄보장 2억Plan</h3>
+        <p>4만원 초반대 저렴한 보험료로 <b>산재사망 최대 2억원</b> 보장 (제조업·위험3등급 기준).</p>
+        <table class="guide-table"><thead><tr><th>설계내용</th><th>가입금액</th><th>남자</th><th>여자</th></tr></thead><tbody>
+        <tr><td>주보험 60%환급형</td><td>1,600</td><td>4,672원</td><td>3,936원</td></tr>
+        <tr><td>신재해보장G</td><td>2,400</td><td>26,592원</td><td>22,368원</td></tr>
+        <tr><td>재해보장G</td><td>5,000</td><td>3,150원</td><td>1,750원</td></tr>
+        <tr><td>산재사망</td><td>5,000</td><td>1,000원</td><td>1,000원</td></tr>
+        <tr><td>장해연금G</td><td>3,000</td><td>420원</td><td>180원</td></tr>
+        <tr><td>재해치료비</td><td>1,000</td><td>2,600원</td><td>2,000원</td></tr>
+        <tr><td>깁스</td><td>1,000</td><td>150원</td><td>130원</td></tr>
+        <tr><td>신재해입원</td><td>3,000</td><td>1,500원</td><td>1,500원</td></tr>
+        <tr><td>응급실내원</td><td>2,000</td><td>1,100원</td><td>700원</td></tr>
+        <tr><td><b>합계보험료</b></td><td>-</td><td><b>41,184원</b></td><td><b>33,564원</b></td></tr>
+        <tr><td><b>만기환급율</b></td><td>-</td><td><b>52.8%</b></td><td><b>54.6%</b></td></tr>
+        </tbody></table>
+        <h3>보장내용</h3>
+        <table class="guide-table"><thead><tr><th>보장항목</th><th>보장금액</th></tr></thead><tbody>
+        <tr><td>산재사망</td><td>2억원</td></tr>
+        <tr><td>재해사망</td><td>1.5억원</td></tr>
+        <tr><td>재해장해</td><td>1.3억 × 장해지급율</td></tr>
+        <tr><td>재해장해연금</td><td>900만원 × 20년</td></tr>
+        <tr><td>중화상 진단</td><td>1,000만원</td></tr>
+        <tr><td>재해성형</td><td>200~300만원</td></tr>
+        <tr><td>재해수술</td><td>100만원</td></tr>
+        <tr><td>재해골절</td><td>30만원</td></tr>
+        <tr><td>5대재해골절</td><td>50만원</td></tr>
+        <tr><td>깁스</td><td>10만원</td></tr>
+        <tr><td>재해입원</td><td>3만원</td></tr>
+        <tr><td>재해응급실내원</td><td>10만원</td></tr>
+        </tbody></table>
+        <div class="guide-note">※ 제조업 · 위험3등급 · 1종 · 60%환급형 · 10년납 10년만기 기준 샘플. 가입금액 단위는 만원. 실제 보험료·보장금액은 연령·직업·상품개정에 따라 달라지며 상품설명서·상담으로 확인.</div>` },
       { t:'경영인정기보험(CEO보장)', html:`
         <h3>경영인정기보험이란</h3>
         <p>법인이 계약자·수익자, 대표이사를 피보험자로 하는 정기보험. 대표 유고 시 기업 리스크 대비 + 퇴직금 재원·가지급금 정리 등 자금설계에 활용.</p>
         <h3>활용 포인트</h3>
         <ul><li>대표 퇴직금 지급 재원 마련</li><li>가지급금·차입금 상환 재원</li><li>정관·임원 퇴직금 규정 정비와 연계</li></ul>
         <div class="guide-tip">💡 '법인 & 대표 50~60대 & 순이익 존재' 조건에서 니즈가 큼.</div>
+        ${guideLink('corp','가업승계·사전증여 요약','가업승계·사전증여 요약 보기','법인영업·법인전환 섹션')}
         <div class="guide-note">⚠️ 손금산입·해지환급 관련 과세는 사안별로 상이. 세무 확인 필수.</div>` },
       { t:'기업재해보장보험 (중대재해 대비)', html:`
         <h3>왜 필요한가 — 중대재해처벌법</h3>
@@ -1745,6 +1807,7 @@ const GUIDE = [
         <li>근로자명부(피보험자)·<b>근로자 서면동의서</b>(상법상 필수)</li>
         <li>보험료 자동이체 통장, 법인인감증명서(법인계약 시)</li></ul>
         <div class="guide-tip">💡 '제조업 & 5인 이상'이면 사실상 전 사업장이 대상. 대표 형사·재무 리스크를 함께 낮추는 강력한 접근 포인트.</div>
+        ${guideLink('ins','단체보험 설계 요령','단체보험 설계 요령 보기','보험 설계 섹션')}
         <div class="guide-note">⚠️ 형사처벌(징역·벌금) 자체를 보험으로 대납·면제할 수는 없습니다. 신속한 손해배상·합의로 양형 정상참작에 도움. 정확한 보장·서류는 약관·상품설명서 및 상담으로 확인.</div>` },
       { t:'실손보험 1~5세대 완전정리', html:`
         <h3>실손이 자꾸 바뀌는 이유</h3>
@@ -1762,6 +1825,7 @@ const GUIDE = [
         <ul><li><b>중증(특약1)</b>: 지금과 비슷(연 5천만·입원한도 없음, 부담 30%) + 종합병원 이상 입원 본인부담 500만원 상한</li>
         <li><b>비중증(특약2)</b>: 크게 축소(연 1천만·부담 50%). 도수·체외충격파·증식치료 등 <b>일부 비급여 미보장</b></li></ul>
         <div class="guide-tip">💡 오프너: "지금 실손이 몇 세대인지 같이 확인해보실래요?" — 세대별 본인부담 차이가 니즈환기 포인트.</div>
+        ${guideLink('ins','치료비(실손) vs 진단비 — 왜 둘 다?','치료비 vs 진단비 — 왜 둘 다? 보기','보험 설계 섹션')}
         <div class="guide-note">⚠️ 5세대는 개혁방안 토론회(’25.1.9) 발표안 기준으로 확정 시 달라질 수 있습니다. 정확한 보장은 약관·상품설명서 확인.</div>` },
       { t:'치료비(실손) vs 진단비 — 왜 둘 다?', html:`
         <h3>한국은 '걸려도 고치는' 나라</h3>
@@ -1777,7 +1841,129 @@ const GUIDE = [
         <li>치매는 병명이 아니라 '증상'. 치료제(레켐비)는 <b>진행을 늦추는</b> 약 → '빨리 시작할 준비'가 중요</li>
         <li>'실버(돌봄)'가 아니라 <b>'시니어(관리·활동)'</b> — 나빠지면 빨리 고쳐 오래 활동</li></ul>
         <div class="guide-tip">💡 실손 세대 점검 + 진단비 보유수준 점검을 세트로: "진단비는 어디까지 준비돼 있는지 같이 볼까요?"</div>
+        ${guideLink('ins','실손보험 1~5세대 완전정리','실손보험 1~5세대 완전정리 보기','보험 설계 섹션')}
         <div class="guide-note">⚠️ 수술비·병원 순위는 출처 기준 예시(뉴스위크·스태티스타 2026 등). 보장 여부는 약관·상품설명서 확인.</div>` },
+      { t:'연령별 주요 수술 Top5 (수술비)', html:`
+        <h3>연령별 상위 5위 주요 수술 (2024)</h3>
+        <p>국민건강관리공단 <b>2024년 주요 수술 현황</b>. 나이가 들수록 <b>고액 수술(관절·척추·심장 스텐트·담도 등)</b> 비중이 커집니다. (비용은 건당 평균, <span style="color:#dc2626;font-weight:700;">빨강=1천만원대</span>)</p>
+        <div class="guide-tip">💡 전체 Top5: ① 백내장 ② 일반척추 ③ 제왕절개 ④ 치핵 ⑤ 담낭절제</div>
+        <h3>20대</h3>
+        <table class="guide-table"><tbody>
+        <tr><td>1. 제왕절개수술</td><td>358만원</td></tr>
+        <tr><td>2. 치핵수술</td><td>120만원</td></tr>
+        <tr><td>3. 충수절제술</td><td>422만원</td></tr>
+        <tr><td>4. 유방전절제술</td><td>398만원</td></tr>
+        <tr><td>5. 편도절제술</td><td>158만원</td></tr>
+        </tbody></table>
+        <h3>30대</h3>
+        <table class="guide-table"><tbody>
+        <tr><td>1. 제왕절개수술</td><td>358만원</td></tr>
+        <tr><td>2. 치핵수술</td><td>120만원</td></tr>
+        <tr><td>3. 담낭절제술</td><td>602만원</td></tr>
+        <tr><td>4. 충수절제술</td><td>422만원</td></tr>
+        <tr><td>5. 갑상선수술</td><td>401만원</td></tr>
+        </tbody></table>
+        <h3>40대</h3>
+        <table class="guide-table"><tbody>
+        <tr><td>1. 치핵수술</td><td>120만원</td></tr>
+        <tr><td>2. 담낭절제술</td><td>602만원</td></tr>
+        <tr><td>3. 자궁절제술</td><td>558만원</td></tr>
+        <tr><td>4. 유방부분절제술</td><td>398만원</td></tr>
+        <tr><td>5. 제왕절개수술</td><td>358만원</td></tr>
+        </tbody></table>
+        <h3>50대</h3>
+        <table class="guide-table"><tbody>
+        <tr><td>1. 백내장수술</td><td>128만원</td></tr>
+        <tr><td>2. 치핵수술</td><td>120만원</td></tr>
+        <tr><td>3. 일반척추수술</td><td>473만원</td></tr>
+        <tr><td>4. 담낭절제술</td><td>602만원</td></tr>
+        <tr><td>5. 유방부분절제술</td><td>398만원</td></tr>
+        </tbody></table>
+        <h3>60대</h3>
+        <table class="guide-table"><tbody>
+        <tr><td>1. 백내장수술</td><td>128만원</td></tr>
+        <tr><td>2. 일반척추수술</td><td>473만원</td></tr>
+        <tr><td>3. 슬관절치환술</td><td><b>982만원</b></td></tr>
+        <tr><td>4. 치핵수술</td><td>120만원</td></tr>
+        <tr><td>5. 스텐트삽입술</td><td><b style="color:#dc2626;">1,218만원</b></td></tr>
+        </tbody></table>
+        <h3>70대</h3>
+        <table class="guide-table"><tbody>
+        <tr><td>1. 백내장수술</td><td>128만원</td></tr>
+        <tr><td>2. 일반척추수술</td><td>473만원</td></tr>
+        <tr><td>3. 슬관절치환술</td><td><b>982만원</b></td></tr>
+        <tr><td>4. 스텐트삽입술</td><td><b style="color:#dc2626;">1,218만원</b></td></tr>
+        <tr><td>5. 내시경·경피적 담도수술</td><td>767만원</td></tr>
+        </tbody></table>
+        <h3>80대 이상</h3>
+        <table class="guide-table"><tbody>
+        <tr><td>1. 백내장수술</td><td>128만원</td></tr>
+        <tr><td>2. 일반척추수술</td><td>473만원</td></tr>
+        <tr><td>3. 내시경·경피적 담도수술</td><td>767만원</td></tr>
+        <tr><td>4. 고관절치환술</td><td><b style="color:#dc2626;">1,023만원</b></td></tr>
+        <tr><td>5. 슬관절치환술</td><td><b>982만원</b></td></tr>
+        </tbody></table>
+        <div class="guide-note">🔎 핵심: 초고령층은 <b>한 번의 수술(고관절·척추·심장 등)이 1천만원대 지출</b>로 이어집니다. 고정소득이 없는 시기의 큰 지출은 가계에 치명적 → 진단비·수술비 보장 점검 니즈로 연결.</div>
+        ${scriptBox(`"나이 들면 감기로 병원 가는 게 아니라 관절·척추·심장 수술을 하게 됩니다. 그때 한 번에 1천만원이 나가는데, 고정소득 없는 시기에 이 돈을 어디서 준비하실지 같이 점검해볼까요?"`)}
+        ${guideLink('ins','치료비(실손) vs 진단비 — 왜 둘 다?','치료비 vs 진단비 — 왜 둘 다? 보기','보험 설계 섹션')}
+        ${guideLink('ins','실손보험 1~5세대 완전정리','실손보험 1~5세대 완전정리 보기','보험 설계 섹션')}
+        <div class="guide-note">⚠️ 출처: 국민건강보험공단 2024 주요 수술 통계. 실제 본인부담·보장 여부는 급여/비급여·약관에 따라 다릅니다.</div>` },
+      { t:'치료기술 4세대 변화 — 보험 리모델링 니즈', html:`
+        <h3>왜 리모델링인가</h3>
+        <p>의료기술은 세대를 거듭하며 <b>덜 열고(비침습)·더 정밀하게</b> 발전합니다. 누구나 <b>"회복 빠르고 후유증 적은 최신 치료"</b>를 받고 싶어 하지만, 예전 보험은 <b>신(新)수술·신의료기술을 보장하지 못하는 공백</b>이 생기기 쉽습니다.</p>
+        <div class="guide-tip">💡 핵심 화두: "최신 치료를 받고 싶다 → 그러려면 그 치료를 보장하는 보험이어야 한다."</div>
+        <h3>수술</h3>
+        <table class="guide-table"><thead><tr><th>세대</th><th>기법</th></tr></thead><tbody>
+        <tr><td>1세대</td><td>개복 / 개흉 / 개두</td></tr>
+        <tr><td>2세대</td><td>복강경 / 흉강경 / 대뇌내시경</td></tr>
+        <tr><td>3세대</td><td>내시경시술 / 카테터시술</td></tr>
+        <tr><td>4세대</td><td><b>로봇수술 / 하이푸 / 감마·사이버나이프</b></td></tr>
+        </tbody></table>
+        <h3>항암화학요법</h3>
+        <table class="guide-table"><thead><tr><th>세대</th><th>항암제 (원리)</th></tr></thead><tbody>
+        <tr><td>1세대</td><td><b>세포독성항암제</b> — 빠르게 분화하는 암세포를 직접 공격(정상세포도 영향)</td></tr>
+        <tr><td>2세대</td><td><b>표적항암제</b> — 암세포의 특정 물질만 타깃해 공격</td></tr>
+        <tr><td>3세대</td><td><b>면역항암제</b> — 몸의 면역세포가 암을 더 잘 인식·공격하게 함</td></tr>
+        <tr><td>4세대</td><td><b>대사항암제</b> — 암세포의 대사과정을 타깃해 굶겨 죽임</td></tr>
+        </tbody></table>
+        <h3>방사선치료</h3>
+        <table class="guide-table"><thead><tr><th>세대</th><th>기법</th></tr></thead><tbody>
+        <tr><td>1세대</td><td>전통적 방사선치료</td></tr>
+        <tr><td>2세대</td><td>3차원입체조형 / 세기조절 방사선치료</td></tr>
+        <tr><td>3세대</td><td>양성자치료</td></tr>
+        <tr><td>4세대</td><td><b>중입자치료</b></td></tr>
+        </tbody></table>
+        <h3>리모델링 체크포인트</h3>
+        <ul><li>가입 이후 나온 <b>신수술(로봇·하이푸·양성자·중입자 등) 보장</b> 여부</li>
+        <li>수술비가 <b>수술 방법·세대와 무관하게</b> 지급되는지</li>
+        <li>신의료기술·비급여 보장 한도가 충분한지</li>
+        <li>오래된 실손·수술특약은 최신 치료에서 <b>공백</b>이 생길 수 있음</li></ul>
+        ${scriptBox(`"대표님, 요즘 암 수술은 로봇으로 하고, 항암도 굶겨 죽이는 대사항암제까지 나왔어요. 문제는 예전에 든 보험은 이런 최신 치료를 못 챙겨주는 경우가 많다는 겁니다. 정작 그 치료 받을 때 보장되는지 같이 점검해볼까요?"`)}
+        ${guideLink('ins','연령별 주요 수술 Top5 (수술비)','연령별 주요 수술 Top5 (수술비) 보기','보험 설계 섹션')}
+        ${guideLink('ins','치료비(실손) vs 진단비 — 왜 둘 다?','치료비 vs 진단비 — 왜 둘 다? 보기','보험 설계 섹션')}
+        ${guideLink('ins','실손보험 1~5세대 완전정리','실손보험 1~5세대 완전정리 보기','보험 설계 섹션')}
+        ${guideLink('ins','암보험은 계속 진화한다 — 시대별 담보 (리모델링 근거)','암보험 시대별 담보(리모델링 근거) 보기','보험 설계 섹션')}
+        <div class="guide-note">⚠️ 본 자료는 <b>판매자 교육용</b>입니다(온라인 게재·광고 활용 금지). 세대 구분은 이해를 돕는 요약이며, 실제 보장은 약관·상품설명서로 확인하세요.</div>` },
+      { t:'암보험은 계속 진화한다 — 시대별 담보 (리모델링 근거)', html:`
+        <h3>"그때는 맞았는데, 지금은 부족하다?"</h3>
+        <p>암보험 담보는 시대별로 계속 <b>추가·확장</b>돼 왔습니다. 오래된 암보험일수록 최신 <b>수술·검사·신항암제</b> 담보가 빠져 있어, 정작 치료받을 때 공백이 생깁니다. (아래는 <b>그 시기에 새로 등장한 담보</b> 중심)</p>
+        <h3>~2008 · 기본형</h3>
+        <p>암진단비 · 암입원일당 · 암수술비(최초/3회)</p>
+        <h3>~2013 <span style="color:#dc2626;">+추가</span></h3>
+        <p><b>재진단암</b> · <b>암수술비(수술 회당)</b></p>
+        <h3>~2018 <span style="color:#dc2626;">+추가</span></h3>
+        <p><b>표적항암약물</b> · <b>암통원일당</b> · <b>고액암진단비</b> · <b>특정소액암진단비</b></p>
+        <h3>~2021 <span style="color:#dc2626;">+추가</span></h3>
+        <p><b>다빈치 로봇암수술</b> · <b>양성자·세기조절 방사선치료</b> · <b>키트릴(CAR-T) 항암치료비</b> · <b>유사암진단비</b></p>
+        <h3>2024~ <span style="color:#dc2626;">+추가</span></h3>
+        <p><b>암 급여 MRI/PET 검사</b> · <b>산정특례 보장</b> · <b>암 특정치료비</b> · <b>면역항암치료비</b></p>
+        <h3>2025~2026 · 프리미엄/신규</h3>
+        <p><b>중입자 방사선치료</b> · <b>통합암진단비</b> · <b>암 통합 치료비</b> · 치료별 지급 · 만기 보장 · 선지급 기능</p>
+        <div class="guide-note">🔎 핵심: 2008~2013년식 암보험은 <b>로봇·양성자·중입자 수술, 표적·면역·대사 항암, 고액진단비</b>가 대부분 빠져 있습니다. → 최신 담보로 <b>리모델링</b> 필요.</div>
+        ${scriptBox(`"암보험 예전에 들어두신 거 있으시죠? 그때는 충분했는데, 지금은 로봇수술·양성자·면역항암제처럼 새 치료가 계속 나왔어요. 문제는 옛날 보험엔 그 담보가 없다는 거예요. 지금 담보 기준으로 한 번 점검해드릴까요?"`)}
+        ${guideLink('ins','치료기술 4세대 변화 — 보험 리모델링 니즈','치료기술 4세대 변화 보기','보험 설계 섹션')}
+        ${guideLink('ins','연령별 주요 수술 Top5 (수술비)','연령별 주요 수술 Top5 (수술비) 보기','보험 설계 섹션')}
+        <div class="guide-note">⚠️ 본 자료는 <b>판매자 교육용</b>입니다(온라인 게재·광고 활용 금지). 담보 명칭·출시시기는 상품·회사별로 다르며, 실제 보장은 약관·상품설명서로 확인하세요.</div>` },
     ] },
 
   { id:'cert', title:'기업 인증제도', desc:'3종 인증·기업부설연구소 (혜택·요건 상세)', tile:'gold',
@@ -1832,6 +2018,7 @@ const GUIDE = [
         <h3>주요 혜택</h3>
         <ul><li>연구·인력개발비 세액공제</li><li>연구원 인건비 지원, 병역특례 지정 가능</li></ul>
         <div class="guide-tip">💡 R&D 세액공제와 연결되는 대표 아이템. 제조·기술 기업 방문 시 확인 포인트.</div>
+        ${guideLink('fund','연구·인력개발비 세액공제','연구·인력개발비 세액공제 보기','정책자금·지원제도 섹션')}
         <div class="guide-note">⚠️ 인정요건·공제율은 개정될 수 있음(KOITA·조특법 확인).</div>` },
     ] },
 
@@ -1898,6 +2085,7 @@ const GUIDE = [
         <p>기업의 R&D 지출에 대해 일정 비율을 법인세(소득세)에서 공제. 중소기업 공제율이 상대적으로 높음.</p>
         <h3>핵심 포인트</h3>
         <ul><li>기업부설연구소·전담부서 요건과 연계</li><li>당기분·증가분 방식 중 유리한 것 적용</li></ul>
+        ${guideLink('cert','기업부설연구소 / 전담부서','기업부설연구소 / 전담부서 보기','기업 인증제도 섹션')}
         <div class="guide-note">⚠️ 공제율·대상은 조특법 개정에 따라 달라짐. 세무 확인 필수.</div>` },
     ] },
 ];
@@ -2128,7 +2316,90 @@ function filterGloss(){
    PDF/PPT 원본을 그대로 넣는 대신, 텍스트·표·실전화법을 앱 디자인의 카드로 재구성.
    용량이 매우 작고 오프라인·검색에 유리하다. */
 function scriptBox(text){ return `<div class="doc-script"><span class="dl">실전 화법 (그대로 사용 가능)</span>${text}</div>`; }
+
+// 제목으로 영업백과 항목을 연다 (index 하드코딩 대신 견고 — 항목 순서가 바뀌어도 안전)
+function openGuideItemByTitle(sectionId, title){
+  const c = GUIDE.find(x=>x.id===sectionId);
+  if(!c){ toast('연결 대상을 찾지 못했습니다.'); return; }
+  const idx = c.items.findIndex(it=>it.t===title);
+  if(idx<0){ toast('연결된 항목을 찾지 못했습니다.'); return; }
+  openGuideItem(sectionId, idx);
+}
+// 영업백과 내부 상호 링크 버튼 HTML (관련 항목으로 바로 이동)
+function guideLink(sectionId, title, label, sub){
+  const t = String(title).replace(/'/g, "\\'");
+  return `<button class="big-btn outline" onclick="openGuideItemByTitle('${sectionId}','${t}')" style="margin-top:8px;">`
+    + `<div style="flex:1;min-width:0;"><div>🔗 ${label||title}</div>${sub?`<div class="desc">${sub}</div>`:''}</div>`
+    + `<span class="guide-chev">›</span></button>`;
+}
 const DOCS = [
+  { id:'visit10', title:'업체 방문 첫마디 10 — 니즈 여는 질문', sub:'업체에 가면 무엇을 말할까 — 10가지 질문과 해설', tile:'blue',
+    slides:[
+      { tag:'니즈환기 질문 ①', title:'20년 이후에 정관변경 하셨습니까?', html:`
+        <p>2020년 이후 상법·세법이 여러 차례 바뀌었습니다. 오래된 정관은 <b>임원보수·퇴직금 규정·배당·대표 유고 대비</b> 근거가 없어 세제혜택을 놓치고 자금인출·승계에서 리스크가 됩니다.</p>
+        <ul><li>임원 퇴직금·유족보상 규정 → 손금 인정 근거 마련</li>
+        <li>중간배당·차등배당 등 배당 근거 정비</li>
+        <li>비상시 의사결정·주식 처리 조항 보완</li></ul>
+        ${scriptBox(`"대표님, 정관 최근에 손보신 적 있으세요? 20년 이후 법이 많이 바뀌어서, 정관이 예전 그대로면 퇴직금 손금처리나 배당 근거가 없을 수 있습니다."`)}
+        ${guideLink('corp','가지급금 / 가업승계 개요','관련: 가지급금 / 가업승계 개요','법인영업·법인전환 섹션')}` },
+      { tag:'니즈환기 질문 ②', title:'성과공유제라고 들어보셨습니까?', html:`
+        <p>중소기업 <b>성과공유제(경영성과급 공유)</b>는 핵심인력에게 성과를 나눠주면서 <b>기업 세액공제·근로자 소득세 감면</b>을 받는 제도입니다. 인재 유지와 절세를 동시에 잡습니다.</p>
+        <ul><li>유형: 성과급 공유·우리사주·내일채움공제 등</li>
+        <li>기업은 세액공제, 근로자는 소득세 감면</li>
+        <li>핵심인력 이탈 방지 효과</li></ul>
+        ${scriptBox(`"성과공유제 들어보셨어요? 직원 성과급 주면서 회사는 세액공제까지 받는 제도예요. 사람도 잡고 세금도 줄이는 거죠."`)}` },
+      { tag:'니즈환기 질문 ③', title:'이익소각 들어 보셨습니까? (가지급 정리)', html:`
+        <p>자기주식을 취득해 소각하면 <b>미처분이익잉여금·가지급금 정리</b>와 주식가치 조정, 승계 준비를 할 수 있습니다. 배당·급여로 빼는 것보다 유리한 경우가 많습니다.</p>
+        <ul><li>누적 잉여금·가지급금 리스크 축소</li>
+        <li>주당가치를 낮춰 승계·증여 부담↓</li>
+        <li>절차·세무 검토가 반드시 필요</li></ul>
+        ${guideLink('corp','가지급금 / 가업승계 개요','관련: 가지급금 / 가업승계 개요','법인영업·법인전환 섹션')}
+        <div class="guide-note">⚠️ 자기주식 취득·소각은 상법 절차와 세무 이슈가 큽니다. 반드시 전문가 검토 후 진행.</div>` },
+      { tag:'니즈환기 질문 ④', title:'가장 큰 세제혜택이 뭔지 알고 계십니까? (연구개발전담부서)', html:`
+        <p>현존하는 가장 큰 세제혜택은 <b>연구·인력개발비 세액공제(R&D)</b>입니다. <b>기업부설연구소·연구개발전담부서</b>를 설립하면 인건비·재료비 등을 세액공제 받습니다.</p>
+        <ul><li>전담부서/부설연구소 요건 충족 → 세액공제</li>
+        <li>연구인력 인건비·위탁연구비 등이 대상</li>
+        <li>제조업은 공정개선도 R&D로 인정 가능</li></ul>
+        ${scriptBox(`"대표님, 지금 제일 큰 세제혜택이 뭔지 아세요? 연구개발 세액공제예요. 전담부서만 만들어도 인건비를 공제받습니다."`)}
+        ${guideLink('cert','기업부설연구소 / 전담부서','관련: 기업부설연구소 / 전담부서','기업 인증제도 섹션')}
+        ${guideLink('fund','연구·인력개발비 세액공제','관련: 연구·인력개발비 세액공제','정책자금·지원제도 섹션')}` },
+      { tag:'활동 점검 ⑤', title:'지점장·FP·세무팀장 동행을 하고 있다?', html:`
+        <p>혼자 방문보다 <b>전문가 동행</b>이 신뢰와 전문성을 높입니다. 세무·재무 질문에 즉답할 수 있어 계약 전환율이 올라갑니다.</p>
+        <ul><li>1차는 라포, 2차부터 세무팀장 동행</li>
+        <li>지점장 동행은 클로징에 힘을 실어줌</li>
+        <li>역할 분담: 나=관계, 전문가=근거</li></ul>
+        <div class="guide-note">💡 "전문가 모시고 다시 뵙겠습니다"는 그 자체로 재방문 명분이 됩니다.</div>` },
+      { tag:'활동 점검 ⑥', title:'세미나(프로암·베네스트 포함)에 고객사를 초대하고 있다?', html:`
+        <p>사업부/지역단 세미나에 고객사를 초대하면 <b>관계강화·정보제공·니즈환기</b>가 한 번에 이뤄집니다.</p>
+        <ul><li>초대 자체가 자연스러운 재접촉 명분</li>
+        <li>다른 CEO 사례로 '사회적 증거' 제공</li>
+        <li>세미나 후 개별 상담으로 연결</li></ul>
+        ${scriptBox(`"이번에 대표님들 모시고 하는 세미나가 있는데, 도움 되실 내용이라 꼭 모시고 싶어서 연락드렸어요."`)}` },
+      { tag:'활동 점검 ⑦', title:'택배마케팅을 이용하고 있다?', html:`
+        <p>유용한 자료나 작은 성의를 <b>택배</b>로 보내 접점을 유지합니다. 방문 명분과 호감을 동시에 만듭니다.</p>
+        <ul><li>명절·개업일·신상품 시점을 활용</li>
+        <li>받은 뒤 전화로 자연스러운 팔로업</li>
+        <li>비용 대비 기억에 오래 남는 접점</li></ul>
+        <div class="guide-note">💡 과한 선물은 부담. '읽을거리 + 작은 성의' 수준이 적절합니다.</div>` },
+      { tag:'활동 점검 ⑧', title:'신상품 출시 시, 상품 안내를 하고 있다?', html:`
+        <p>신상품 출시·제도 변경 때마다 안내하면 <b>재접촉 명분과 추가계약 기회</b>가 생깁니다.</p>
+        <ul><li>기존 고객부터 먼저 안내(관리받는 느낌)</li>
+        <li>변경점은 3줄로 요약해 전달</li>
+        <li>'대표님께 유리한가'로 연결</li></ul>
+        ${scriptBox(`"이번에 나온 상품이 대표님 상황에 딱 맞아서, 먼저 말씀드리려고 연락드렸어요."`)}` },
+      { tag:'활동 점검 ⑨', title:'토요스쿨링·런인베스트 등 교육을 듣고 있다?', html:`
+        <p>꾸준한 <b>학습</b>으로 화법과 상품지식을 업데이트합니다. 나의 전문성이 곧 고객의 신뢰입니다.</p>
+        <ul><li>매주 고정된 학습 루틴 만들기</li>
+        <li>배운 것을 바로 현장에 적용</li>
+        <li>최신 세제·상품 개정을 놓치지 않기</li></ul>
+        <div class="guide-note">💡 아는 만큼 자신 있게 말합니다 — 학습이 클로징의 기초입니다.</div>` },
+      { tag:'활동 점검 ⑩', title:'기초기본에 충실하다?', html:`
+        <p>결국 성과의 토대는 <b>활동량과 기본 프로세스</b>입니다. 화려한 스킬보다 기본기가 오래 갑니다.</p>
+        <ul><li>일일 활동량 관리(방문·통화 건수)</li>
+        <li>방문 후 기록·팔로업 습관화</li>
+        <li>소개 요청을 루틴으로</li></ul>
+        <div class="guide-note">✅ 성과는 '기본을 매일 반복한 사람'의 몫입니다.</div>` },
+    ] },
   { id:'brain', title:'뇌과학 기반 CEO 법인·건강보험 컨설팅', sub:'2026.07.15 GFC 특강 학습정리 · 김세진 강사 강의 / 정리: 최기정', tile:'navy',
     slides:[
       { tag:'PART 0 · 설득의 뇌과학', title:'뇌는 변화를 위험으로 인지한다', html:`
