@@ -46,6 +46,8 @@ html,body{margin:0;padding:0;height:100%;color:var(--text);
 .sub-screen{display:none;position:absolute;inset:0;background:var(--bg);overflow-y:auto;
   padding:14px 14px calc(90px + var(--safe-bottom));z-index:5;}
 .sub-screen.active{display:block;}
+/* 직접입력 폼은 상단 뒤로가기 바가 없어, 노치·상태바에 기업명이 가려지지 않게 안전여백을 더한다 */
+#screen-form{padding-top:calc(14px + var(--safe-top));}
 
 /* v47 지역·조건찾기 - 동/리 모드 탭 (탭 스타일) */
 .mode-tabs{display:flex;gap:6px;margin-bottom:10px;background:#eef1f7;border-radius:10px;padding:4px;}
@@ -131,6 +133,9 @@ html,body{margin:0;padding:0;height:100%;color:var(--text);
 .chip.on{background:rgba(15,31,61,.10);border-color:var(--navy);color:var(--navy);}
 /* 선택된 칩 앞에 체크마크 표시 (iOS 선택됨 스타일) */
 .chip.on::before{content:'✓';font-weight:800;margin-right:5px;}
+/* 자주 체크하는 핵심 태그(단체보험·법인전환) 강조 컬러 */
+.chip.hot{background:rgba(14,165,164,.12);border-color:#0ea5a4;color:#0f766e;font-weight:700;}
+.chip.hot.on{background:rgba(14,165,164,.24);border-color:#0d9488;color:#0f766e;}
 
 .visit-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
 .visit-grid .field{margin-bottom:0;}
@@ -563,8 +568,9 @@ select{-webkit-appearance:none;appearance:none;background-image:url("data:image/
 .guide-note{background:#fff8e6;border:1px solid var(--gold-soft);border-radius:10px;
   padding:10px 12px;font-size:11.5px;color:#7a5f10;line-height:1.55;margin-top:12px;}
 
-/* 서브 화면(상단바가 가려지는 화면)용 뒤로/홈 바 */
-.sub-topbar{display:flex;gap:8px;align-items:center;margin-bottom:14px;padding-top:var(--safe-top);}
+/* 서브 화면의 뒤로/홈 바 — 하단에 고정(스크롤해도 항상 아래에 붙어 보임, 탭바 바로 위) */
+.sub-topbar{display:flex;gap:8px;align-items:center;position:sticky;bottom:0;z-index:8;
+  margin-top:16px;padding:10px 0;background:var(--bg);border-top:1px solid var(--line);}
 .sub-topbar .sbtn{background:rgba(255,255,255,.62);border:1px solid rgba(255,255,255,.65);
   -webkit-backdrop-filter:saturate(180%) blur(20px);backdrop-filter:saturate(180%) blur(20px);
   color:var(--navy);border-radius:12px;padding:10px 15px;font-size:13.5px;font-weight:700;
@@ -915,7 +921,15 @@ select{-webkit-appearance:none;appearance:none;background-image:url("data:image/
       </div>
       <div class="field" style="margin-bottom:0;">
         <label>최신 근로자수</label>
-        <input type="number" id="f-employees" placeholder="예: 12" inputmode="numeric">
+        <div style="display:flex;gap:6px;align-items:center;">
+          <span style="font-size:13px;color:var(--sub);font-weight:700;">남</span>
+          <input type="number" id="f-emp-male" placeholder="0" inputmode="numeric" oninput="recalcEmployees()" style="flex:1;min-width:0;">
+          <span style="font-size:13px;color:var(--sub);font-weight:700;">여</span>
+          <input type="number" id="f-emp-female" placeholder="0" inputmode="numeric" oninput="recalcEmployees()" style="flex:1;min-width:0;">
+          <span style="font-size:13px;color:var(--sub);font-weight:700;">총</span>
+          <input type="number" id="f-employees" placeholder="자동" inputmode="numeric" style="flex:1;min-width:0;">
+        </div>
+        <div class="hint-inline">남·여를 입력하면 총 인원이 자동 계산되며, 총 인원은 직접 입력·수정도 가능합니다.</div>
       </div>
     </div>
 
@@ -1047,7 +1061,12 @@ select{-webkit-appearance:none;appearance:none;background-image:url("data:image/
       <div class="field" style="margin-bottom:0;">
         <label>방문자(담당자)</label>
         <input type="text" id="f-visitor" placeholder="담당자 이름">
-        <div class="hint-inline">설정에서 동행자를 선택해두면 담당자 뒤에 자동으로 함께 입력됩니다.</div>
+        <div class="hint-inline">담당자 뒤에 동행자가 함께 입력됩니다. 아래에서 동행자를 눌러 선택하세요.</div>
+        <div class="chip-group" id="f-companion-chips" style="margin-top:8px;"></div>
+        <div style="display:flex;gap:6px;margin-top:8px;">
+          <input type="text" id="f-newCompanion" placeholder="동행자 이름 추가" onkeydown="if(event.key==='Enter'){event.preventDefault();addFormCompanion();}" style="flex:1;min-width:0;">
+          <button type="button" onclick="addFormCompanion()" style="flex-shrink:0;padding:0 14px;border:none;border-radius:10px;background:var(--navy);color:#fff;font-weight:700;font-size:13px;">+ 추가</button>
+        </div>
       </div>
     </div>
 
@@ -1376,12 +1395,12 @@ function extractRi(addr){
 
 // PC버전과 동일한 관심분야 빠른 태그 18개
 const QUICK_TAGS = [
-  { label:'법인전환', text:'법인전환 관심' },{ label:'인증', text:'기업인증 관심' },
-  { label:'특허', text:'특허·지재권 상담' },{ label:'가업승계', text:'가업승계 검토' },
-  { label:'상속', text:'상속·승계 상담' },{ label:'퇴직금', text:'퇴직금제도 검토' },
-  { label:'산업재해', text:'산재보장 관심' },{ label:'수출', text:'수출지원 관심' },
-  { label:'자금난', text:'운영자금 상담' },{ label:'세액공제', text:'세액공제 문의' },
-  { label:'공장증설', text:'공장증설 검토' },{ label:'단체보험', text:'단체보험 검토' },
+  { label:'단체보험', text:'단체보험 검토', hot:true },{ label:'법인전환', text:'법인전환 관심', hot:true },
+  { label:'인증', text:'기업인증 관심' },{ label:'특허', text:'특허·지재권 상담' },
+  { label:'가업승계', text:'가업승계 검토' },{ label:'상속', text:'상속·승계 상담' },
+  { label:'퇴직금', text:'퇴직금제도 검토' },{ label:'산업재해', text:'산재보장 관심' },
+  { label:'수출', text:'수출지원 관심' },{ label:'자금난', text:'운영자금 상담' },
+  { label:'세액공제', text:'세액공제 문의' },{ label:'공장증설', text:'공장증설 검토' },
   { label:'CEO보장', text:'CEO플랜 상담' },{ label:'정책자금', text:'정책자금 문의' },
   { label:'기업대출', text:'기업대출 상담' },{ label:'절세', text:'절세방안 관심' },
   { label:'세무', text:'세무상담 필요' },{ label:'노무', text:'노무상담 희망' },
@@ -1534,6 +1553,18 @@ function switchTab(tab){
 }
 
 function hideAllSub(){ document.querySelectorAll('.sub-screen').forEach(s=>s.classList.remove('active')); }
+
+// 근로자수: 남·여 입력 시 총 인원 자동 계산 (총 칸은 직접 입력·수정도 허용)
+function recalcEmployees(){
+  const maleEl = document.getElementById('f-emp-male');
+  const femaleEl = document.getElementById('f-emp-female');
+  if(!maleEl || !femaleEl) return;
+  const m = parseInt(maleEl.value, 10) || 0;
+  const f = parseInt(femaleEl.value, 10) || 0;
+  if(maleEl.value !== '' || femaleEl.value !== ''){
+    document.getElementById('f-employees').value = m + f;
+  }
+}
 
 function pushSub(id, title){
   hideAllSub();
@@ -1729,6 +1760,33 @@ const GUIDE = [
         ${guideLink('corp','가업승계·사전증여 요약','가업승계·사전증여 요약 보기','법인영업·법인전환 섹션')}
         ${guideLink('ins','경영인정기보험(CEO보장)','경영인정기보험(CEO보장) 보기','보험 설계 섹션')}
         <div class="guide-note">⚠️ 공제 한도·요건은 수시 개정. 정확한 적용은 세무전문가 상담 필요.</div>` },
+      { t:'사업자등록번호 읽는 법 (숫자의 의미)', html:`
+        <h3>구성 — 10자리</h3>
+        <p>사업자등록번호는 <b>★★★-■■-●●●●♣</b> 형태의 10자리로 구성됩니다.</p>
+        <table class="guide-table"><thead><tr><th>자리</th><th>의미</th></tr></thead><tbody>
+        <tr><td>★★★ (앞 3자리)</td><td>일련번호코드 (신규 개업자에게 101~999 순차 부여)</td></tr>
+        <tr><td>■■ (가운데 2자리)</td><td><b>개인/법인 구분코드</b> (아래 표)</td></tr>
+        <tr><td>●●●● (다음 4자리)</td><td>등록·지정일자순 일련번호 (0001~9999)</td></tr>
+        <tr><td>♣ (마지막 1자리)</td><td>오류 검증번호 (전산 검증용)</td></tr>
+        </tbody></table>
+        <h3>가운데 2자리 — 개인사업자</h3>
+        <table class="guide-table"><thead><tr><th>코드</th><th>구분</th></tr></thead><tbody>
+        <tr><td><b>01~79</b></td><td>개인 <b>과세</b> 사업자 (VAT 과세)</td></tr>
+        <tr><td><b>90~99</b></td><td>개인 <b>면세</b> 사업자 (VAT 면세, 산업구분 없음)</td></tr>
+        <tr><td>89</td><td>법인이 아닌 종교단체</td></tr>
+        <tr><td>80</td><td>종교단체 외 단체 · 다단계판매원</td></tr>
+        </tbody></table>
+        <h3>가운데 2자리 — 법인</h3>
+        <table class="guide-table"><thead><tr><th>코드</th><th>구분</th></tr></thead><tbody>
+        <tr><td><b>81 · 86 · 87 · 88</b></td><td>영리법인의 <b>본점</b></td></tr>
+        <tr><td>82</td><td>비영리법인 본·지점, 법인격 없는 사단·재단, 법인으로 보는 단체</td></tr>
+        <tr><td>83</td><td>국가 · 지방자치단체 · 지자체조합</td></tr>
+        <tr><td>84</td><td>외국법인의 본·지점 및 연락사무소</td></tr>
+        <tr><td><b>85</b></td><td>영리법인의 <b>지점</b></td></tr>
+        </tbody></table>
+        <div class="guide-tip">💡 현장 활용: 가운데 2자리만 봐도 <b>개인(01~79)인지 법인(81·86·87·88=본점)</b>인지 즉시 판별 → 법인 타깃 선별에 유용.</div>
+        ${docLink('uw','언더라이팅 강의 — 법인 판별 실무 보기','자료 · 사업자번호로 계약 가능 법인 가려내기')}
+        <div class="guide-note">⚠️ 계약 가능 법인은 통상 <b>본점(81·86·87·88)</b> 기준입니다. 지점(85)·비법인단체(82)·외국법인(84) 등은 상품·심사 요건이 달라 확인이 필요합니다.</div>` },
     ] },
 
   { id:'ins', title:'보험 설계', desc:'단체보험·CEO보장·기업재해보장·실손보험', tile:'blue',
@@ -2125,13 +2183,13 @@ function openGuideCategory(id){
   const c = GUIDE.find(x=>x.id===id);
   if(!c) return;
   document.getElementById('guideListBody').innerHTML =
-    subBackBarHTML()
-    + `<div class="page-title" style="margin-bottom:6px;">${escapeHTML(c.title)}</div>`
+    `<div class="page-title" style="margin-bottom:6px;">${escapeHTML(c.title)}</div>`
     + `<div class="guide-intro">${escapeHTML(c.desc)}</div>`
     + c.items.map((it,i)=>`<button class="big-btn outline" onclick="openGuideItem('${id}',${i})">
         <div style="flex:1;min-width:0;"><div>${escapeHTML(it.t)}</div></div>
         <span class="guide-chev">›</span>
-      </button>`).join('');
+      </button>`).join('')
+    + subBackBarHTML();
   pushSub('screen-guide-list', c.title);
 }
 
@@ -2139,8 +2197,8 @@ function openGuideItem(id, i){
   const c = GUIDE.find(x=>x.id===id);
   if(!c || !c.items[i]) return;
   document.getElementById('guideDetailBody').innerHTML =
-    subBackBarHTML()
-    + `<div class="card guide-detail">${c.items[i].html}</div>`;
+    `<div class="card guide-detail">${c.items[i].html}</div>`
+    + subBackBarHTML();
   pushSub('screen-guide-detail', c.items[i].t);
 }
 
@@ -2276,8 +2334,7 @@ const GLOSSARY = [
 
 function openGuideGlossary(){
   document.getElementById('guideListBody').innerHTML =
-    subBackBarHTML()
-    + `<div class="page-title" style="margin-bottom:6px;">📖 용어정리</div>`
+    `<div class="page-title" style="margin-bottom:6px;">📖 용어정리</div>`
     + `<input class="gl-search" id="gl-search" placeholder="🔍 용어 검색 (예: 과세표준, 종신보험)" oninput="filterGloss()">`
     + GLOSSARY.map(g=>`<div class="gl-group">
         <div class="gl-cat">${escapeHTML(g.cat)}</div>
@@ -2285,7 +2342,8 @@ function openGuideGlossary(){
           <button class="gl-term" onclick="toggleGloss(this)">${escapeHTML(tm.t)}<span class="gl-arrow">▾</span></button>
           <div class="gl-body"><div class="gl-inner">${escapeHTML(tm.d)}</div></div>
         </div>`).join('')}
-      </div>`).join('');
+      </div>`).join('')
+    + subBackBarHTML();
   pushSub('screen-guide-list', '용어정리');
 }
 // 단일 열림: 다른 용어를 누르면 기존에 펼쳐진 설명은 접힌다
@@ -2330,6 +2388,12 @@ function guideLink(sectionId, title, label, sub){
   const t = String(title).replace(/'/g, "\\'");
   return `<button class="big-btn outline" onclick="openGuideItemByTitle('${sectionId}','${t}')" style="margin-top:8px;">`
     + `<div style="flex:1;min-width:0;"><div>🔗 ${label||title}</div>${sub?`<div class="desc">${sub}</div>`:''}</div>`
+    + `<span class="guide-chev">›</span></button>`;
+}
+// 자료(DOCS) 문서로 이동하는 링크 버튼
+function docLink(docId, label, sub){
+  return `<button class="big-btn outline" onclick="openGuideDoc('${docId}')" style="margin-top:8px;">`
+    + `<div style="flex:1;min-width:0;"><div>📄 ${label}</div>${sub?`<div class="desc">${sub}</div>`:''}</div>`
     + `<span class="guide-chev">›</span></button>`;
 }
 const DOCS = [
@@ -2610,7 +2674,8 @@ const DOCS = [
         <div class="doc-numcell no"><span class="ox">X</span><div class="code">89</div>비법인 종교</div>
         <div class="doc-numcell no"><span class="ox">X</span><div class="code">90~99</div>개인 면세</div>
         </div>
-        <div class="guide-note">가입 불가 4대: 지점격·비법인단체·임의단체·해외법인. 보험계약자는 <b>본점만</b> 가능(대법 80누295).</div>` },
+        <div class="guide-note">가입 불가 4대: 지점격·비법인단체·임의단체·해외법인. 보험계약자는 <b>본점만</b> 가능(대법 80누295).</div>
+        ${guideLink('corp','사업자등록번호 읽는 법 (숫자의 의미)','사업자등록번호 읽는 법 (숫자의 의미) 보기','법인영업·법인전환 섹션')}` },
       { tag:'PART 4 · 자격', title:'자격요건 & CEO정기 재정심사', html:`
         <table class="guide-table"><thead><tr><th></th><th>대표/임원</th><th>미등기</th><th>종업원</th></tr></thead><tbody>
         <tr><td>경영인·CEO정기</td><td>O</td><td>X</td><td>X</td></tr>
@@ -2746,14 +2811,14 @@ const DOCS = [
 
 function openGuideDocs(){
   document.getElementById('guideListBody').innerHTML =
-    subBackBarHTML()
-    + `<div class="page-title" style="margin-bottom:6px;">📄 자료</div>`
+    `<div class="page-title" style="margin-bottom:6px;">📄 자료</div>`
     + `<div class="guide-intro">강의·교육자료를 앱에서 바로 볼 수 있게 정리한 모음입니다.</div>`
     + DOCS.map(d=>`<button class="big-btn outline" onclick="openGuideDoc('${d.id}')">
         <div class="ico tile ${d.tile||'navy'}"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M8 13h8M8 17h6"/></svg></div>
         <div style="flex:1;min-width:0;"><div>${escapeHTML(d.title)}</div><div class="desc">${escapeHTML(d.sub)}</div></div>
         <span class="guide-chev">›</span>
-      </button>`).join('');
+      </button>`).join('')
+    + subBackBarHTML();
   pushSub('screen-guide-list', '자료');
 }
 
@@ -2761,14 +2826,14 @@ function openGuideDoc(id){
   const d = DOCS.find(x=>x.id===id);
   if(!d) return;
   document.getElementById('guideDetailBody').innerHTML =
-    subBackBarHTML()
-    + `<div class="page-title" style="margin-bottom:4px;">${escapeHTML(d.title)}</div>`
+    `<div class="page-title" style="margin-bottom:4px;">${escapeHTML(d.title)}</div>`
     + `<div class="guide-intro">${escapeHTML(d.sub)}</div>`
     + d.slides.map(s=>`<div class="card doc-slide guide-detail">
         ${s.tag?`<div class="doc-tag">${escapeHTML(s.tag)}</div>`:''}
         <h3 style="margin-top:0;">${escapeHTML(s.title)}</h3>
         ${s.html}
-      </div>`).join('');
+      </div>`).join('')
+    + subBackBarHTML();
   pushSub('screen-guide-detail', d.title);
 }
 
@@ -4081,6 +4146,8 @@ function resetForm(){
   document.getElementById('f-address').value = '';
   document.getElementById('f-phone').value = '';
   document.getElementById('f-type').value = '';
+  document.getElementById('f-emp-male').value = '';
+  document.getElementById('f-emp-female').value = '';
   document.getElementById('f-employees').value = '';
   document.getElementById('f-ceo').value = '';
   document.getElementById('f-bizno').value = '';
@@ -4256,9 +4323,66 @@ function buildDefaultVisitor(){
   return [appSettings.userName, ...getActiveCompanions()].filter(Boolean).join(', ');
 }
 
+// ── 직접입력 폼 안에서 동행자 빠른 선택·추가 (설정에 안 가도 여기서 처리) ──
+// 현재 방문자란(f-visitor)의 이름들을 배열로. 담당자(본인)를 항상 맨 앞으로 정렬.
+function fVisitorParts(){
+  return document.getElementById('f-visitor').value.split(',').map(s=>s.trim()).filter(Boolean);
+}
+function fVisitorSet(parts){
+  const owner = (appSettings.userName || '').trim();
+  let list = parts.filter(Boolean);
+  if(owner){ list = list.filter(n => n !== owner); list.unshift(owner); }
+  document.getElementById('f-visitor').value = list.join(', ');
+}
+// 등록된 동행자를 칩으로 렌더 — 방문자란에 들어있으면 선택(파랑) 표시
+function renderFormCompanions(){
+  const wrap = document.getElementById('f-companion-chips');
+  if(!wrap) return;
+  if(!wrap._deleg){
+    wrap._deleg = true;
+    wrap.addEventListener('click', function(e){
+      const chip = e.target.closest('.chip[data-name]');
+      if(chip) toggleFormCompanion(chip.dataset.name);
+    });
+  }
+  const owner = (appSettings.userName || '').trim();
+  const names = getSettingCompanionNames().filter(n => n !== owner);
+  const cur = fVisitorParts();
+  if(!names.length){
+    wrap.innerHTML = '<span class="hint-inline" style="margin:0;">아래 칸에 이름을 입력해 동행자를 추가하세요.</span>';
+    return;
+  }
+  wrap.innerHTML = names.map(n =>
+    `<div class="chip sm${cur.includes(n)?' on':''}" data-name="${escapeAttr(n)}">${escapeHTML(n)}</div>`
+  ).join('');
+}
+// 칩을 눌러 방문자란에 동행자 추가/제거
+function toggleFormCompanion(name){
+  const parts = fVisitorParts();
+  const i = parts.indexOf(name);
+  if(i > -1) parts.splice(i, 1); else parts.push(name);
+  fVisitorSet(parts);
+  renderFormCompanions();
+}
+// 새 동행자 이름을 등록(설정에도 저장)하고 바로 선택
+function addFormCompanion(){
+  const input = document.getElementById('f-newCompanion');
+  const name = input.value.trim();
+  if(!name){ toast('동행자 이름을 입력해주세요.'); return; }
+  const names = getSettingCompanionNames();
+  if(!names.includes(name)){ names.push(name); appSettings.companions = names; persistSettings(); }
+  input.value = '';
+  const parts = fVisitorParts();
+  if(!parts.includes(name)) parts.push(name);
+  fVisitorSet(parts);
+  renderFormCompanions();
+  renderCompanionSettingChips();   // 설정 화면도 동기화(열려있을 때 대비)
+  toast(`${name} 님을 동행자로 등록했습니다.`);
+}
+
 function renderInterestChips(){
   const wrap = document.getElementById('chip-interest');
-  wrap.innerHTML = QUICK_TAGS.map(t=>`<div class="chip sm" data-v="${escapeAttr(t.text)}">${escapeHTML(t.label)}</div>`).join('');
+  wrap.innerHTML = QUICK_TAGS.map(t=>`<div class="chip sm${t.hot?' hot':''}" data-v="${escapeAttr(t.text)}">${escapeHTML(t.label)}</div>`).join('');
   wrap.querySelectorAll('.chip').forEach(c=>{
     c.onclick = ()=>{
       const v=c.dataset.v; const i=selectedChips.interest.indexOf(v);
@@ -4318,6 +4442,8 @@ function openForm(prefillOrJournal){
     document.getElementById('f-address').value = j.address || '';
     document.getElementById('f-phone').value = j.phone || '';
     document.getElementById('f-type').value = j.companyType || '';
+    document.getElementById('f-emp-male').value = j.empMale || '';
+    document.getElementById('f-emp-female').value = j.empFemale || '';
     document.getElementById('f-employees').value = j.employees || '';
     document.getElementById('f-ceo').value = j.ceo || '';
     document.getElementById('f-bizno').value = j.bizNo || '';
@@ -4364,6 +4490,7 @@ function openForm(prefillOrJournal){
     document.getElementById('f-sales').value = c.매출 || '';
     document.getElementById('f-profit').value = c.순이익 || '';
   }
+  renderFormCompanions();   // 방문자란 아래 동행자 빠른 선택 칩 갱신
   pushSub('screen-form', editingId ? '방문일지 수정' : '직접입력');
 }
 
@@ -4672,6 +4799,8 @@ function doSaveJournal(){
     phone: document.getElementById('f-phone').value.trim(),
     companyType: document.getElementById('f-type').value,
     employees: document.getElementById('f-employees').value,
+    empMale: document.getElementById('f-emp-male').value,
+    empFemale: document.getElementById('f-emp-female').value,
     ceo: document.getElementById('f-ceo').value.trim(),
     bizNo: document.getElementById('f-bizno').value.trim(),
     sales: document.getElementById('f-sales').value.trim(),
