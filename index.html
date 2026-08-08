@@ -320,6 +320,9 @@ select{-webkit-appearance:none;appearance:none;background-image:url("data:image/
 .detail-row .v{flex:1;line-height:1.5;}
 .hint-inline{font-size:11.5px;color:var(--sub);margin-top:6px;line-height:1.5;}
 .biz-kind-row{display:flex;gap:8px;margin-bottom:8px;}
+.custtype-row{display:flex;gap:8px;margin-bottom:12px;}
+.custtype-btn{flex:1;padding:12px;border:1.5px solid var(--line);background:#fff;border-radius:12px;font-size:14px;font-weight:800;color:#39435a;touch-action:manipulation;}
+.custtype-btn.on{background:var(--navy);color:#fff;border-color:var(--navy);}
 .add-companion-row{display:flex;gap:8px;}
 .add-companion-row input{flex:1;}
 .add-comp-btn{flex-shrink:0;background:var(--navy);color:#fff;border:none;border-radius:10px;
@@ -435,6 +438,42 @@ select{-webkit-appearance:none;appearance:none;background-image:url("data:image/
 .fu-group{font-size:11.5px;font-weight:800;color:var(--navy);padding:9px 2px 3px;border-top:1px solid var(--line);}
 .fu-group:first-of-type{border-top:none;padding-top:2px;}
 .fu-group + .fu-item{border-top:none;}
+/* 영업단계 칩 선택 색 */
+.chip.stage.on{background:var(--navy);color:#fff;border-color:var(--navy);}
+/* 홈 파이프라인·실적 대시보드 */
+.dash-card{background:#fff;border:1.5px solid var(--line);border-radius:14px;padding:12px 14px;margin-bottom:12px;box-shadow:0 2px 10px rgba(20,30,60,.06);}
+.dash-head{font-size:15px;font-weight:800;color:var(--navy);margin-bottom:10px;}
+.pf-row{display:flex;gap:6px;}
+.pf-cell{flex:1;text-align:center;background:#f4f6fa;border-radius:10px;padding:8px 2px;}
+.pf-n{font-size:18px;font-weight:800;color:var(--navy);}
+.pf-l{font-size:10.5px;color:var(--sub);font-weight:700;margin-top:2px;}
+.dash-perf{margin-top:10px;font-size:13px;color:#39435a;background:#eef4ff;border-radius:10px;padding:9px 11px;font-weight:600;}
+.dash-perf b{color:var(--navy);}
+/* 업체별 통합 방문 타임라인 (상세보기) */
+.timeline-card{margin-top:16px;background:#fff;border:1.5px solid var(--line);border-radius:14px;padding:12px 14px;}
+.timeline-head{font-size:14px;font-weight:800;color:var(--navy);margin-bottom:6px;display:flex;align-items:center;gap:8px;}
+.tl-count{background:var(--navy);color:#fff;font-size:11px;font-weight:800;border-radius:999px;padding:2px 8px;}
+.tl-item{display:flex;gap:10px;padding:8px 2px;cursor:pointer;border-top:1px solid var(--line);}
+.tl-item:first-of-type{border-top:none;}
+.tl-dot{flex-shrink:0;width:9px;height:9px;border-radius:50%;background:var(--line);margin-top:5px;}
+.tl-item.cur .tl-dot{background:var(--blue);}
+.tl-body{flex:1;min-width:0;}
+.tl-top{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.tl-date{font-size:13px;font-weight:700;color:#1b2434;}
+.tl-tag{font-size:11px;color:var(--sub);background:#eef1f7;border-radius:8px;padding:2px 7px;font-weight:700;}
+.tl-now{font-size:10.5px;color:#fff;background:var(--blue);border-radius:8px;padding:2px 7px;font-weight:800;}
+.tl-snip{font-size:12px;color:#4a5568;margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+/* 탭투콜/문자 (상세보기 전화번호) */
+.call-link{color:var(--blue);font-weight:700;text-decoration:none;}
+.call-actions{display:inline-flex;gap:6px;margin-left:8px;vertical-align:middle;}
+.call-btn{display:inline-block;font-size:11.5px;font-weight:800;text-decoration:none;padding:5px 11px;border-radius:8px;background:var(--navy);color:#fff;touch-action:manipulation;}
+.call-btn.sms{background:var(--green);}
+.call-btn.map{background:var(--teal);}
+.call-btn:active{opacity:.7;}
+/* 방문기록 검색창 */
+.list-search{position:relative;margin-bottom:10px;}
+.list-search input{width:100%;padding:11px 36px 11px 12px;border:1.5px solid var(--line);border-radius:10px;font-size:14px;background:#fff;}
+.ls-clear{position:absolute;right:8px;top:50%;transform:translateY(-50%);border:none;background:#e6e9f0;color:#555;width:24px;height:24px;border-radius:50%;font-size:12px;font-weight:800;touch-action:manipulation;}
 .backup-btns button{flex:1;border:none;border-radius:10px;padding:13px 8px;font-size:13.5px;font-weight:800;}
 .backup-btns .b-dl{background:linear-gradient(135deg,var(--green),#128a45);color:#fff;}
 .backup-btns .b-up{background:#fff;color:var(--navy);border:1.5px solid var(--line);}
@@ -763,7 +802,9 @@ select{-webkit-appearance:none;appearance:none;background-image:url("data:image/
           <span>업체 목록 인쇄 / PDF저장</span>
         </button>
       </div>
+      <div id="dashboardWrap"></div>
       <div id="followupWrap"></div>
+      <div id="contractWrap"></div>
       <div class="section-title">방문 기록</div>
       <button class="big-btn primary" onclick="openForm()">
         <div class="ico tile blue"><svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/></svg></div>
@@ -791,6 +832,10 @@ select{-webkit-appearance:none;appearance:none;background-image:url("data:image/
       <div class="page-title"><span>📂</span> 방문 기록 관리</div>
       <div class="stats-row" id="statsRow"></div>
       <div class="filter-row-scroll" id="resultFilterRow"></div>
+      <div class="list-search">
+        <input type="text" id="listSearchInput" placeholder="🔍 기업명·방문자·주소·상담내용·상품 검색" oninput="setListSearch(this.value)">
+        <button type="button" class="ls-clear" id="lsClearBtn" style="display:none;" onclick="clearListSearch()">✕</button>
+      </div>
       <div class="tool-row">
         <button id="btnFolderView" class="on" onclick="toggleFolderView()">📁 지역별 보기</button>
         <button id="btnOrderMode" onclick="toggleOrderMode()">🔀 순서변경</button>
@@ -987,16 +1032,20 @@ select{-webkit-appearance:none;appearance:none;background-image:url("data:image/
 
   <!-- ===================== SUB SCREEN: 방문일지 작성 ===================== -->
   <div class="sub-screen" id="screen-form">
-    <div class="section-title">기업정보 1</div>
+    <div class="custtype-row">
+      <button type="button" class="custtype-btn on" id="ct-corp" onclick="setCustType('법인')">🏢 법인/사업장</button>
+      <button type="button" class="custtype-btn" id="ct-personal" onclick="setCustType('개인')">👤 개인고객</button>
+    </div>
+    <div class="section-title" id="bizInfo1Title">기업정보 1</div>
     <div class="card">
       <div class="field">
-        <label>기업명</label>
-        <div class="biz-kind-row">
+        <label id="lblCompany">기업명</label>
+        <div class="biz-kind-row" id="bizKindRow">
           <button type="button" class="biz-kind" id="bk-personal" onclick="setBizKind('개인')">👤 개인</button>
           <button type="button" class="biz-kind" id="bk-corp" onclick="setBizKind('법인')">🏢 법인</button>
         </div>
         <input type="text" id="f-company" placeholder="기업명을 입력하세요 (미입력 저장 가능)">
-        <div class="hint-inline">법인을 선택하면 기업명 앞에 "(주)"가 자동으로 붙습니다.</div>
+        <div class="hint-inline" id="companyHint">법인을 선택하면 기업명 앞에 "(주)"가 자동으로 붙습니다.</div>
       </div>
       <div class="field">
         <label>주소</label>
@@ -1010,7 +1059,7 @@ select{-webkit-appearance:none;appearance:none;background-image:url("data:image/
           <label>전화번호</label>
           <input type="tel" id="f-phone" placeholder="031-000-0000">
         </div>
-        <div class="field">
+        <div class="field" id="typeField">
           <label>기업형태</label>
           <select id="f-type">
             <option value="">선택안함</option>
@@ -1021,7 +1070,7 @@ select{-webkit-appearance:none;appearance:none;background-image:url("data:image/
           </select>
         </div>
       </div>
-      <div class="field" style="margin-bottom:0;">
+      <div class="field" id="empField" style="margin-bottom:0;">
         <label>최신 근로자수</label>
         <div style="display:flex;gap:6px;align-items:center;">
           <span style="font-size:13px;color:var(--sub);font-weight:700;">남</span>
@@ -1032,6 +1081,85 @@ select{-webkit-appearance:none;appearance:none;background-image:url("data:image/
           <input type="number" id="f-employees" placeholder="자동" inputmode="numeric" style="flex:1;min-width:0;">
         </div>
         <div class="hint-inline">남·여를 입력하면 총 인원이 자동 계산되며, 총 인원은 직접 입력·수정도 가능합니다.</div>
+      </div>
+    </div>
+
+    <div class="section-title" id="custInfoTitle" style="display:none;">개인 고객 정보</div>
+    <div class="card" id="custInfoCard" style="display:none;">
+      <div class="row2">
+        <div class="field" style="margin-bottom:0;">
+          <label>성별</label>
+          <select id="f-cust-gender"><option value="">선택안함</option><option>남</option><option>여</option></select>
+        </div>
+        <div class="field" style="margin-bottom:0;">
+          <label>생년월일</label>
+          <input type="date" id="f-cust-birth">
+        </div>
+      </div>
+      <div class="field" style="margin-top:10px;">
+        <label>가족관계</label>
+        <textarea id="f-cust-family" placeholder="예: 배우자, 자녀 2명(2015·2018년생), 부모 부양"></textarea>
+      </div>
+      <div class="field" style="margin-bottom:0;">
+        <label>보장분석</label>
+        <textarea id="f-cust-coverage" placeholder="현재 가입 보장 / 부족한 보장 / 제안 방향"></textarea>
+      </div>
+    </div>
+
+    <div class="section-title" id="subscTitle" style="display:none;">개인 신규고객 청약정보</div>
+    <div class="card" id="subscCard" style="display:none;">
+      <div class="hint-inline" style="margin-bottom:8px;">이름=고객명, 전화·주소는 위 <b>고객 정보</b>에 입력됩니다. 여기는 청약에 필요한 추가정보입니다. 🔒 민감정보이니 앱 잠금·백업 암호화 사용을 권장합니다.</div>
+      <div class="field">
+        <label>주민번호</label>
+        <input type="text" id="f-jumin" placeholder="000000-0000000" inputmode="numeric">
+      </div>
+      <div class="row2">
+        <div class="field" style="margin-bottom:0;">
+          <label>통신사</label>
+          <select id="f-carrier"><option value="">선택안함</option><option>SKT</option><option>KT</option><option>LG U+</option><option>알뜰폰</option></select>
+        </div>
+        <div class="field" style="margin-bottom:0;">
+          <label>직업</label>
+          <input type="text" id="f-job" placeholder="예: 자영업">
+        </div>
+      </div>
+      <div class="field" style="margin-top:10px;">
+        <label>드시는 약</label>
+        <div class="chip-group" id="chip-meds">
+          <div class="chip" data-v="고혈압">고혈압</div>
+          <div class="chip" data-v="당뇨">당뇨</div>
+          <div class="chip" data-v="고지혈증">고지혈증</div>
+          <div class="chip" data-v="심장질환">심장질환</div>
+          <div class="chip" data-v="뇌혈관질환">뇌혈관질환</div>
+          <div class="chip" data-v="갑상선질환">갑상선질환</div>
+          <div class="chip" data-v="간질환">간질환</div>
+          <div class="chip" data-v="신장질환">신장질환</div>
+          <div class="chip" data-v="관절염·통풍">관절염·통풍</div>
+          <div class="chip" data-v="우울증·정신과">우울증·정신과</div>
+          <div class="chip" data-v="천식·호흡기">천식·호흡기</div>
+          <div class="chip" data-v="암 이력">암 이력</div>
+        </div>
+        <input type="text" id="f-meds-etc" placeholder="기타 복용약·상세 (선택)" style="margin-top:8px;">
+      </div>
+      <div class="row2" style="margin-top:10px;">
+        <div class="field" style="margin-bottom:0;">
+          <label>키 (cm)</label>
+          <input type="text" id="f-height" inputmode="numeric" placeholder="예: 170">
+        </div>
+        <div class="field" style="margin-bottom:0;">
+          <label>몸무게 (kg)</label>
+          <input type="text" id="f-weight" inputmode="numeric" placeholder="예: 65">
+        </div>
+      </div>
+      <div class="row2" style="margin-top:10px;">
+        <div class="field" style="margin-bottom:0;">
+          <label>계좌번호</label>
+          <input type="text" id="f-account" placeholder="은행 · 계좌번호" inputmode="numeric">
+        </div>
+        <div class="field" style="margin-bottom:0;">
+          <label>이체일</label>
+          <select id="f-payday"><option value="">선택</option><option>5일</option><option>10일</option><option>15일</option></select>
+        </div>
       </div>
     </div>
 
@@ -1056,6 +1184,41 @@ select{-webkit-appearance:none;appearance:none;background-image:url("data:image/
           <div class="chip result" data-v="부재">🚪 부재</div>
           <div class="chip result" data-v="거절">❌ 거절</div>
           <div class="chip result" data-v="취소">🚫 취소</div>
+        </div>
+      </div>
+      <div class="field">
+        <label>영업단계 <span style="font-weight:400;color:var(--sub);">(파이프라인·실적 집계 기준)</span></label>
+        <div class="chip-group" id="chip-stage">
+          <div class="chip stage" data-v="리드">🌱 리드</div>
+          <div class="chip stage" data-v="상담중">💬 상담중</div>
+          <div class="chip stage" data-v="제안">📄 제안</div>
+          <div class="chip stage" data-v="계약">✅ 계약</div>
+          <div class="chip stage" data-v="보류">⏸️ 보류</div>
+        </div>
+      </div>
+      <div class="field" id="contractBox" style="display:none;">
+        <label>계약 정보 <span style="font-weight:400;color:var(--sub);">(계약 단계 · 실적/갱신 관리에 사용)</span></label>
+        <div class="row2">
+          <div class="field" style="margin-bottom:0;">
+            <input type="text" id="f-product" placeholder="상품명 (예: 종신보험)">
+          </div>
+          <div class="field" style="margin-bottom:0;">
+            <input type="text" id="f-premium" placeholder="월 보험료 (원)" inputmode="numeric">
+          </div>
+        </div>
+        <div class="row2" style="margin-top:8px;">
+          <div class="field" style="margin-bottom:0;">
+            <label style="font-weight:600;">계약일</label>
+            <input type="date" id="f-contract-date">
+          </div>
+          <div class="field" style="margin-bottom:0;">
+            <label style="font-weight:600;">만기일</label>
+            <input type="date" id="f-expiry-date">
+          </div>
+        </div>
+        <div class="field" style="margin-bottom:0;margin-top:8px;">
+          <label style="font-weight:600;">갱신일 <span style="font-weight:400;color:var(--sub);">(다가오면 홈에서 알림)</span></label>
+          <input type="date" id="f-renew-date">
         </div>
       </div>
       <div class="field">
@@ -1102,8 +1265,8 @@ select{-webkit-appearance:none;appearance:none;background-image:url("data:image/
       </div>
     </div>
 
-    <div class="section-title">기업정보 2</div>
-    <div class="card">
+    <div class="section-title" id="bizInfo2Title">기업정보 2</div>
+    <div class="card" id="bizInfo2Card">
       <div class="row2">
         <div class="field">
           <label>대표자</label>
@@ -1750,7 +1913,9 @@ window.addEventListener('popstate', function(e){ applyBack(); });
 let homeExpanded = false;   // 최근 방문기록 '더보기' 펼침 상태
 let followupExpanded = false;   // 재방문 알림 '더보기' 펼침 상태
 function renderHome(){
+  renderSalesDashboard();   // 파이프라인·이번달 실적 요약
   renderFollowups();   // 재방문 알림(지남/오늘/이번주) 먼저 표시
+  renderContractAlerts();   // 계약 갱신·만기 임박 알림
   const wrap = document.getElementById('recentList');
   const titleEl = document.getElementById('recentTitle');
   const recent = journals.slice(0,10);   // 최근 최대 10개까지만
@@ -1843,6 +2008,73 @@ function renderFollowups(){
     </div>`;
 }
 function toggleFollowupMore(){ followupExpanded = !followupExpanded; renderFollowups(); }
+
+// 홈 계약 갱신·만기 알림 — 갱신일/만기일이 향후 30일 이내(임박) 또는 지난 지 7일 이내(놓침)
+function renderContractAlerts(){
+  const wrap = document.getElementById('contractWrap');
+  if(!wrap) return;
+  const now = new Date();
+  const today = now.toISOString().slice(0,10);
+  const in30 = new Date(now.getTime() + 30*86400000).toISOString().slice(0,10);
+  const ago7 = new Date(now.getTime() -  7*86400000).toISOString().slice(0,10);
+  let items = [];
+  journals.forEach(j=>{
+    [['갱신', j.renewDate], ['만기', j.expiryDate]].forEach(pair=>{
+      const kind = pair[0], d = pair[1];
+      if(!d || d > in30 || d < ago7) return;
+      items.push({ j, kind, date:d, status:(d<today?'overdue':(d===today?'today':'soon')) });
+    });
+  });
+  if(!items.length){ wrap.innerHTML = ''; return; }
+  items.sort((a,b)=> a.date.localeCompare(b.date));
+  const label = { overdue:'지남', today:'오늘', soon:'임박' };
+  const rows = items.slice(0,5).map(x=>`
+    <div class="fu-item" onclick="openDetail(${x.j.id})">
+      <span class="fu-when ${x.status}">${label[x.status]}</span>
+      <div class="fu-body">
+        <div class="fu-company">${escapeHTML(x.j.companyName || '(기업명 없음)')} <span style="color:var(--sub);font-weight:600;">· ${x.kind}</span></div>
+        <div class="fu-date">${x.date}${x.j.product ? ' · ' + escapeHTML(x.j.product) : ''}</div>
+      </div>
+    </div>`).join('');
+  wrap.innerHTML = `<div class="followup-card">
+      <div class="followup-head">🛡️ 계약 갱신·만기 임박</div>
+      ${rows}
+    </div>`;
+}
+
+// 홈 파이프라인·실적 요약 — 업체별 현재 단계(최신 일지 기준) 퍼널 + 이번달 계약 건수·월보험료 합계
+function renderSalesDashboard(){
+  const wrap = document.getElementById('dashboardWrap');
+  if(!wrap) return;
+  // 업체별 "현재 단계" = 가장 최근 일지의 단계 (journals는 최신순 저장)
+  const latestByCompany = {};
+  journals.forEach(j=>{
+    const key = (j.companyName||'').trim() || ('__id'+j.id);
+    if(!(key in latestByCompany)) latestByCompany[key] = j;
+  });
+  const stages = ['리드','상담중','제안','계약','보류'];
+  const counts = {}; stages.forEach(s=>counts[s]=0);
+  Object.values(latestByCompany).forEach(j=>{ if(counts[j.stage]!==undefined) counts[j.stage]++; });
+  const anyStage = stages.some(s=>counts[s]>0);
+  // 이번달 계약 실적 (방문일 기준)
+  const ym = new Date().toISOString().slice(0,7);
+  let cCount = 0, cSum = 0;
+  journals.forEach(j=>{
+    if(j.stage==='계약' && String(j.visitDate||'').slice(0,7)===ym){
+      cCount++;
+      cSum += parseInt(String(j.premium||'').replace(/[^0-9]/g,''),10) || 0;
+    }
+  });
+  if(!anyStage && !cCount){ wrap.innerHTML=''; return; }   // 단계 데이터가 전혀 없으면 숨김
+  const emoji = { '리드':'🌱','상담중':'💬','제안':'📄','계약':'✅','보류':'⏸️' };
+  const funnel = stages.map(s=>
+    `<div class="pf-cell"><div class="pf-n">${counts[s]}</div><div class="pf-l">${emoji[s]} ${s}</div></div>`).join('');
+  wrap.innerHTML = `<div class="dash-card">
+      <div class="dash-head">📊 파이프라인 · 이번달 실적</div>
+      <div class="pf-row">${funnel}</div>
+      <div class="dash-perf">이번달 계약 <b>${cCount}건</b> · 월보험료 합계 <b>${cSum.toLocaleString()}원</b></div>
+    </div>`;
+}
 
 /* ---------------- 영업백과 (컨설턴트 지식) ----------------
    대분류 카드 → 항목 목록 → 상세(정의·요건·혜택·영업포인트) 2단계 구조.
@@ -3055,6 +3287,19 @@ let selectMode = false;
 let orderMode = false;
 let selectedIds = new Set();
 let listResultFilter = '전체';
+let listSearch = '';   // 방문기록 검색어
+function setListSearch(v){
+  listSearch = v || '';
+  const btn = document.getElementById('lsClearBtn');
+  if(btn) btn.style.display = listSearch ? '' : 'none';
+  renderList();
+}
+function clearListSearch(){
+  listSearch = '';
+  const inp = document.getElementById('listSearchInput'); if(inp) inp.value = '';
+  const btn = document.getElementById('lsClearBtn'); if(btn) btn.style.display = 'none';
+  renderList();
+}
 
 function isUpcoming(j){
   const today = new Date().toISOString().slice(0,10);
@@ -3079,11 +3324,22 @@ function renderList(){
 
   let list = journals.map((j,idx)=>({j, idx}));
   if(listResultFilter!=='전체') list = list.filter(x=>(x.j.result||'')===listResultFilter);
+  const q = listSearch.trim().toLowerCase();
+  const searching = q.length > 0;
+  if(searching){
+    list = list.filter(x=>{
+      const j = x.j;
+      return [j.companyName, j.visitor, j.address, j.content, j.phone, j.product, j.ceo, j.bizNo, j.interest]
+        .some(v => String(v||'').toLowerCase().includes(q));
+    });
+  }
 
   const wrap = document.getElementById('journalList');
   if(!list.length){
-    wrap.innerHTML = '<div class="empty-hint">조건에 맞는 방문일지가 없습니다.</div>';
-  } else if(folderView && !selectMode && !orderMode){
+    wrap.innerHTML = searching
+      ? `<div class="empty-hint">"${escapeHTML(listSearch.trim())}" 검색 결과가 없습니다.</div>`
+      : '<div class="empty-hint">조건에 맞는 방문일지가 없습니다.</div>';
+  } else if(folderView && !selectMode && !orderMode && !searching){
     // 동행자 → 지역 → 기록 (2단계 중첩 아코디언). 동행자 폴더를 펼치면 그 안에 지역 폴더가 보인다.
     const compGroups = groupJournalsByCompanion(list);
     // renameFolder는 지역(하위) 그룹을 참조하므로 모든 지역 그룹을 펼쳐서 보관
@@ -4422,7 +4678,7 @@ async function saveSrcFile(id){
 
 /* ---------------- 상세보기 ---------------- */
 let detailId = null;
-function openDetail(id){
+function openDetail(id, keepSub){
   cameFromList = (currentTab === 'list');
   detailId = id;
   const j = journals.find(x=>x.id===id);
@@ -4445,6 +4701,12 @@ function openDetail(id){
     ['당기순이익(백만)', j.netProfit||'-'],
     ['첫인상', j.firstImpression||'-'],
     ['방문결과', j.result||'-'],
+    ['영업단계', j.stage||'-'],
+    ['계약상품', j.product||'-'],
+    ['월보험료', j.premium ? (Number(String(j.premium).replace(/[^0-9]/g,'')).toLocaleString()+'원') : '-'],
+    ['계약일', j.contractDate||'-'],
+    ['만기일', j.expiryDate||'-'],
+    ['갱신일', j.renewDate||'-'],
     ['우선순위', j.priority||'-'],
     ['관심분야', j.interest||'-'],
     ['상담내용', j.content||'-'],
@@ -4453,7 +4715,39 @@ function openDetail(id){
     ['1차 방문', j.visit1||'-'],['2차 방문', j.visit2||'-'],
     ['3차 방문', j.visit3||'-'],['4차 방문', j.visit4||'-'],
   ];
-  let html = rows.map(r => `<div class="detail-row"><div class="k">${r[0]}</div><div class="v">${escapeHTML(r[1])}</div></div>`).join('');
+  if(j.custType === '개인'){
+    if(rows[2] && rows[2][0] === '기업명') rows[2][0] = '고객명';
+    rows.push(['성별', j.custGender||'-'], ['생년월일', j.custBirth||'-'],
+      ['가족관계', j.family||'-'], ['보장분석', j.coverage||'-']);
+    const meds = [...(j.meds||[]), j.medsEtc].filter(Boolean).join(', ');
+    const hw = [j.height?j.height+'cm':'', j.weight?j.weight+'kg':''].filter(Boolean).join(' / ');
+    rows.push(['주민번호', j.jumin||'-'], ['통신사', j.carrier||'-'], ['직업', j.job||'-'],
+      ['드시는 약', meds||'-'], ['키/몸무게', hw||'-'],
+      ['계좌번호', j.account||'-'], ['이체일', j.payday||'-']);
+  }
+  let html = rows.map(r => {
+    if(r[0] === '전화번호'){
+      const raw = String(r[1]||'').trim();
+      const digits = raw.replace(/[^0-9+]/g,'');
+      if(digits && raw !== '-'){
+        return `<div class="detail-row"><div class="k">${r[0]}</div><div class="v">
+          <a class="call-link" href="tel:${digits}">${escapeHTML(raw)}</a>
+          <span class="call-actions"><a class="call-btn" href="tel:${digits}">📞 전화</a><a class="call-btn sms" href="sms:${digits}">💬 문자</a></span>
+        </div></div>`;
+      }
+    }
+    if(r[0] === '주소'){
+      const raw = String(r[1]||'').trim();
+      if(raw && raw !== '-'){
+        const q = encodeURIComponent(raw);
+        return `<div class="detail-row"><div class="k">${r[0]}</div><div class="v">
+          ${escapeHTML(raw)}
+          <span class="call-actions"><a class="call-btn map" href="https://maps.apple.com/?q=${q}" target="_blank" rel="noopener">🗺️ 지도</a></span>
+        </div></div>`;
+      }
+    }
+    return `<div class="detail-row"><div class="k">${r[0]}</div><div class="v">${escapeHTML(r[1])}</div></div>`;
+  }).join('');
   const atts = getJournalAttachments(j);
   if(atts.length){
     window._detailAtt = atts;
@@ -4461,8 +4755,33 @@ function openDetail(id){
       `<div class="detail-thumb"><img src="${src}" onclick="openLightbox(window._detailAtt, ${i})"></div>`
     ).join('') + `</div>`;
   }
+  // 이 업체의 통합 방문 이력(같은 기업명) — 재방문 시 히스토리를 한 화면에서
+  const cname = (j.companyName||'').trim();
+  if(cname){
+    const hist = journals.filter(x=>(x.companyName||'').trim()===cname)
+      .sort((a,b)=> String(a.visitDate||'').localeCompare(String(b.visitDate||'')) || (a.id-b.id));
+    if(hist.length > 1){
+      const items = hist.map(x=>{
+        const cur = (x.id===j.id);
+        const tags = [x.stage, x.result].filter(Boolean).join(' · ');
+        const snip = (x.content||'').replace(/\s+/g,' ').trim();
+        return `<div class="tl-item ${cur?'cur':''}" onclick="openDetail(${x.id}, true)">
+          <div class="tl-dot"></div>
+          <div class="tl-body">
+            <div class="tl-top"><span class="tl-date">${x.visitDate||'-'}</span>${tags?`<span class="tl-tag">${escapeHTML(tags)}</span>`:''}${cur?'<span class="tl-now">현재</span>':''}</div>
+            ${snip?`<div class="tl-snip">${escapeHTML(snip)}</div>`:''}
+          </div>
+        </div>`;
+      }).join('');
+      html += `<div class="timeline-card">
+          <div class="timeline-head">🕘 이 업체 방문 이력 <span class="tl-count">${hist.length}회</span></div>
+          ${items}
+        </div>`;
+    }
+  }
   document.getElementById('detailBody').innerHTML = html;
-  pushSub('screen-detail', '방문일지 상세');
+  if(!keepSub) pushSub('screen-detail', '방문일지 상세');
+  else { const ds = document.getElementById('screen-detail'); if(ds) ds.scrollTop = 0; }
 }
 
 function editFromDetail(){
@@ -4484,11 +4803,47 @@ function deleteFromDetail(){
 
 /* ---------------- Form ---------------- */
 let editingId = null;
-let selectedChips = { impression:'', result:'', priority:'', interest:[], materials:[], insurers:[], companion:[] };
+let selectedChips = { impression:'', result:'', priority:'', stage:'', interest:[], materials:[], insurers:[], companion:[], meds:[] };
+
+let formCustType = '법인';   // '법인' | '개인' — 고객 유형
+function setCustType(t){ formCustType = t; applyCustTypeUI(); }
+function applyCustTypeUI(){
+  const personal = (formCustType === '개인');
+  const setDisp = (id, show)=>{ const el=document.getElementById(id); if(el) el.style.display = show ? '' : 'none'; };
+  const ctC = document.getElementById('ct-corp'); if(ctC) ctC.classList.toggle('on', !personal);
+  const ctP = document.getElementById('ct-personal'); if(ctP) ctP.classList.toggle('on', personal);
+  const lbl = document.getElementById('lblCompany'); if(lbl) lbl.textContent = personal ? '고객명' : '기업명';
+  const t1 = document.getElementById('bizInfo1Title'); if(t1) t1.textContent = personal ? '고객 정보' : '기업정보 1';
+  const fc = document.getElementById('f-company'); if(fc) fc.placeholder = personal ? '고객 이름을 입력하세요' : '기업명을 입력하세요 (미입력 저장 가능)';
+  // 법인 전용 요소 숨김 / 개인 전용 요소 표시
+  setDisp('bizKindRow', !personal);
+  setDisp('companyHint', !personal);
+  setDisp('typeField', !personal);
+  setDisp('empField', !personal);
+  setDisp('bizInfo2Title', !personal);
+  setDisp('bizInfo2Card', !personal);
+  setDisp('custInfoTitle', personal);
+  setDisp('custInfoCard', personal);
+  setDisp('subscTitle', personal);
+  setDisp('subscCard', personal);
+}
 
 function resetForm(){
   editingId = null;
-  selectedChips = { impression:'', result:'', priority:'', interest:[], materials:[], insurers:[], companion:[] };
+  formCustType = '법인';
+  document.getElementById('f-cust-gender').value = '';
+  document.getElementById('f-cust-birth').value = '';
+  document.getElementById('f-cust-family').value = '';
+  document.getElementById('f-cust-coverage').value = '';
+  document.getElementById('f-jumin').value = '';
+  document.getElementById('f-carrier').value = '';
+  document.getElementById('f-job').value = '';
+  document.getElementById('f-meds-etc').value = '';
+  document.getElementById('f-height').value = '';
+  document.getElementById('f-weight').value = '';
+  document.getElementById('f-account').value = '';
+  document.getElementById('f-payday').value = '';
+  selectedChips = { impression:'', result:'', priority:'', stage:'', interest:[], materials:[], insurers:[], companion:[], meds:[] };
   const today = new Date();
   document.getElementById('f-date').value = today.toISOString().slice(0,10);
   document.getElementById('f-time').value = today.toTimeString().slice(0,5);
@@ -4508,6 +4863,11 @@ function resetForm(){
   document.getElementById('f-sales').value = '';
   document.getElementById('f-profit').value = '';
   document.getElementById('f-net-profit').value = '';
+  document.getElementById('f-product').value = '';
+  document.getElementById('f-premium').value = '';
+  document.getElementById('f-contract-date').value = '';
+  document.getElementById('f-expiry-date').value = '';
+  document.getElementById('f-renew-date').value = '';
   document.getElementById('f-content').value = '';
   document.getElementById('f-interest-text').value = '';
   // 신규 작성일 때는 1차 방문일을 오늘 날짜로 자동 입력
@@ -4752,9 +5112,13 @@ function renderChips(){
   document.querySelectorAll('#chip-impression .chip').forEach(c=>c.classList.toggle('on', c.dataset.v===selectedChips.impression));
   document.querySelectorAll('#chip-result .chip').forEach(c=>c.classList.toggle('on', c.dataset.v===selectedChips.result));
   document.querySelectorAll('#chip-priority .chip').forEach(c=>c.classList.toggle('on', c.dataset.v===selectedChips.priority));
+  document.querySelectorAll('#chip-stage .chip').forEach(c=>c.classList.toggle('on', c.dataset.v===selectedChips.stage));
+  const _cbox = document.getElementById('contractBox');
+  if(_cbox) _cbox.style.display = (selectedChips.stage==='계약') ? '' : 'none';
   document.querySelectorAll('#chip-interest .chip').forEach(c=>c.classList.toggle('on', selectedChips.interest.includes(c.dataset.v)));
   document.querySelectorAll('#chip-materials .chip').forEach(c=>c.classList.toggle('on', selectedChips.materials.includes(c.dataset.v)));
   document.querySelectorAll('#chip-insurers .chip').forEach(c=>c.classList.toggle('on', selectedChips.insurers.includes(c.dataset.v)));
+  document.querySelectorAll('#chip-meds .chip').forEach(c=>c.classList.toggle('on', selectedChips.meds.includes(c.dataset.v)));
 }
 
 function setupChipHandlers(){
@@ -4767,10 +5131,20 @@ function setupChipHandlers(){
   document.querySelectorAll('#chip-priority .chip').forEach(c=>{
     c.onclick = ()=>{ selectedChips.priority = (selectedChips.priority===c.dataset.v)?'':c.dataset.v; renderChips(); };
   });
+  document.querySelectorAll('#chip-stage .chip').forEach(c=>{
+    c.onclick = ()=>{ selectedChips.stage = (selectedChips.stage===c.dataset.v)?'':c.dataset.v; renderChips(); };
+  });
   document.querySelectorAll('#chip-materials .chip').forEach(c=>{
     c.onclick = ()=>{
       const v=c.dataset.v; const i=selectedChips.materials.indexOf(v);
       if(i>-1) selectedChips.materials.splice(i,1); else selectedChips.materials.push(v);
+      renderChips();
+    };
+  });
+  document.querySelectorAll('#chip-meds .chip').forEach(c=>{
+    c.onclick = ()=>{
+      const v=c.dataset.v; const i=selectedChips.meds.indexOf(v);
+      if(i>-1) selectedChips.meds.splice(i,1); else selectedChips.meds.push(v);
       renderChips();
     };
   });
@@ -4814,9 +5188,29 @@ function openForm(prefillOrJournal){
     document.getElementById('f-visit2').value = j.visit2 || '';
     document.getElementById('f-visit3').value = j.visit3 || '';
     document.getElementById('f-visit4').value = j.visit4 || '';
+    document.getElementById('f-product').value = j.product || '';
+    document.getElementById('f-premium').value = j.premium || '';
+    document.getElementById('f-contract-date').value = j.contractDate || '';
+    document.getElementById('f-expiry-date').value = j.expiryDate || '';
+    document.getElementById('f-renew-date').value = j.renewDate || '';
+    formCustType = j.custType || '법인';
+    document.getElementById('f-cust-gender').value = j.custGender || '';
+    document.getElementById('f-cust-birth').value = j.custBirth || '';
+    document.getElementById('f-cust-family').value = j.family || '';
+    document.getElementById('f-cust-coverage').value = j.coverage || '';
+    document.getElementById('f-jumin').value = j.jumin || '';
+    document.getElementById('f-carrier').value = j.carrier || '';
+    document.getElementById('f-job').value = j.job || '';
+    document.getElementById('f-meds-etc').value = j.medsEtc || '';
+    document.getElementById('f-height').value = j.height || '';
+    document.getElementById('f-weight').value = j.weight || '';
+    document.getElementById('f-account').value = j.account || '';
+    document.getElementById('f-payday').value = j.payday || '';
+    selectedChips.meds = (j.meds||[]).slice();
     selectedChips.impression = j.firstImpression || '';
     selectedChips.result = j.result || '';
     selectedChips.priority = j.priority || '';
+    selectedChips.stage = j.stage || '';
     selectedChips.interest = (j.interest||'').split(',').map(s=>s.trim()).filter(Boolean);
     selectedChips.materials = (j.materialsDelivered||[]).slice();
     selectedChips.insurers = (j.currentInsurers||[]).slice();
@@ -4854,6 +5248,7 @@ function openForm(prefillOrJournal){
     document.getElementById('f-net-profit').value = c.당기순이익 || '';
   }
   renderFormCompanions();   // 방문자란 아래 동행자 빠른 선택 칩 갱신
+  applyCustTypeUI();        // 법인/개인에 따라 폼 구성 반영
   pushSub('screen-form', editingId ? '방문일지 수정' : '직접입력');
 }
 
@@ -5175,6 +5570,26 @@ function doSaveJournal(){
     firstImpression: selectedChips.impression,
     result: selectedChips.result || '',
     priority: selectedChips.priority || '',
+    stage: selectedChips.stage || '',
+    product: document.getElementById('f-product').value.trim(),
+    premium: document.getElementById('f-premium').value.trim(),
+    contractDate: document.getElementById('f-contract-date').value,
+    expiryDate: document.getElementById('f-expiry-date').value,
+    renewDate: document.getElementById('f-renew-date').value,
+    custType: formCustType,
+    custGender: document.getElementById('f-cust-gender').value,
+    custBirth: document.getElementById('f-cust-birth').value,
+    family: document.getElementById('f-cust-family').value.trim(),
+    coverage: document.getElementById('f-cust-coverage').value.trim(),
+    jumin: document.getElementById('f-jumin').value.trim(),
+    carrier: document.getElementById('f-carrier').value,
+    job: document.getElementById('f-job').value.trim(),
+    meds: selectedChips.meds.slice(),
+    medsEtc: document.getElementById('f-meds-etc').value.trim(),
+    height: document.getElementById('f-height').value.trim(),
+    weight: document.getElementById('f-weight').value.trim(),
+    account: document.getElementById('f-account').value.trim(),
+    payday: document.getElementById('f-payday').value,
     interest: interestText,
     content: document.getElementById('f-content').value.trim(),
     materialsDelivered: selectedChips.materials.slice(),
