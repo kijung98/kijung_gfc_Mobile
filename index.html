@@ -204,6 +204,10 @@ html,body{margin:0;padding:0;height:100%;color:var(--text);
 .comp-folder.open{border-color:var(--navy);box-shadow:0 2px 12px rgba(20,30,60,.08);}
 .comp-head .folder-name{font-size:16px;}
 .comp-head .folder-icon{font-size:20px;}
+.comp-add{flex-shrink:0;margin-left:8px;border:1.5px solid rgba(20,30,60,.18);background:rgba(255,255,255,.8);
+  color:var(--navy);border-radius:9px;padding:5px 9px;font-size:11.5px;font-weight:800;white-space:nowrap;
+  touch-action:manipulation;}
+.comp-add:active{opacity:.6;}
 .comp-body{padding:8px 10px 10px;border-top:1px solid var(--line);}
 .comp-body .region-folder{margin-bottom:8px;}
 .comp-body .region-folder:last-child{margin-bottom:0;}
@@ -288,12 +292,14 @@ html,body{margin:0;padding:0;height:100%;color:var(--text);
 
 /* ---------- Tab bar ---------- */
 #tabbar{display:flex;background:#fff;border-top:1px solid var(--line);
-  padding-bottom:var(--safe-bottom);flex-shrink:0;}
-#tabbar button{flex:1;background:none;border:none;padding:9px 0 8px;display:flex;
-  flex-direction:column;align-items:center;gap:2px;color:#9aa3b5;font-size:10.5px;font-weight:600;}
-#tabbar button .ic{display:flex;align-items:center;justify-content:center;height:25px;}
-#tabbar button .ic svg{width:25px;height:25px;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;}
+  padding-bottom:max(6px, calc(var(--safe-bottom) - 12px));flex-shrink:0;}
+#tabbar button{flex:1;background:none;border:none;padding:9px 0 7px;display:flex;
+  flex-direction:column;align-items:center;gap:4px;color:#9aa3b5;font-size:12px;font-weight:700;}
+#tabbar button .ic{display:flex;align-items:center;justify-content:center;height:32px;
+  padding:0 16px;border-radius:16px;transition:background .15s;}
+#tabbar button .ic svg{width:29px;height:29px;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;}
 #tabbar button.active{color:var(--navy);}
+#tabbar button.active .ic{background:#e7ecf9;}
 
 /* ---------- Misc ---------- */
 .toast{position:fixed;left:50%;bottom:110px;transform:translateX(-50%);background:rgba(20,25,40,.92);
@@ -442,6 +448,9 @@ select{-webkit-appearance:none;appearance:none;background-image:url("data:image/
   border-radius:999px;padding:8px 14px;font-size:12.5px;font-weight:700;white-space:nowrap;
   touch-action:manipulation;}
 .pp-fchip.on{background:var(--navy);color:#fff;border-color:var(--navy);}
+.pp-regionbar{background:#f1f5fb;padding-top:6px;padding-bottom:6px;}
+.pp-fchip.rg{padding:6px 12px;font-size:12px;}
+.pp-fchip.rg.on{background:var(--blue);color:#fff;border-color:var(--blue);}
 .pp-scroll{flex:1;overflow:auto;-webkit-overflow-scrolling:touch;padding:12px 12px 4px;min-height:0;}
 .pp-print-head{margin-bottom:14px;text-align:center;padding-bottom:10px;border-bottom:2px solid #2b2b2b;}
 .pp-print-title{font-size:25px;font-weight:800;color:#1f2937;letter-spacing:-.3px;}
@@ -892,7 +901,7 @@ select{-webkit-appearance:none;appearance:none;background-image:url("data:image/
 
   <!-- ===================== SUB SCREEN: 방문일지 작성 ===================== -->
   <div class="sub-screen" id="screen-form">
-    <div class="section-title">업체 정보</div>
+    <div class="section-title">기업정보 1</div>
     <div class="card">
       <div class="field">
         <label>기업명</label>
@@ -1007,7 +1016,7 @@ select{-webkit-appearance:none;appearance:none;background-image:url("data:image/
       </div>
     </div>
 
-    <div class="section-title">영업 참고 정보</div>
+    <div class="section-title">기업정보 2</div>
     <div class="card">
       <div class="row2">
         <div class="field">
@@ -1016,17 +1025,41 @@ select{-webkit-appearance:none;appearance:none;background-image:url("data:image/
         </div>
         <div class="field">
           <label>사업자번호</label>
-          <input type="text" id="f-bizno" placeholder="000-00-00000" inputmode="numeric">
+          <input type="text" id="f-bizno" placeholder="000-00-00000" inputmode="numeric" oninput="formatBizNoField(this)">
+        </div>
+      </div>
+      <div class="row2">
+        <div class="field">
+          <label>업종</label>
+          <input type="text" id="f-industry" placeholder="예: 제조업">
+        </div>
+        <div class="field">
+          <label>나이</label>
+          <input type="text" id="f-age" placeholder="예: 50대">
+        </div>
+      </div>
+      <div class="row2">
+        <div class="field">
+          <label>단체 (유무)</label>
+          <select id="f-group">
+            <option value="">선택안함</option>
+            <option>유</option>
+            <option>무</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>매출 (백만원)</label>
+          <input type="text" id="f-sales" placeholder="예: 2,500" inputmode="numeric">
         </div>
       </div>
       <div class="row2" style="margin-bottom:0;">
         <div class="field" style="margin-bottom:0;">
-          <label>매출 (백만원)</label>
-          <input type="text" id="f-sales" placeholder="예: 2,500" inputmode="numeric">
-        </div>
-        <div class="field" style="margin-bottom:0;">
           <label>순이익 (백만원)</label>
           <input type="text" id="f-profit" placeholder="예: 180" inputmode="numeric">
+        </div>
+        <div class="field" style="margin-bottom:0;">
+          <label>당기순이익 (백만원)</label>
+          <input type="text" id="f-net-profit" placeholder="예: 150" inputmode="numeric">
         </div>
       </div>
     </div>
@@ -1325,6 +1358,7 @@ select{-webkit-appearance:none;appearance:none;background-image:url("data:image/
       <div class="pp-count" id="ppCount"></div>
     </div>
     <div class="pp-filterbar" id="ppFilterBar" style="display:none;"></div>
+    <div class="pp-filterbar pp-regionbar" id="ppRegionBar" style="display:none;"></div>
     <div class="pp-scroll" id="ppScroll">
       <div class="pp-print-area" id="ppPrintArea">
         <div class="pp-print-head">
@@ -2909,6 +2943,7 @@ function renderList(){
           <span class="folder-icon">${cg.solo?'🧍':'👥'}</span>
           <span class="folder-name">${escapeHTML(cg.name)}</span>
           <span class="folder-count">${cg.items.length}</span>
+          <button type="button" class="comp-add" onclick="event.stopPropagation();openFormForCompanion('${cg.solo?'':escapeAttr(cg.key)}')">📝 정보입력</button>
         </div>
         ${compOpen ? `<div class="comp-body">${regionsHTML}</div>` : ''}
       </div>`;
@@ -3102,6 +3137,14 @@ function toggleCompFolder(name){
   openFolders[k] = !openFolders[k];
   persistFolderState();
   renderList();
+}
+
+// 동행자 폴더의 "정보입력" 버튼 — 그 동행자를 방문자란에 미리 넣은 채 직접입력 폼을 연다.
+// (혼자 방문 폴더는 name이 빈 값 → 담당자만 채워짐)
+function openFormForCompanion(name){
+  openForm();                              // 빈 새 방문일지(직접입력) 폼
+  fVisitorSet(name ? [name] : []);         // 담당자(본인)를 맨 앞에, 그 뒤 동행자 자동 입력
+  renderFormCompanions();                  // 방문자란 아래 동행자 칩 선택상태 갱신
 }
 
 
@@ -3390,15 +3433,13 @@ const JOURNAL_PP_COLS = [
   { key:'대표자나이', label:'대표자/나이',   w:7 },
   { key:'사업자번호', label:'사업자번호',   w:7 },
   { key:'주소',       label:'주소',         w:13 },
-  { key:'전화번호',   label:'전화번호',     w:7 },
-  { key:'기업형태',   label:'기업형태',     w:5 },
   { key:'근로자수',   label:'근로자수',     w:4 },
   { key:'매출',       label:'매출(백만)',   w:4.5 },
   { key:'순이익',     label:'순수익(백만)', w:4.5 },
   { key:'첫인상',     label:'첫인상',       w:4 },
   { key:'방문결과',   label:'방문결과',     w:4.5 },
   { key:'관심분야',   label:'관심분야',     w:4.5 },
-  { key:'상담내용',   label:'상담내용',     w:11 },
+  { key:'상담내용',   label:'상담내용',     w:22 },
   { key:'방문차수',   label:'방문차수',     w:4.5 },
 ];
 
@@ -3499,12 +3540,23 @@ let ppCurrentList = [];
 let ppMode = 'company';       // 'company' | 'journal'
 let ppActiveCols = PP_COLS;
 let ppChecked = [];           // 인쇄 미리보기에서 행별 선택 여부 (기본 전체 선택)
+let ppSelComp = '__all__';    // 현재 선택된 동행자 필터 ('__all__' | 이름 | '__solo__')
+let ppSelRegion = '__allr__'; // 현재 선택된 지역 필터 ('__allr__' | folderKey)
 
 // 사업자번호를 "357-13-01128" 형식으로 표시 (PC v47과 동일 로직)
 function formatBizNo(v){
   const digits = String(v || '').replace(/[^0-9]/g, '');
   if(digits.length === 10) return digits.slice(0,3) + '-' + digits.slice(3,5) + '-' + digits.slice(5);
   return v || '-';
+}
+
+// 사업자번호 입력란 실시간 포맷 — 숫자만 쳐도 3-2-5로 하이픈 자동 삽입 (예: 123456789 → 123-45-6789)
+function formatBizNoField(el){
+  const digits = String(el.value || '').replace(/[^0-9]/g, '').slice(0, 10);
+  let out = digits;
+  if(digits.length > 5) out = digits.slice(0,3) + '-' + digits.slice(3,5) + '-' + digits.slice(5);
+  else if(digits.length > 3) out = digits.slice(0,3) + '-' + digits.slice(3);
+  el.value = out;
 }
 
 function ppFieldValue(c2, key){
@@ -3600,6 +3652,7 @@ function openPrintPreview(list, title, opts){
   ppActiveCols = opts.cols || PP_COLS;
   ppCurrentList = list;
   ppChecked = list.map(()=>true);   // 기본은 모두 선택
+  ppSelComp = '__all__'; ppSelRegion = '__allr__';   // 필터 선택 초기화
   const unit = ppMode === 'journal' ? '건' : '개';
   document.getElementById('ppTitle').textContent = title;
   document.getElementById('ppCount').textContent =
@@ -3646,12 +3699,31 @@ function openPrintPreview(list, title, opts){
   document.getElementById('ppScroll').scrollTop = 0;
 }
 
-// ── 동행자별 빠른 선택(필터) 버튼 ─────────────────────
+// ── 동행자별 → 지역별 2단계 빠른 선택(필터) 버튼 ─────────────────────
+function ppCompMatch(j, comp){
+  const comps = journalCompanions(j);
+  if(comp === '__all__')  return true;
+  if(comp === '__solo__') return comps.length === 0;
+  return comps.includes(comp);
+}
+// 지역 칩에 표시할 라벨 (방문기록 폴더와 동일: 시/구 + 지역, 폴더명을 바꿨으면 그 이름)
+function ppRegionLabel(key){
+  if(folderRenames[key] !== undefined) return folderRenames[key];
+  const j = ppCurrentList.find(x=>journalFolderKey(x) === key);
+  const sg = j ? extractSigungu(j.address) : '';
+  return sg ? `${sg} ${key}` : key;
+}
+
 function renderPpFilterBar(){
   const bar = document.getElementById('ppFilterBar');
+  const rbar = document.getElementById('ppRegionBar');
   if(!bar) return;
   // 방문일지 모드가 아니면(=업체 목록) 동행자 개념이 없으므로 숨김
-  if(ppMode !== 'journal'){ bar.style.display = 'none'; bar.innerHTML = ''; return; }
+  if(ppMode !== 'journal'){
+    bar.style.display = 'none'; bar.innerHTML = '';
+    if(rbar){ rbar.style.display = 'none'; rbar.innerHTML = ''; }
+    return;
+  }
   const counts = {}; let solo = 0;
   ppCurrentList.forEach(j=>{
     const comps = journalCompanions(j);
@@ -3659,29 +3731,47 @@ function renderPpFilterBar(){
     comps.forEach(n=>{ counts[n] = (counts[n]||0) + 1; });
   });
   const names = Object.keys(counts).sort((a,b)=> counts[b]-counts[a] || a.localeCompare(b,'ko'));
-  let html = `<button type="button" class="pp-fchip on" onclick="ppFilterByCompanion('__all__', this)">전체 (${ppCurrentList.length})</button>`;
+  let html = `<button type="button" class="pp-fchip ${ppSelComp==='__all__'?'on':''}" onclick="ppFilterByCompanion('__all__')">전체 (${ppCurrentList.length})</button>`;
   names.forEach(n=>{
-    html += `<button type="button" class="pp-fchip" onclick="ppFilterByCompanion('${escapeAttr(n)}', this)">${escapeHTML(n)} (${counts[n]})</button>`;
+    html += `<button type="button" class="pp-fchip ${ppSelComp===n?'on':''}" onclick="ppFilterByCompanion('${escapeAttr(n)}')">${escapeHTML(n)} (${counts[n]})</button>`;
   });
   if(solo > 0){
-    html += `<button type="button" class="pp-fchip" onclick="ppFilterByCompanion('__solo__', this)">🙋 혼자 방문 (${solo})</button>`;
+    html += `<button type="button" class="pp-fchip ${ppSelComp==='__solo__'?'on':''}" onclick="ppFilterByCompanion('__solo__')">🙋 혼자 방문 (${solo})</button>`;
   }
   bar.innerHTML = html;
   // 동행자 종류가 없으면(전부 혼자) 굳이 안 보여줌
   bar.style.display = names.length ? '' : 'none';
+  renderPpRegionBar();
 }
 
-// 특정 동행자로 방문한 행만 일괄 체크(나머지 해제). '__all__'=전체, '__solo__'=혼자 방문
-function ppFilterByCompanion(name, btn){
+// 선택된 동행자에 해당하는 방문일지들의 지역을 칩으로 렌더 (동행자 → 지역 2단계)
+function renderPpRegionBar(){
+  const rbar = document.getElementById('ppRegionBar');
+  if(!rbar) return;
+  const rows = ppCurrentList.filter(j=>ppCompMatch(j, ppSelComp));
+  const rcounts = {}; const order = [];
+  rows.forEach(j=>{
+    const k = journalFolderKey(j);
+    if(rcounts[k] === undefined){ rcounts[k] = 0; order.push(k); }
+    rcounts[k]++;
+  });
+  // 지역이 1종류뿐이면 세부 선택 의미가 없으므로 숨김
+  if(order.length <= 1){ rbar.style.display = 'none'; rbar.innerHTML = ''; return; }
+  let html = `<button type="button" class="pp-fchip rg ${ppSelRegion==='__allr__'?'on':''}" onclick="ppFilterByRegion('__allr__')">📍 전체 지역 (${rows.length})</button>`;
+  order.forEach(k=>{
+    html += `<button type="button" class="pp-fchip rg ${ppSelRegion===k?'on':''}" onclick="ppFilterByRegion('${escapeAttr(k)}')">${escapeHTML(ppRegionLabel(k))} (${rcounts[k]})</button>`;
+  });
+  rbar.innerHTML = html;
+  rbar.style.display = '';
+}
+
+// 선택된 동행자 + 지역 조건으로 행 체크 상태를 갱신하고 표 UI에 반영
+function ppApplyFilter(){
   ppCurrentList.forEach((j,i)=>{
-    const comps = journalCompanions(j);
-    let match;
-    if(name === '__all__')      match = true;
-    else if(name === '__solo__') match = (comps.length === 0);
-    else                         match = comps.includes(name);
+    let match = ppCompMatch(j, ppSelComp);
+    if(match && ppSelRegion !== '__allr__') match = (journalFolderKey(j) === ppSelRegion);
     ppChecked[i] = match;
   });
-  // 표 UI 반영
   document.querySelectorAll('#ppTable tbody tr').forEach(tr=>{
     const i = +tr.dataset.i;
     const on = ppChecked[i] !== false;
@@ -3691,13 +3781,24 @@ function ppFilterByCompanion(name, btn){
   });
   const chkAll = document.getElementById('ppCheckAll');
   if(chkAll) chkAll.checked = ppChecked.every(Boolean);
-  // 활성 칩 표시
-  document.querySelectorAll('#ppFilterBar .pp-fchip').forEach(b=>b.classList.remove('on'));
-  if(btn) btn.classList.add('on');
   ppUpdateSelCount();
 }
+
+// 동행자 선택 → 그 동행자 행 전체 체크 + 지역 세부칩 갱신
+function ppFilterByCompanion(name){
+  ppSelComp = name;
+  ppSelRegion = '__allr__';   // 동행자를 새로 고르면 지역은 전체로 초기화
+  ppApplyFilter();
+  renderPpFilterBar();        // 동행자/지역 칩 활성표시 갱신
+}
+// 지역 선택 → 선택된 동행자 안에서 그 지역 행만 체크
+function ppFilterByRegion(key){
+  ppSelRegion = key;
+  ppApplyFilter();
+  renderPpRegionBar();        // 지역 칩 활성표시 갱신
+}
 function clearPpFilterChips(){
-  document.querySelectorAll('#ppFilterBar .pp-fchip').forEach(b=>b.classList.remove('on'));
+  document.querySelectorAll('#ppFilterBar .pp-fchip, #ppRegionBar .pp-fchip').forEach(b=>b.classList.remove('on'));
 }
 function ppToggleRow(i, checked){
   ppChecked[i] = checked;
@@ -4148,8 +4249,12 @@ function openDetail(id){
     ['근로자수', j.employees||'-'],
     ['대표자', j.ceo||'-'],
     ['사업자번호', j.bizNo||'-'],
+    ['업종', j.industry||'-'],
+    ['나이', j.age||'-'],
+    ['단체(유무)', j.groupIns||'-'],
     ['매출(백만)', j.sales||'-'],
     ['순이익(백만)', j.profit||'-'],
+    ['당기순이익(백만)', j.netProfit||'-'],
     ['첫인상', j.firstImpression||'-'],
     ['방문결과', j.result||'-'],
     ['우선순위', j.priority||'-'],
@@ -4209,8 +4314,12 @@ function resetForm(){
   document.getElementById('f-employees').value = '';
   document.getElementById('f-ceo').value = '';
   document.getElementById('f-bizno').value = '';
+  document.getElementById('f-industry').value = '';
+  document.getElementById('f-age').value = '';
+  document.getElementById('f-group').value = '';
   document.getElementById('f-sales').value = '';
   document.getElementById('f-profit').value = '';
+  document.getElementById('f-net-profit').value = '';
   document.getElementById('f-content').value = '';
   document.getElementById('f-interest-text').value = '';
   // 신규 작성일 때는 1차 방문일을 오늘 날짜로 자동 입력
@@ -4505,8 +4614,12 @@ function openForm(prefillOrJournal){
     document.getElementById('f-employees').value = j.employees || '';
     document.getElementById('f-ceo').value = j.ceo || '';
     document.getElementById('f-bizno').value = j.bizNo || '';
+    document.getElementById('f-industry').value = j.industry || '';
+    document.getElementById('f-age').value = j.age || '';
+    document.getElementById('f-group').value = j.groupIns || '';
     document.getElementById('f-sales').value = j.sales || '';
     document.getElementById('f-profit').value = j.profit || '';
+    document.getElementById('f-net-profit').value = j.netProfit || '';
     document.getElementById('f-content').value = j.content || '';
     document.getElementById('f-interest-text').value = j.interest || '';
     document.getElementById('f-visit1').value = j.visit1 || '';
@@ -4545,8 +4658,12 @@ function openForm(prefillOrJournal){
       ? `${c.대표자이름}${(c.대표자성별||c.대표자나이) ? ` (${[c.대표자성별, c.대표자나이].filter(Boolean).join(', ')})` : ''}`
       : '';
     document.getElementById('f-bizno').value = c.사업자번호 ? formatBizNo(c.사업자번호) : '';
+    document.getElementById('f-industry').value = c.업종세부분류 || '';
+    document.getElementById('f-age').value = c.대표자나이 || '';
+    document.getElementById('f-group').value = (c.단체보험가입여부 === 'Y' ? '유' : (c.단체보험가입여부 === 'N' ? '무' : ''));
     document.getElementById('f-sales').value = c.매출 || '';
     document.getElementById('f-profit').value = c.순이익 || '';
+    document.getElementById('f-net-profit').value = c.당기순이익 || '';
   }
   renderFormCompanions();   // 방문자란 아래 동행자 빠른 선택 칩 갱신
   pushSub('screen-form', editingId ? '방문일지 수정' : '직접입력');
@@ -4861,8 +4978,12 @@ function doSaveJournal(){
     empFemale: document.getElementById('f-emp-female').value,
     ceo: document.getElementById('f-ceo').value.trim(),
     bizNo: document.getElementById('f-bizno').value.trim(),
+    industry: document.getElementById('f-industry').value.trim(),
+    age: document.getElementById('f-age').value.trim(),
+    groupIns: document.getElementById('f-group').value,
     sales: document.getElementById('f-sales').value.trim(),
     profit: document.getElementById('f-profit').value.trim(),
+    netProfit: document.getElementById('f-net-profit').value.trim(),
     firstImpression: selectedChips.impression,
     result: selectedChips.result || '',
     priority: selectedChips.priority || '',
