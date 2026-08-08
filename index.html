@@ -432,6 +432,9 @@ select{-webkit-appearance:none;appearance:none;background-image:url("data:image/
 .fu-body{flex:1;min-width:0;}
 .fu-company{font-size:14px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 .fu-date{font-size:11.5px;color:var(--sub);margin-top:1px;}
+.fu-group{font-size:11.5px;font-weight:800;color:var(--navy);padding:9px 2px 3px;border-top:1px solid var(--line);}
+.fu-group:first-of-type{border-top:none;padding-top:2px;}
+.fu-group + .fu-item{border-top:none;}
 .backup-btns button{flex:1;border:none;border-radius:10px;padding:13px 8px;font-size:13.5px;font-weight:800;}
 .backup-btns .b-dl{background:linear-gradient(135deg,var(--green),#128a45);color:#fff;}
 .backup-btns .b-up{background:#fff;color:var(--navy);border:1.5px solid var(--line);}
@@ -1153,14 +1156,15 @@ select{-webkit-appearance:none;appearance:none;background-image:url("data:image/
       </div>
     </div>
 
-    <div class="section-title">차수별 방문일</div>
+    <div class="section-title">재방문일</div>
     <div class="card">
       <div class="visit-grid">
-        <div class="field"><label>1차</label><input type="date" id="f-visit1"></div>
+        <div class="field"><label>1차 (최초방문)</label><input type="date" id="f-visit1"></div>
         <div class="field"><label>2차</label><input type="date" id="f-visit2"></div>
         <div class="field"><label>3차</label><input type="date" id="f-visit3"></div>
         <div class="field"><label>4차</label><input type="date" id="f-visit4"></div>
       </div>
+      <div class="hint-inline" style="margin-top:8px;">2·3·4차에 날짜를 넣으면 홈 화면 <b>재방문 알림</b>에 표시됩니다. (1차는 최초 방문이라 알림에서 제외)</div>
     </div>
 
     <div class="section-title">파일 첨부</div>
@@ -1744,6 +1748,7 @@ window.addEventListener('popstate', function(e){ applyBack(); });
 
 /* ---------------- Home ---------------- */
 let homeExpanded = false;   // 최근 방문기록 '더보기' 펼침 상태
+let followupExpanded = false;   // 재방문 알림 '더보기' 펼침 상태
 function renderHome(){
   renderFollowups();   // 재방문 알림(지남/오늘/이번주) 먼저 표시
   const wrap = document.getElementById('recentList');
@@ -1764,10 +1769,11 @@ function renderHome(){
 }
 function toggleHomeMore(){ homeExpanded = !homeExpanded; renderHome(); }
 
-// 방문일지의 "다음 재방문" 계산 — 향후 예정일이 있으면 그날, 없고 '재방문필요'면 지난 예정일(놓침)
+// 방문일지의 "다음 재방문" 계산 — 재방문일(2·3·4차)만 대상. 1차는 최초 방문이라 알림 제외.
+// 향후 예정일이 있으면 그날, 없고 '재방문필요'면 지난 예정일(놓침).
 function journalFollowup(j){
   const today = new Date().toISOString().slice(0,10);
-  const dates = ['visit1','visit2','visit3','visit4'].map(k=>j[k]).filter(Boolean).sort();
+  const dates = ['visit2','visit3','visit4'].map(k=>j[k]).filter(Boolean).sort();
   if(!dates.length) return null;
   const future = dates.filter(d=>d>=today);
   if(future.length){
@@ -1778,37 +1784,65 @@ function journalFollowup(j){
   return null;
 }
 
-// 홈 상단 재방문 알림 — 지남 → 오늘 → 이번주(7일) 순, 최대 8건. 탭하면 상세로 이동.
+// 홈 상단 재방문 알림 — 동행자별로 묶어 표시. 기본 3건만 보이고 나머지는 '더보기'로 자동 숨김.
+// 대상: 향후 7일 이내 예정 + 오늘 + 지난 지 7일 이내(그보다 오래된 것은 숨김).
 function renderFollowups(){
   const wrap = document.getElementById('followupWrap');
   if(!wrap) return;
   const now = new Date();
-  const in7 = new Date(now.getTime() + 7*86400000).toISOString().slice(0,10);
+  const in7  = new Date(now.getTime() + 7*86400000).toISOString().slice(0,10);
+  const ago7 = new Date(now.getTime() - 7*86400000).toISOString().slice(0,10);
   let items = [];
   journals.forEach(j=>{
     const fu = journalFollowup(j);
     if(!fu) return;
-    if(fu.status === 'soon' && fu.date > in7) return;   // 이번주(7일) 이내 예정만
-    items.push({ j, date:fu.date, status:fu.status });
+    if(fu.status === 'soon'    && fu.date > in7)  return;   // 향후 7일 이내 예정만
+    if(fu.status === 'overdue' && fu.date < ago7) return;   // 지난 지 7일 이내만(오래된 건 숨김)
+    const comps = journalCompanions(j);
+    items.push({ j, date:fu.date, status:fu.status, comp: comps[0] || '__solo__' });
   });
   if(!items.length){ wrap.innerHTML = ''; return; }
   const rank = { overdue:0, today:1, soon:2 };
-  items.sort((a,b)=> (rank[a.status]-rank[b.status]) || a.date.localeCompare(b.date));
+  // 동행자별 그룹(혼자 방문은 맨 뒤) → 그룹 내 상태·날짜순
+  items.sort((a,b)=>{
+    if(a.comp !== b.comp){
+      if(a.comp === '__solo__') return 1;
+      if(b.comp === '__solo__') return -1;
+      return a.comp.localeCompare(b.comp, 'ko');
+    }
+    return (rank[a.status]-rank[b.status]) || a.date.localeCompare(b.date);
+  });
   const overdueN = items.filter(x=>x.status==='overdue').length;
+  const LIMIT = 3;
+  const shown = followupExpanded ? items : items.slice(0, LIMIT);
   const label = { overdue:'지남', today:'오늘', soon:'예정' };
-  const rows = items.slice(0,8).map(x=>`
-    <div class="fu-item" onclick="openDetail(${x.j.id})">
+  let lastComp = null, rows = '';
+  shown.forEach(x=>{
+    if(x.comp !== lastComp){
+      lastComp = x.comp;
+      rows += `<div class="fu-group">${x.comp === '__solo__' ? '🙋 혼자 방문' : '👥 ' + escapeHTML(x.comp)}</div>`;
+    }
+    rows += `<div class="fu-item" onclick="openDetail(${x.j.id})">
       <span class="fu-when ${x.status}">${label[x.status]}</span>
       <div class="fu-body">
         <div class="fu-company">${escapeHTML(x.j.companyName || '(기업명 없음)')}</div>
-        <div class="fu-date">${x.date}${x.j.visitor ? ' · ' + escapeHTML(x.j.visitor) : ''}</div>
+        <div class="fu-date">${x.date}</div>
       </div>
-    </div>`).join('');
+    </div>`;
+  });
+  const hidden = items.length - LIMIT;
+  let more = '';
+  if(hidden > 0){
+    more = followupExpanded
+      ? `<button class="home-more-btn" onclick="toggleFollowupMore()">접기 ▲</button>`
+      : `<button class="home-more-btn" onclick="toggleFollowupMore()">재방문 ${hidden}건 더보기 ▼</button>`;
+  }
   wrap.innerHTML = `<div class="followup-card">
       <div class="followup-head">📅 재방문 알림${overdueN ? ` <span class="fu-badge">지난 일정 ${overdueN}</span>` : ''}</div>
-      ${rows}
+      ${rows}${more}
     </div>`;
 }
+function toggleFollowupMore(){ followupExpanded = !followupExpanded; renderFollowups(); }
 
 /* ---------------- 영업백과 (컨설턴트 지식) ----------------
    대분류 카드 → 항목 목록 → 상세(정의·요건·혜택·영업포인트) 2단계 구조.
