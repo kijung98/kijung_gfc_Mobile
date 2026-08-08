@@ -199,6 +199,15 @@ html,body{margin:0;padding:0;height:100%;color:var(--text);
 .folder-edit:active{opacity:.6;}
 .folder-body{padding:0 12px 8px;border-top:1px solid var(--line);}
 .folder-body .j-card{margin-top:10px;}
+/* 동행자(상위) 폴더 — 그 안에 지역(하위) 폴더가 들어가는 2단계 중첩 */
+.comp-folder{background:#fff;border:1.5px solid var(--line);border-radius:16px;margin-bottom:12px;overflow:hidden;}
+.comp-folder.open{border-color:var(--navy);box-shadow:0 2px 12px rgba(20,30,60,.08);}
+.comp-head .folder-name{font-size:16px;}
+.comp-head .folder-icon{font-size:20px;}
+.comp-body{padding:8px 10px 10px;border-top:1px solid var(--line);}
+.comp-body .region-folder{margin-bottom:8px;}
+.comp-body .region-folder:last-child{margin-bottom:0;}
+.region-folder.sub{border-radius:12px;}
 .tool-row button{flex:1;min-width:calc(50% - 4px);padding:10px 6px;border-radius:10px;border:1.5px solid var(--line);
   background:#fff;font-size:12.5px;font-weight:700;color:#39435a;}
 .tool-row button.on{background:var(--navy);color:#fff;border-color:var(--navy);}
@@ -2871,23 +2880,37 @@ function renderList(){
   if(!list.length){
     wrap.innerHTML = '<div class="empty-hint">조건에 맞는 방문일지가 없습니다.</div>';
   } else if(folderView && !selectMode && !orderMode){
-    // 지역 폴더 보기 — 지역명을 클릭하면 펼쳐지고, 기본은 접힌 상태
-    const groups = groupJournalsByRegion(list);
-    window._lastGroups = groups;
-    wrap.innerHTML = groups.map(g=>{
-      const isOpen = !!openFolders[g.key];
-      const inner = isOpen
-        ? `<div class="folder-body">${g.items.map(x => journalCardHTML(x.j, true, x.idx)).join('')}</div>`
-        : '';
-      return `<div class="region-folder ${isOpen?'open':''}">
-        <div class="folder-head" style="background:${g.color};" onclick="toggleFolder('${escapeAttr(g.key)}')">
-          <span class="folder-caret">${isOpen?'▼':'▶'}</span>
-          <span class="folder-icon">${isOpen?'📂':'📁'}</span>
-          <span class="folder-name">${escapeHTML(g.label)}</span>
-          <span class="folder-count">${g.items.length}</span>
-          <button type="button" class="folder-edit" onclick="event.stopPropagation();renameFolder('${escapeAttr(g.key)}')">✏️</button>
+    // 동행자 → 지역 → 기록 (2단계 중첩 아코디언). 동행자 폴더를 펼치면 그 안에 지역 폴더가 보인다.
+    const compGroups = groupJournalsByCompanion(list);
+    // renameFolder는 지역(하위) 그룹을 참조하므로 모든 지역 그룹을 펼쳐서 보관
+    window._lastGroups = compGroups.reduce((acc,c)=>acc.concat(c.regions), []);
+    wrap.innerHTML = compGroups.map(cg=>{
+      const compKey = 'comp::' + cg.key;
+      const compOpen = !!openFolders[compKey];
+      const regionsHTML = cg.regions.map(g=>{
+        const isOpen = !!openFolders[g.key];
+        const inner = isOpen
+          ? `<div class="folder-body">${g.items.map(x => journalCardHTML(x.j, true, x.idx)).join('')}</div>`
+          : '';
+        return `<div class="region-folder sub ${isOpen?'open':''}">
+          <div class="folder-head" style="background:${g.color};" onclick="toggleFolder('${escapeAttr(g.key)}')">
+            <span class="folder-caret">${isOpen?'▼':'▶'}</span>
+            <span class="folder-icon">${isOpen?'📂':'📁'}</span>
+            <span class="folder-name">${escapeHTML(g.labelShort)}</span>
+            <span class="folder-count">${g.items.length}</span>
+            <button type="button" class="folder-edit" onclick="event.stopPropagation();renameFolder('${escapeAttr(g.key)}')">✏️</button>
+          </div>
+          ${inner}
+        </div>`;
+      }).join('');
+      return `<div class="comp-folder ${compOpen?'open':''}">
+        <div class="folder-head comp-head" style="background:${cg.color};" onclick="toggleCompFolder('${escapeAttr(cg.key)}')">
+          <span class="folder-caret">${compOpen?'▼':'▶'}</span>
+          <span class="folder-icon">${cg.solo?'🧍':'👥'}</span>
+          <span class="folder-name">${escapeHTML(cg.name)}</span>
+          <span class="folder-count">${cg.items.length}</span>
         </div>
-        ${inner}
+        ${compOpen ? `<div class="comp-body">${regionsHTML}</div>` : ''}
       </div>`;
     }).join('');
   } else {
@@ -3044,6 +3067,41 @@ function groupJournalsByRegion(list){
     g.color = visitorColor(g.owner);              // 설정에서 동행자에게 지정한 색 사용
   });
   return groups;
+}
+
+// 방문일지를 "동행자 → 지역" 2단계로 묶어 반환.
+// 상위 그룹: 첫 동행자(없으면 "혼자 방문"), 하위 그룹: 기존 지역 폴더(groupJournalsByRegion 재사용).
+const SOLO_COMP_KEY = '__solo__';
+function groupJournalsByCompanion(list){
+  const groups = [];
+  const idxMap = {};
+  list.forEach(x=>{
+    const comps = journalCompanions(x.j);
+    const key = comps[0] || SOLO_COMP_KEY;   // 첫 동행자 기준(다중 동행자도 첫 사람으로 분류)
+    if(idxMap[key] === undefined){ idxMap[key] = groups.length; groups.push({ key, items: [] }); }
+    groups[idxMap[key]].items.push(x);
+  });
+  groups.forEach(cg=>{
+    cg.solo = (cg.key === SOLO_COMP_KEY);
+    cg.name = cg.solo ? '혼자 방문' : cg.key;
+    cg.color = cg.solo ? '#eef1f7' : visitorColor(cg.key);
+    cg.regions = groupJournalsByRegion(cg.items);   // 동행자 내부의 지역 폴더
+    // 상위가 이미 동행자이므로, 하위 지역 라벨에서는 "· 동행자"를 빼고 지역만 표시(이름 변경분은 존중)
+    cg.regions.forEach(r=>{
+      r.labelShort = (folderRenames[r.key] !== undefined)
+        ? folderRenames[r.key]
+        : (r.sigungu ? `${r.sigungu} ${r.key}` : r.key);
+    });
+  });
+  return groups;
+}
+
+// 동행자(상위) 폴더 펼침/접힘 토글. 지역 폴더 키와 섞이지 않게 'comp::' 접두사를 붙여 저장.
+function toggleCompFolder(name){
+  const k = 'comp::' + name;
+  openFolders[k] = !openFolders[k];
+  persistFolderState();
+  renderList();
 }
 
 
