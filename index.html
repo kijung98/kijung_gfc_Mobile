@@ -101,6 +101,12 @@ html,body{margin:0;padding:0;height:100%;color:var(--text);
   width:100%;padding:12px 12px;border:1.5px solid var(--line);border-radius:10px;
   font-size:15px;background:#fff;color:var(--text);font-family:inherit;}
 .field textarea{resize:vertical;min-height:70px;}
+/* 음수 입력용 부호(±) 토글 — 숫자 키패드를 유지하면서 마이너스 부호를 붙였다 뗀다 */
+.sign-row{display:flex;gap:6px;align-items:stretch;}
+.sign-row input{flex:1;min-width:0;}
+.sign-btn{flex-shrink:0;width:42px;border:1.5px solid var(--line);background:#f4f6fa;border-radius:10px;
+  font-size:19px;font-weight:800;color:var(--navy);line-height:1;touch-action:manipulation;}
+.sign-btn:active{background:var(--navy);color:#fff;}
 .row2{display:flex;gap:10px;}
 .row2 > div{flex:1;}
 .gps-row{display:flex;gap:8px;}
@@ -397,6 +403,35 @@ select{-webkit-appearance:none;appearance:none;background-image:url("data:image/
 .src-actions button:active{background:#eef1f7;}
 
 .backup-btns{display:flex;gap:8px;margin-top:4px;}
+.enc-check{display:flex;align-items:center;gap:8px;font-size:12.5px;font-weight:700;color:#39435a;margin:2px 0 8px;}
+.enc-check input{width:18px;height:18px;flex-shrink:0;}
+/* 앱 잠금 오버레이 */
+.lock-overlay{position:fixed;inset:0;z-index:5000;background:linear-gradient(160deg,var(--navy),var(--navy2));
+  display:none;flex-direction:column;align-items:center;justify-content:center;padding:24px;}
+.lock-overlay.show{display:flex;}
+.lock-box{width:100%;max-width:320px;text-align:center;color:#fff;}
+.lock-emoji{font-size:44px;}
+.lock-title{font-size:21px;font-weight:800;margin-top:10px;}
+.lock-sub{font-size:13px;color:var(--gold-soft);margin-top:6px;}
+.lock-input{width:100%;margin-top:20px;padding:15px;border-radius:12px;border:none;font-size:24px;
+  text-align:center;letter-spacing:10px;background:rgba(255,255,255,.96);color:#1b2434;}
+.lock-err{color:#ffb4b4;font-size:12.5px;min-height:16px;margin-top:8px;}
+.lock-btn{width:100%;margin-top:12px;padding:15px;border:none;border-radius:12px;background:var(--gold);
+  color:#1b2434;font-size:15px;font-weight:800;touch-action:manipulation;}
+/* 홈 재방문 알림 */
+.followup-card{background:#fff;border:1.5px solid var(--line);border-radius:14px;padding:12px 14px;margin-bottom:12px;
+  box-shadow:0 2px 10px rgba(20,30,60,.06);}
+.followup-head{display:flex;align-items:center;gap:8px;font-size:15px;font-weight:800;color:var(--navy);margin-bottom:4px;}
+.followup-head .fu-badge{margin-left:auto;background:var(--red);color:#fff;font-size:11.5px;font-weight:800;
+  border-radius:999px;padding:2px 9px;}
+.fu-item{display:flex;align-items:center;gap:10px;padding:9px 2px;border-top:1px solid var(--line);cursor:pointer;}
+.fu-when{flex-shrink:0;font-size:11px;font-weight:800;padding:3px 8px;border-radius:8px;min-width:54px;text-align:center;}
+.fu-when.overdue{background:#fde8e8;color:var(--red);}
+.fu-when.today{background:#fff3cd;color:#a15c00;}
+.fu-when.soon{background:#e6edff;color:var(--blue);}
+.fu-body{flex:1;min-width:0;}
+.fu-company{font-size:14px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.fu-date{font-size:11.5px;color:var(--sub);margin-top:1px;}
 .backup-btns button{flex:1;border:none;border-radius:10px;padding:13px 8px;font-size:13.5px;font-weight:800;}
 .backup-btns .b-dl{background:linear-gradient(135deg,var(--green),#128a45);color:#fff;}
 .backup-btns .b-up{background:#fff;color:var(--navy);border:1.5px solid var(--line);}
@@ -695,6 +730,18 @@ select{-webkit-appearance:none;appearance:none;background-image:url("data:image/
 <body>
 <div id="app">
 
+  <div id="lockOverlay" class="lock-overlay">
+    <div class="lock-box">
+      <div class="lock-emoji">🔒</div>
+      <div class="lock-title">세일즈맵 잠금</div>
+      <div class="lock-sub">PIN을 입력하세요</div>
+      <input type="password" id="lockInput" inputmode="numeric" maxlength="6" class="lock-input"
+             placeholder="••••" onkeydown="if(event.key==='Enter')tryUnlock()">
+      <div class="lock-err" id="lockErr"></div>
+      <button class="lock-btn" onclick="tryUnlock()">잠금 해제</button>
+    </div>
+  </div>
+
   <div id="topbar">
     <button class="backbtn" id="backBtn" onclick="goBack()">‹</button>
     <div>
@@ -713,6 +760,7 @@ select{-webkit-appearance:none;appearance:none;background-image:url("data:image/
           <span>업체 목록 인쇄 / PDF저장</span>
         </button>
       </div>
+      <div id="followupWrap"></div>
       <div class="section-title">방문 기록</div>
       <button class="big-btn primary" onclick="openForm()">
         <div class="ico tile blue"><svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/></svg></div>
@@ -797,12 +845,34 @@ select{-webkit-appearance:none;appearance:none;background-image:url("data:image/
             ② 카카오톡 나에게 보내기·이메일·구글드라이브로 파일 전송<br>
             ③ PC나 다른 기기에서 "백업 파일로 복원"으로 불러오기
           </div>
+          <label class="enc-check"><input type="checkbox" id="encFullBackup"> 🔒 비밀번호로 암호화해서 저장 (공유 시 권장)</label>
           <div class="backup-btns">
             <button class="b-dl" onclick="shareBackup()">📥 백업 파일 다운로드</button>
             <button class="b-up" onclick="document.getElementById('restoreFile').click()">📤 백업 파일로 복원</button>
           </div>
           <input type="file" id="restoreFile" accept="application/json" class="hidden" onchange="importBackup(event)">
           <div class="backup-warn">⚠️ 복원하면 지금 이 기기에 있는 방문일지·자료가 백업파일 내용으로 <strong>덮어씌워집니다</strong>. 파일명의 날짜를 꼭 확인하세요.</div>
+        </div>
+      </div>
+
+      <!-- ④ 동행자별 백업 / 병합 (동행자와 데이터 동기화) -->
+      <div class="dm-section">
+        <div class="dm-section-head"><span>👥</span> 동행자별 백업 / 병합 (동행자와 동기화)</div>
+        <div class="dm-section-body">
+          <div class="backup-steps">
+            <strong>💡 사용법</strong><br>
+            ① 동행자를 고르고 "이 동행자 백업 다운로드" → 그 동행자와 간 방문일지·사진만 저장<br>
+            ② 카카오톡·이메일로 그 동행자에게 파일 전송<br>
+            ③ 받은 사람은 "동행자 백업 병합"으로 불러오기 → 기존 기록은 그대로, 받은 기록만 합쳐집니다
+          </div>
+          <select id="compBackupSel" style="width:100%;padding:12px;border:1.5px solid var(--line);border-radius:10px;font-size:14px;margin-bottom:8px;background:#fff;"></select>
+          <label class="enc-check"><input type="checkbox" id="encCompBackup"> 🔒 비밀번호로 암호화해서 공유 (카톡 전송 시 권장)</label>
+          <div class="backup-btns">
+            <button class="b-dl" onclick="shareCompanionBackup()">📥 이 동행자 백업 다운로드</button>
+            <button class="b-up" onclick="document.getElementById('compRestoreFile').click()">🔀 동행자 백업 병합</button>
+          </div>
+          <input type="file" id="compRestoreFile" accept="application/json" class="hidden" onchange="importCompanionBackup(event)">
+          <div class="backup-steps" style="background:#eefaf0;color:#166534;">✅ 병합은 기존 데이터를 <strong>덮어쓰지 않습니다</strong>. 같은 방문기록은 더 최근에 수정된 내용으로 갱신되고, 새 기록만 추가됩니다.</div>
         </div>
       </div>
 
@@ -850,6 +920,19 @@ select{-webkit-appearance:none;appearance:none;background-image:url("data:image/
         </div>
       </div>
       <div class="hint-box">업체 목록 인쇄물 상단에 부서명·직함·연락처가 함께 표시됩니다. 비워두면 표시되지 않습니다.</div>
+
+      <div class="section-title">🔒 앱 잠금 (보안)</div>
+      <div class="card">
+        <div class="field" style="margin-bottom:10px;">
+          <div id="lockStatus" style="font-weight:800;color:var(--navy);"></div>
+          <div class="hint-inline">앱을 켜거나 백그라운드에서 다시 열 때 PIN을 요구해 고객정보를 보호합니다.</div>
+        </div>
+        <div class="backup-btns">
+          <button class="b-dl" id="lockToggleBtn" onclick="onLockToggleBtn()">잠금 켜기</button>
+          <button class="b-up" onclick="changeAppPin()">PIN 변경</button>
+        </div>
+      </div>
+      <div class="hint-box">⚠️ PIN을 잊으면 이 기기에서 앱을 열 수 없습니다. 데이터는 기기에만 저장되니, 백업을 함께 사용하세요.</div>
 
       <div class="section-title">🎨 인쇄물 상단메뉴 색상</div>
       <div class="card">
@@ -1055,11 +1138,17 @@ select{-webkit-appearance:none;appearance:none;background-image:url("data:image/
       <div class="row2" style="margin-bottom:0;">
         <div class="field" style="margin-bottom:0;">
           <label>순이익 (백만원)</label>
-          <input type="text" id="f-profit" placeholder="예: 180" inputmode="numeric">
+          <div class="sign-row">
+            <button type="button" class="sign-btn" onclick="toggleSign('f-profit')">±</button>
+            <input type="text" id="f-profit" placeholder="예: -180" inputmode="numeric">
+          </div>
         </div>
         <div class="field" style="margin-bottom:0;">
           <label>당기순이익 (백만원)</label>
-          <input type="text" id="f-net-profit" placeholder="예: 150" inputmode="numeric">
+          <div class="sign-row">
+            <button type="button" class="sign-btn" onclick="toggleSign('f-net-profit')">±</button>
+            <input type="text" id="f-net-profit" placeholder="예: -150" inputmode="numeric">
+          </div>
         </div>
       </div>
     </div>
@@ -1656,6 +1745,7 @@ window.addEventListener('popstate', function(e){ applyBack(); });
 /* ---------------- Home ---------------- */
 let homeExpanded = false;   // 최근 방문기록 '더보기' 펼침 상태
 function renderHome(){
+  renderFollowups();   // 재방문 알림(지남/오늘/이번주) 먼저 표시
   const wrap = document.getElementById('recentList');
   const titleEl = document.getElementById('recentTitle');
   const recent = journals.slice(0,10);   // 최근 최대 10개까지만
@@ -1673,6 +1763,52 @@ function renderHome(){
   wrap.innerHTML = html;
 }
 function toggleHomeMore(){ homeExpanded = !homeExpanded; renderHome(); }
+
+// 방문일지의 "다음 재방문" 계산 — 향후 예정일이 있으면 그날, 없고 '재방문필요'면 지난 예정일(놓침)
+function journalFollowup(j){
+  const today = new Date().toISOString().slice(0,10);
+  const dates = ['visit1','visit2','visit3','visit4'].map(k=>j[k]).filter(Boolean).sort();
+  if(!dates.length) return null;
+  const future = dates.filter(d=>d>=today);
+  if(future.length){
+    const d = future[0];
+    return { date:d, status:(d===today ? 'today' : 'soon') };
+  }
+  if(j.result === '재방문필요') return { date:dates[dates.length-1], status:'overdue' };
+  return null;
+}
+
+// 홈 상단 재방문 알림 — 지남 → 오늘 → 이번주(7일) 순, 최대 8건. 탭하면 상세로 이동.
+function renderFollowups(){
+  const wrap = document.getElementById('followupWrap');
+  if(!wrap) return;
+  const now = new Date();
+  const in7 = new Date(now.getTime() + 7*86400000).toISOString().slice(0,10);
+  let items = [];
+  journals.forEach(j=>{
+    const fu = journalFollowup(j);
+    if(!fu) return;
+    if(fu.status === 'soon' && fu.date > in7) return;   // 이번주(7일) 이내 예정만
+    items.push({ j, date:fu.date, status:fu.status });
+  });
+  if(!items.length){ wrap.innerHTML = ''; return; }
+  const rank = { overdue:0, today:1, soon:2 };
+  items.sort((a,b)=> (rank[a.status]-rank[b.status]) || a.date.localeCompare(b.date));
+  const overdueN = items.filter(x=>x.status==='overdue').length;
+  const label = { overdue:'지남', today:'오늘', soon:'예정' };
+  const rows = items.slice(0,8).map(x=>`
+    <div class="fu-item" onclick="openDetail(${x.j.id})">
+      <span class="fu-when ${x.status}">${label[x.status]}</span>
+      <div class="fu-body">
+        <div class="fu-company">${escapeHTML(x.j.companyName || '(기업명 없음)')}</div>
+        <div class="fu-date">${x.date}${x.j.visitor ? ' · ' + escapeHTML(x.j.visitor) : ''}</div>
+      </div>
+    </div>`).join('');
+  wrap.innerHTML = `<div class="followup-card">
+      <div class="followup-head">📅 재방문 알림${overdueN ? ` <span class="fu-badge">지난 일정 ${overdueN}</span>` : ''}</div>
+      ${rows}
+    </div>`;
+}
 
 /* ---------------- 영업백과 (컨설턴트 지식) ----------------
    대분류 카드 → 항목 목록 → 상세(정의·요건·혜택·영업포인트) 2단계 구조.
@@ -3541,7 +3677,7 @@ let ppMode = 'company';       // 'company' | 'journal'
 let ppActiveCols = PP_COLS;
 let ppChecked = [];           // 인쇄 미리보기에서 행별 선택 여부 (기본 전체 선택)
 let ppSelComp = '__all__';    // 현재 선택된 동행자 필터 ('__all__' | 이름 | '__solo__')
-let ppSelRegion = '__allr__'; // 현재 선택된 지역 필터 ('__allr__' | folderKey)
+let ppSelRegions = [];        // 선택된 지역 필터 목록(중복 선택 가능). 비어 있으면 전체 지역
 
 // 사업자번호를 "357-13-01128" 형식으로 표시 (PC v47과 동일 로직)
 function formatBizNo(v){
@@ -3557,6 +3693,16 @@ function formatBizNoField(el){
   if(digits.length > 5) out = digits.slice(0,3) + '-' + digits.slice(3,5) + '-' + digits.slice(5);
   else if(digits.length > 3) out = digits.slice(0,3) + '-' + digits.slice(3);
   el.value = out;
+}
+
+// 음수 부호(±) 토글 — 숫자 키패드로 값을 넣은 뒤 버튼으로 마이너스를 붙이거나 뗀다
+function toggleSign(id){
+  const el = document.getElementById(id);
+  if(!el) return;
+  const v = el.value.trim();
+  if(v.startsWith('-')) el.value = v.slice(1).trim();
+  else if(v) el.value = '-' + v;
+  el.focus();
 }
 
 function ppFieldValue(c2, key){
@@ -3652,7 +3798,7 @@ function openPrintPreview(list, title, opts){
   ppActiveCols = opts.cols || PP_COLS;
   ppCurrentList = list;
   ppChecked = list.map(()=>true);   // 기본은 모두 선택
-  ppSelComp = '__all__'; ppSelRegion = '__allr__';   // 필터 선택 초기화
+  ppSelComp = '__all__'; ppSelRegions = [];   // 필터 선택 초기화
   const unit = ppMode === 'journal' ? '건' : '개';
   document.getElementById('ppTitle').textContent = title;
   document.getElementById('ppCount').textContent =
@@ -3757,9 +3903,9 @@ function renderPpRegionBar(){
   });
   // 지역이 1종류뿐이면 세부 선택 의미가 없으므로 숨김
   if(order.length <= 1){ rbar.style.display = 'none'; rbar.innerHTML = ''; return; }
-  let html = `<button type="button" class="pp-fchip rg ${ppSelRegion==='__allr__'?'on':''}" onclick="ppFilterByRegion('__allr__')">📍 전체 지역 (${rows.length})</button>`;
+  let html = `<button type="button" class="pp-fchip rg ${ppSelRegions.length===0?'on':''}" onclick="ppFilterByRegion('__allr__')">📍 전체 지역 (${rows.length})</button>`;
   order.forEach(k=>{
-    html += `<button type="button" class="pp-fchip rg ${ppSelRegion===k?'on':''}" onclick="ppFilterByRegion('${escapeAttr(k)}')">${escapeHTML(ppRegionLabel(k))} (${rcounts[k]})</button>`;
+    html += `<button type="button" class="pp-fchip rg ${ppSelRegions.includes(k)?'on':''}" onclick="ppFilterByRegion('${escapeAttr(k)}')">${escapeHTML(ppRegionLabel(k))} (${rcounts[k]})</button>`;
   });
   rbar.innerHTML = html;
   rbar.style.display = '';
@@ -3769,7 +3915,7 @@ function renderPpRegionBar(){
 function ppApplyFilter(){
   ppCurrentList.forEach((j,i)=>{
     let match = ppCompMatch(j, ppSelComp);
-    if(match && ppSelRegion !== '__allr__') match = (journalFolderKey(j) === ppSelRegion);
+    if(match && ppSelRegions.length) match = ppSelRegions.includes(journalFolderKey(j));
     ppChecked[i] = match;
   });
   document.querySelectorAll('#ppTable tbody tr').forEach(tr=>{
@@ -3787,13 +3933,20 @@ function ppApplyFilter(){
 // 동행자 선택 → 그 동행자 행 전체 체크 + 지역 세부칩 갱신
 function ppFilterByCompanion(name){
   ppSelComp = name;
-  ppSelRegion = '__allr__';   // 동행자를 새로 고르면 지역은 전체로 초기화
+  ppSelRegions = [];          // 동행자를 새로 고르면 지역은 전체로 초기화
   ppApplyFilter();
   renderPpFilterBar();        // 동행자/지역 칩 활성표시 갱신
 }
-// 지역 선택 → 선택된 동행자 안에서 그 지역 행만 체크
+// 지역 선택 → 여러 지역을 중복 선택(토글). 선택된 지역들의 합집합으로 체크.
+// '__allr__'(전체 지역)을 누르면 지역 선택을 모두 해제(=전체)로 되돌린다.
 function ppFilterByRegion(key){
-  ppSelRegion = key;
+  if(key === '__allr__'){
+    ppSelRegions = [];
+  } else {
+    const i = ppSelRegions.indexOf(key);
+    if(i >= 0) ppSelRegions.splice(i, 1);   // 이미 선택돼 있으면 해제
+    else       ppSelRegions.push(key);      // 아니면 추가(중복 선택)
+  }
   ppApplyFilter();
   renderPpRegionBar();        // 지역 칩 활성표시 갱신
 }
@@ -4104,6 +4257,7 @@ function generatePrintFromSetup(){
 function escapeAttr(s){ return String(s).replace(/'/g,"\\'"); }
 
 function renderDataScreen(){
+  renderCompBackupOptions();   // 동행자별 백업 드롭다운 채우기
   // 상단 총 업체수 배지 (헤더 오른쪽)
   const totalNow = getAllCompanies().length;
   const badge = document.getElementById('totalCompBadge');
@@ -5363,6 +5517,7 @@ function fillSettings(){
   document.getElementById('set-printPhone').value = appSettings.printPhone || '';
   renderPrintSwatches();
   renderCompanionSettingChips();
+  renderLockStatus();
 }
 function saveSettings(){
   appSettings.userName = document.getElementById('set-userName').value;
@@ -5419,6 +5574,114 @@ function selectPrintText(hex){
   renderPrintSwatches();
 }
 
+/* ================= 보안: 암호화 · 앱 잠금(PIN) 공통 헬퍼 ================= */
+function buf2hex(buf){ return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join(''); }
+function hex2buf(hex){ const a=new Uint8Array(hex.length/2); for(let i=0;i<a.length;i++) a[i]=parseInt(hex.substr(i*2,2),16); return a; }
+function buf2b64(buf){ let bin=''; const bytes=new Uint8Array(buf); for(let i=0;i<bytes.length;i++) bin+=String.fromCharCode(bytes[i]); return btoa(bin); }
+function b642buf(b64){ const bin=atob(b64); const a=new Uint8Array(bin.length); for(let i=0;i<bin.length;i++) a[i]=bin.charCodeAt(i); return a; }
+async function sha256hex(str){ return buf2hex(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str))); }
+
+// PBKDF2로 비밀번호에서 AES-GCM 키 유도
+async function deriveKey(password, saltBytes){
+  const km = await crypto.subtle.importKey('raw', new TextEncoder().encode(password), 'PBKDF2', false, ['deriveKey']);
+  return crypto.subtle.deriveKey(
+    { name:'PBKDF2', salt:saltBytes, iterations:150000, hash:'SHA-256' },
+    km, { name:'AES-GCM', length:256 }, false, ['encrypt','decrypt']);
+}
+// 문자열(JSON)을 비밀번호로 암호화한 봉투(JSON 문자열) 반환
+async function encryptJSON(plainStr, password){
+  const salt = crypto.getRandomValues(new Uint8Array(16));
+  const iv = crypto.getRandomValues(new Uint8Array(12));
+  const key = await deriveKey(password, salt);
+  const ct = await crypto.subtle.encrypt({ name:'AES-GCM', iv }, key, new TextEncoder().encode(plainStr));
+  return JSON.stringify({ _enc:true, v:1, salt:buf2hex(salt), iv:buf2hex(iv), data:buf2b64(ct) });
+}
+// 암호화 봉투 객체를 비밀번호로 복호화 → 원본 JSON 문자열
+async function decryptJSON(envelope, password){
+  const key = await deriveKey(password, hex2buf(envelope.salt));
+  const pt = await crypto.subtle.decrypt({ name:'AES-GCM', iv:hex2buf(envelope.iv) }, key, b642buf(envelope.data));
+  return new TextDecoder().decode(pt);
+}
+// 백업 데이터가 암호화(_enc)면 비밀번호를 받아 복호화한 뒤 onReady(객체) 호출, 아니면 그대로 전달
+function maybeDecrypt(data, onReady){
+  if(data && data._enc){
+    showPrompt('백업 비밀번호', '이 백업은 암호화되어 있습니다. 비밀번호를 입력하세요.', '', async function(pw){
+      try{ onReady(JSON.parse(await decryptJSON(data, pw))); }
+      catch(e){ toast('비밀번호가 틀렸거나 파일이 손상되었습니다.'); }
+    });
+  } else { onReady(data); }
+}
+
+/* ================= 앱 잠금 (PIN) ================= */
+let lockLastHidden = 0;
+function lockIsEnabled(){ return !!(appSettings.lockEnabled && appSettings.lockHash); }
+function showLock(){
+  if(!lockIsEnabled()) return;
+  const ov = document.getElementById('lockOverlay');
+  if(!ov) return;
+  document.getElementById('lockInput').value = '';
+  document.getElementById('lockErr').textContent = '';
+  ov.classList.add('show');
+  setTimeout(()=>{ const el=document.getElementById('lockInput'); if(el) el.focus(); }, 150);
+}
+async function tryUnlock(){
+  const el = document.getElementById('lockInput');
+  const pin = (el.value||'').trim();
+  if(!pin) return;
+  const h = await sha256hex((appSettings.lockSalt||'') + pin);
+  if(h === appSettings.lockHash){
+    document.getElementById('lockOverlay').classList.remove('show');
+    el.value = '';
+  } else {
+    document.getElementById('lockErr').textContent = 'PIN이 올바르지 않습니다.';
+    el.value = '';
+  }
+}
+// PIN 설정(신규/변경) — 두 번 입력 확인
+function setupAppLock(){
+  showPrompt('앱 잠금 설정', '사용할 PIN(숫자 4~6자리)을 입력하세요.', '', function(pin){
+    if(!/^\d{4,6}$/.test(pin)){ toast('숫자 4~6자리로 입력해주세요.'); return; }
+    showPrompt('PIN 확인', '같은 PIN을 한 번 더 입력하세요.', '', async function(pin2){
+      if(pin2 !== pin){ toast('PIN이 일치하지 않습니다. 다시 시도해주세요.'); return; }
+      const salt = buf2hex(crypto.getRandomValues(new Uint8Array(8)));
+      appSettings.lockSalt = salt;
+      appSettings.lockHash = await sha256hex(salt + pin);
+      appSettings.lockEnabled = true;
+      persistSettings();
+      renderLockStatus();
+      toast('앱 잠금이 설정되었습니다.');
+    });
+  });
+}
+function disableAppLock(){
+  if(!lockIsEnabled()) return;
+  showPrompt('앱 잠금 끄기', '해제하려면 현재 PIN을 입력하세요.', '', async function(pin){
+    const h = await sha256hex((appSettings.lockSalt||'') + pin);
+    if(h !== appSettings.lockHash){ toast('PIN이 올바르지 않습니다.'); return; }
+    appSettings.lockEnabled = false;
+    delete appSettings.lockHash; delete appSettings.lockSalt;
+    persistSettings();
+    renderLockStatus();
+    toast('앱 잠금이 해제되었습니다.');
+  });
+}
+function onLockToggleBtn(){ lockIsEnabled() ? disableAppLock() : setupAppLock(); }
+function changeAppPin(){
+  if(!lockIsEnabled()){ toast('먼저 앱 잠금을 켜주세요.'); return; }
+  showPrompt('현재 PIN 확인', 'PIN을 변경하려면 현재 PIN을 입력하세요.', '', async function(pin){
+    const h = await sha256hex((appSettings.lockSalt||'') + pin);
+    if(h !== appSettings.lockHash){ toast('PIN이 올바르지 않습니다.'); return; }
+    setupAppLock();
+  });
+}
+function renderLockStatus(){
+  const on = lockIsEnabled();
+  const st = document.getElementById('lockStatus');
+  const btn = document.getElementById('lockToggleBtn');
+  if(st) st.textContent = on ? '✅ 앱 잠금: 켜짐' : '⚪ 앱 잠금: 꺼짐';
+  if(btn) btn.textContent = on ? '잠금 끄기' : '잠금 켜기';
+}
+
 /* ---------------- Backup export / share ---------------- */
 async function buildBackupJSON(){
   const backup = { _meta: { app: 'gfc-visit-log-backup', exportedAt: new Date().toISOString() } };
@@ -5434,23 +5697,17 @@ async function buildBackupJSON(){
 async function shareBackup(){
   const json = await buildBackupJSON();
   const ts = new Date().toISOString().slice(0,10);
-  const filename = `세일즈맵_백업_${ts}.json`;
-  const blob = new Blob([json], { type:'application/json' });
-  const file = new File([blob], filename, { type:'application/json' });
-
-  if(navigator.canShare && navigator.canShare({ files:[file] })){
-    try{
-      await navigator.share({ files:[file], title:'세일즈맵 백업', text:'세일즈맵 백업 파일입니다. 카카오톡으로 보내려면 공유 목록에서 카카오톡을 선택해주세요.' });
-      toast('공유되었습니다.');
-      return;
-    }catch(e){ /* 사용자가 취소했거나 실패 -> 다운로드로 대체 */ }
+  const encChk = document.getElementById('encFullBackup');
+  if(encChk && encChk.checked){
+    showPrompt('백업 비밀번호', '이 백업 파일을 열 때 필요한 비밀번호를 정하세요. (분실 시 복구 불가)', '', async function(pw){
+      const enc = await encryptJSON(json, pw);
+      await shareOrDownloadJSON(enc, `세일즈맵_백업_암호화_${ts}.json`,
+        '세일즈맵 백업(암호화)', '암호화된 세일즈맵 백업 파일입니다. 여는 데 비밀번호가 필요합니다.');
+    });
+    return;
   }
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url; a.download = filename;
-  document.body.appendChild(a); a.click(); a.remove();
-  URL.revokeObjectURL(url);
-  toast('이 브라우저는 공유창을 지원하지 않아 파일을 다운로드했습니다. 카카오톡 앱에서 "파일" 첨부로 보내주세요.');
+  await shareOrDownloadJSON(json, `세일즈맵_백업_${ts}.json`,
+    '세일즈맵 백업', '세일즈맵 백업 파일입니다. 카카오톡으로 보내려면 공유 목록에서 카카오톡을 선택해주세요.');
 }
 
 function importBackup(e){
@@ -5458,26 +5715,161 @@ function importBackup(e){
   e.target.value = '';
   if(!file) return;
   const reader = new FileReader();
-  reader.onload = async function(ev){
+  reader.onload = function(ev){
     let data;
     try{ data = JSON.parse(ev.target.result); }
     catch(err){ toast('백업 파일을 읽지 못했습니다.'); return; }
-    let restored = 0;
-    BACKUP_KEYS.forEach(k=>{
-      if(Object.prototype.hasOwnProperty.call(data, k)){
-        try{ localStorage.setItem(k, data[k]); restored++; }catch(err){}
-      }
-    });
-    if(!restored){ toast('복원할 데이터를 찾지 못했습니다.'); return; }
-    // 사진(IndexedDB) 복원 — 구버전 백업(사진이 일지에 base64로 든 경우)은 새로고침 후 자동 이관됨
-    if(data._photos && typeof data._photos === 'object'){
-      try{ for(const id of Object.keys(data._photos)){ await idbPutPhoto(id, data._photos[id]); } }catch(e){}
-    }
-    toast(`복원 완료 (${restored}개 항목). 새로고침합니다...`);
-    setTimeout(()=>location.reload(), 1200);
+    maybeDecrypt(data, applyFullRestore);   // 암호화 파일이면 비밀번호 받아 복호화
   };
   reader.onerror = function(){ toast('파일을 읽는 중 오류가 발생했습니다.'); };
   reader.readAsText(file);
+}
+async function applyFullRestore(data){
+  let restored = 0;
+  BACKUP_KEYS.forEach(k=>{
+    if(Object.prototype.hasOwnProperty.call(data, k)){
+      try{ localStorage.setItem(k, data[k]); restored++; }catch(err){}
+    }
+  });
+  if(!restored){ toast('복원할 데이터를 찾지 못했습니다.'); return; }
+  // 사진(IndexedDB) 복원 — 구버전 백업(사진이 일지에 base64로 든 경우)은 새로고침 후 자동 이관됨
+  if(data._photos && typeof data._photos === 'object'){
+    try{ for(const id of Object.keys(data._photos)){ await idbPutPhoto(id, data._photos[id]); } }catch(e){}
+  }
+  toast(`복원 완료 (${restored}개 항목). 새로고침합니다...`);
+  setTimeout(()=>location.reload(), 1200);
+}
+
+/* ---------------- 동행자별 백업 / 병합 (동행자와 동기화) ----------------
+   전체 백업과 달리, 선택한 동행자의 방문일지 + 그 일지가 참조하는 사진만 담아
+   가볍게 주고받고, 복원은 덮어쓰지 않고 id 기준으로 "병합"한다(최신 savedAt 우선). */
+
+// 데이터관리 화면의 동행자 선택 드롭다운 채우기 (방문일지에 등장하는 동행자 + 혼자 방문)
+function renderCompBackupOptions(){
+  const sel = document.getElementById('compBackupSel');
+  if(!sel) return;
+  const counts = {}; let solo = 0;
+  journals.forEach(j=>{
+    const comps = journalCompanions(j);
+    if(!comps.length) solo++;
+    comps.forEach(n=>{ counts[n] = (counts[n]||0) + 1; });
+  });
+  const names = Object.keys(counts).sort((a,b)=> counts[b]-counts[a] || a.localeCompare(b,'ko'));
+  let html = '';
+  if(!names.length && !solo){
+    html = '<option value="">방문일지가 없습니다</option>';
+  } else {
+    names.forEach(n=>{ html += `<option value="${escapeAttr(n)}">${escapeHTML(n)} (${counts[n]}건)</option>`; });
+    if(solo > 0) html += `<option value="__solo__">🙋 혼자 방문 (${solo}건)</option>`;
+  }
+  sel.innerHTML = html;
+}
+
+// 선택한 동행자의 방문일지 + 참조 사진만 담은 부분 백업 JSON 생성
+async function buildCompanionBackupJSON(name){
+  const isSolo = (name === '__solo__');
+  const list = journals.filter(j=>{
+    const comps = journalCompanions(j);
+    return isSolo ? comps.length === 0 : comps.includes(name);
+  });
+  // 이 일지들이 참조하는 사진만 추림
+  const photoIds = new Set();
+  list.forEach(j=> getJournalAttachmentIds(j).forEach(id=>{ if(typeof id === 'string') photoIds.add(id); }));
+  let allPhotos = {};
+  try{ allPhotos = await idbAllPhotos(); }catch(e){ allPhotos = {}; }
+  const photos = {};
+  photoIds.forEach(id=>{ if(allPhotos[id]) photos[id] = allPhotos[id]; });
+  const backup = {
+    _meta: { app: 'gfc-visit-log-backup', exportedAt: new Date().toISOString() },
+    _partial: true,
+    _companion: isSolo ? '혼자 방문' : name,
+    visitJournals: JSON.stringify(list),
+    _photos: photos,
+  };
+  return JSON.stringify(backup);
+}
+
+// JSON 파일을 공유(가능 시) 또는 다운로드
+async function shareOrDownloadJSON(json, filename, title, text){
+  const blob = new Blob([json], { type:'application/json' });
+  const file = new File([blob], filename, { type:'application/json' });
+  if(navigator.canShare && navigator.canShare({ files:[file] })){
+    try{ await navigator.share({ files:[file], title, text }); toast('공유되었습니다.'); return; }
+    catch(e){ /* 취소/실패 → 다운로드로 대체 */ }
+  }
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click(); a.remove();
+  URL.revokeObjectURL(url);
+  toast('파일을 다운로드했습니다. 카카오톡 앱에서 "파일" 첨부로 보내주세요.');
+}
+
+async function shareCompanionBackup(){
+  const sel = document.getElementById('compBackupSel');
+  const name = sel ? sel.value : '';
+  if(!name){ toast('내보낼 동행자를 선택해주세요.'); return; }
+  const json = await buildCompanionBackupJSON(name);
+  const label = (name === '__solo__') ? '혼자방문' : name;
+  const ts = new Date().toISOString().slice(0,10);
+  const encChk = document.getElementById('encCompBackup');
+  if(encChk && encChk.checked){
+    showPrompt('백업 비밀번호', '받는 동행자와 공유할 비밀번호를 정하세요. (분실 시 복구 불가)', '', async function(pw){
+      const enc = await encryptJSON(json, pw);
+      await shareOrDownloadJSON(enc, `세일즈맵_${label}_암호화_${ts}.json`,
+        `세일즈맵 백업(암호화) · ${label}`, `${label} 방문일지 백업(암호화)입니다. 여는 데 비밀번호가 필요합니다.`);
+    });
+    return;
+  }
+  await shareOrDownloadJSON(json, `세일즈맵_${label}_${ts}.json`,
+    `세일즈맵 백업 · ${label}`, `${label} 방문일지 백업 파일입니다.`);
+}
+
+// 동행자 백업 파일을 "병합" 복원 — 방문일지는 id 기준 병합(최신 savedAt 우선), 사진은 추가.
+// 설정·업체DB 등 다른 데이터는 절대 건드리지 않는다.
+function importCompanionBackup(e){
+  const file = e.target.files[0];
+  e.target.value = '';
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = function(ev){
+    let data;
+    try{ data = JSON.parse(ev.target.result); }
+    catch(err){ toast('백업 파일을 읽지 못했습니다.'); return; }
+    maybeDecrypt(data, applyCompanionMerge);   // 암호화 파일이면 비밀번호 받아 복호화
+  };
+  reader.onerror = function(){ toast('파일을 읽는 중 오류가 발생했습니다.'); };
+  reader.readAsText(file);
+}
+async function applyCompanionMerge(data){
+  let incoming;
+  try{ incoming = JSON.parse(data.visitJournals || '[]'); }
+  catch(err){ incoming = []; }
+  if(!Array.isArray(incoming) || !incoming.length){ toast('병합할 방문일지를 찾지 못했습니다.'); return; }
+
+  // id 기준 병합 (같은 id면 더 최근 savedAt 쪽을 남김)
+  const byId = {};
+  journals.forEach(j=>{ byId[j.id] = j; });
+  let added = 0, updated = 0;
+  incoming.forEach(nj=>{
+    const cur = byId[nj.id];
+    if(!cur){ byId[nj.id] = nj; added++; }
+    else if(String(nj.savedAt||'') >= String(cur.savedAt||'')){ byId[nj.id] = nj; updated++; }
+  });
+  // 기존 순서 유지 + 새 항목은 뒤에 붙임
+  const seen = new Set();
+  const merged = [];
+  journals.forEach(j=>{ merged.push(byId[j.id]); seen.add(String(j.id)); });
+  incoming.forEach(nj=>{ if(!seen.has(String(nj.id))){ merged.push(byId[nj.id]); seen.add(String(nj.id)); } });
+  journals = merged;
+  persistJournals();
+
+  // 사진(IndexedDB) 추가 병합
+  if(data._photos && typeof data._photos === 'object'){
+    try{ for(const id of Object.keys(data._photos)){ await idbPutPhoto(id, data._photos[id]); } }catch(e){}
+  }
+  toast(`병합 완료 — 추가 ${added}건, 갱신 ${updated}건. 새로고침합니다...`);
+  setTimeout(()=>location.reload(), 1200);
 }
 
 /* ---------------- Excel import (SheetJS) ---------------- */
@@ -5761,6 +6153,12 @@ function confirmReset(){
 
 /* ---------------- Init ---------------- */
 async function init(){
+  // 앱 잠금이 켜져 있으면 먼저 잠금 화면을 띄우고, 백그라운드에서 1분 이상 후 복귀하면 재잠금
+  if(lockIsEnabled()) showLock();
+  document.addEventListener('visibilitychange', function(){
+    if(document.hidden){ lockLastHidden = Date.now(); }
+    else if(lockIsEnabled() && lockLastHidden && (Date.now() - lockLastHidden > 60000)){ showLock(); }
+  });
   // 사진(IndexedDB)을 메모리 캐시로 올리고, 예전 base64 사진을 IndexedDB로 이관
   await loadPhotoCache();
   await migratePhotosToIDB();
