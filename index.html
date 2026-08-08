@@ -1057,7 +1057,7 @@ select{-webkit-appearance:none;appearance:none;background-image:url("data:image/
       <div class="row2">
         <div class="field">
           <label>전화번호</label>
-          <input type="tel" id="f-phone" placeholder="031-000-0000">
+          <input type="tel" id="f-phone" placeholder="010-0000-0000" inputmode="numeric" oninput="formatPhoneField(this)">
         </div>
         <div class="field" id="typeField">
           <label>기업형태</label>
@@ -1111,7 +1111,7 @@ select{-webkit-appearance:none;appearance:none;background-image:url("data:image/
       <div class="hint-inline" style="margin-bottom:8px;">이름=고객명, 전화·주소는 위 <b>고객 정보</b>에 입력됩니다. 여기는 청약에 필요한 추가정보입니다. 🔒 민감정보이니 앱 잠금·백업 암호화 사용을 권장합니다.</div>
       <div class="field">
         <label>주민번호</label>
-        <input type="text" id="f-jumin" placeholder="000000-0000000" inputmode="numeric">
+        <input type="text" id="f-jumin" placeholder="000000-0000000" inputmode="numeric" oninput="formatJuminField(this)">
       </div>
       <div class="row2">
         <div class="field" style="margin-bottom:0;">
@@ -1246,6 +1246,7 @@ select{-webkit-appearance:none;appearance:none;background-image:url("data:image/
           <div class="chip" data-v="보장분석표">보장분석표</div>
           <div class="chip" data-v="CEO플랜 제안서">CEO플랜 제안서</div>
           <div class="chip" data-v="명함">명함</div>
+          <div class="chip" data-v="계약서류">계약서류</div>
           <div class="chip" data-v="기타자료">기타자료</div>
         </div>
       </div>
@@ -3983,6 +3984,27 @@ function formatBizNoField(el){
   if(digits.length > 5) out = digits.slice(0,3) + '-' + digits.slice(3,5) + '-' + digits.slice(5);
   else if(digits.length > 3) out = digits.slice(0,3) + '-' + digits.slice(3);
   el.value = out;
+}
+
+// 전화번호 실시간 하이픈 (010-0000-0000 / 02-000-0000 / 031-000-0000 등)
+function formatPhoneField(el){
+  const d = el.value.replace(/\D/g,'').slice(0,11);
+  let out;
+  if(d.startsWith('02')){
+    if(d.length < 3)      out = d;
+    else if(d.length < 7) out = d.slice(0,2) + '-' + d.slice(2);
+    else                  out = d.slice(0,2) + '-' + d.slice(2, d.length-4) + '-' + d.slice(d.length-4);
+  } else {
+    if(d.length < 4)      out = d;
+    else if(d.length < 8) out = d.slice(0,3) + '-' + d.slice(3);
+    else                  out = d.slice(0,3) + '-' + d.slice(3, d.length-4) + '-' + d.slice(d.length-4);
+  }
+  el.value = out;
+}
+// 주민번호 실시간 하이픈 (000000-0000000)
+function formatJuminField(el){
+  const d = el.value.replace(/\D/g,'').slice(0,13);
+  el.value = d.length > 6 ? d.slice(0,6) + '-' + d.slice(6) : d;
 }
 
 // 음수 부호(±) 토글 — 숫자 키패드로 값을 넣은 뒤 버튼으로 마이너스를 붙이거나 뗀다
