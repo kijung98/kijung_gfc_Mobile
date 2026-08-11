@@ -469,6 +469,10 @@ select{-webkit-appearance:none;appearance:none;background-image:url("data:image/
 .call-btn{display:inline-block;font-size:11.5px;font-weight:800;text-decoration:none;padding:5px 11px;border-radius:8px;background:var(--navy);color:#fff;touch-action:manipulation;}
 .call-btn.sms{background:var(--green);}
 .call-btn.map{background:var(--teal);}
+/* 영업백과 글자 크기 조절 바 */
+.gzoom-bar{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:700;color:var(--sub);margin-bottom:10px;flex-wrap:wrap;}
+.gzoom-btn{border:1.5px solid var(--line);background:#fff;color:#39435a;border-radius:8px;padding:5px 11px;font-size:12.5px;font-weight:800;touch-action:manipulation;}
+.gzoom-btn.on{background:var(--navy);color:#fff;border-color:var(--navy);}
 .call-btn:active{opacity:.7;}
 /* 방문기록 검색창 */
 .list-search{position:relative;margin-bottom:10px;}
@@ -2619,6 +2623,22 @@ const GUIDE = [
     ] },
 ];
 
+/* ---------------- 영업백과 글자 크기 조절 ---------------- */
+let guideZoom = 1;
+try{ guideZoom = parseFloat(localStorage.getItem('guideZoom')) || 1; }catch(e){ guideZoom = 1; }
+function applyGuideZoom(){
+  ['guideListBody','guideDetailBody'].forEach(id=>{ const el=document.getElementById(id); if(el) el.style.zoom = guideZoom; });
+  document.querySelectorAll('.gzoom-btn').forEach(b=> b.classList.toggle('on', parseFloat(b.dataset.z)===guideZoom));
+}
+function setGuideZoom(v){ guideZoom = v; try{ localStorage.setItem('guideZoom', String(v)); }catch(e){} applyGuideZoom(); }
+function guideZoomBar(){
+  return `<div class="gzoom-bar">📖 글자크기
+    <button class="gzoom-btn" data-z="1" onclick="setGuideZoom(1)">보통</button>
+    <button class="gzoom-btn" data-z="1.18" onclick="setGuideZoom(1.18)">크게</button>
+    <button class="gzoom-btn" data-z="1.4" onclick="setGuideZoom(1.4)">더 크게</button>
+  </div>`;
+}
+
 function renderGuide(){
   const wrap = document.getElementById('screen-guide');
   if(!wrap) return;
@@ -2668,8 +2688,10 @@ function openGuideItem(id, i){
   const c = GUIDE.find(x=>x.id===id);
   if(!c || !c.items[i]) return;
   document.getElementById('guideDetailBody').innerHTML =
-    `<div class="card guide-detail">${c.items[i].html}</div>`
+    guideZoomBar()
+    + `<div class="card guide-detail">${c.items[i].html}</div>`
     + subBackBarHTML();
+  applyGuideZoom();
   pushSub('screen-guide-detail', c.items[i].t);
 }
 
@@ -2805,7 +2827,8 @@ const GLOSSARY = [
 
 function openGuideGlossary(){
   document.getElementById('guideListBody').innerHTML =
-    `<div class="page-title" style="margin-bottom:6px;">📖 용어정리</div>`
+    guideZoomBar()
+    + `<div class="page-title" style="margin-bottom:6px;">📖 용어정리</div>`
     + `<input class="gl-search" id="gl-search" placeholder="🔍 용어 검색 (예: 과세표준, 종신보험)" oninput="filterGloss()">`
     + GLOSSARY.map(g=>`<div class="gl-group">
         <div class="gl-cat">${escapeHTML(g.cat)}</div>
@@ -2815,6 +2838,7 @@ function openGuideGlossary(){
         </div>`).join('')}
       </div>`).join('')
     + subBackBarHTML();
+  applyGuideZoom();
   pushSub('screen-guide-list', '용어정리');
 }
 // 단일 열림: 다른 용어를 누르면 기존에 펼쳐진 설명은 접힌다
@@ -3297,7 +3321,8 @@ function openGuideDoc(id){
   const d = DOCS.find(x=>x.id===id);
   if(!d) return;
   document.getElementById('guideDetailBody').innerHTML =
-    `<div class="page-title" style="margin-bottom:4px;">${escapeHTML(d.title)}</div>`
+    guideZoomBar()
+    + `<div class="page-title" style="margin-bottom:4px;">${escapeHTML(d.title)}</div>`
     + `<div class="guide-intro">${escapeHTML(d.sub)}</div>`
     + d.slides.map(s=>`<div class="card doc-slide guide-detail">
         ${s.tag?`<div class="doc-tag">${escapeHTML(s.tag)}</div>`:''}
@@ -3305,6 +3330,7 @@ function openGuideDoc(id){
         ${s.html}
       </div>`).join('')
     + subBackBarHTML();
+  applyGuideZoom();
   pushSub('screen-guide-detail', d.title);
 }
 
