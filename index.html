@@ -1038,7 +1038,14 @@ select{-webkit-appearance:none;appearance:none;background-image:url("data:image/
           <button type="button" class="biz-kind" id="bk-personal" onclick="setBizKind('개인')">👤 개인</button>
           <button type="button" class="biz-kind" id="bk-corp" onclick="setBizKind('법인')">🏢 법인</button>
         </div>
-        <input type="text" id="f-company" placeholder="기업명을 입력하세요 (미입력 저장 가능)">
+        <div style="display:flex;gap:8px;">
+          <select id="f-relation" style="display:none;flex:0 0 38%;">
+            <option value="">관계</option>
+            <option>가족</option><option>친인척</option><option>지인</option>
+            <option>친구</option><option>소개</option><option>기타</option>
+          </select>
+          <input type="text" id="f-company" placeholder="기업명을 입력하세요 (미입력 저장 가능)" style="flex:1;min-width:0;">
+        </div>
         <div class="hint-inline" id="companyHint">법인을 선택하면 기업명 앞에 "(주)"가 자동으로 붙습니다.</div>
       </div>
       <div class="field">
@@ -1147,8 +1154,30 @@ select{-webkit-appearance:none;appearance:none;background-image:url("data:image/
         </div>
       </div>
       <div class="field" style="margin-top:10px;margin-bottom:0;">
-        <label>계좌번호</label>
-        <input type="text" id="f-account" placeholder="은행 · 계좌번호" inputmode="numeric">
+        <label>은행 · 계좌번호</label>
+        <div class="row2" style="margin-bottom:0;">
+          <div class="field" style="margin-bottom:0;">
+            <select id="f-bank">
+              <option value="">은행 선택</option>
+              <optgroup label="주요 은행">
+                <option>KB국민</option><option>신한</option><option>우리</option><option>하나</option>
+                <option>NH농협</option><option>IBK기업</option><option>SC제일</option><option>씨티</option>
+              </optgroup>
+              <optgroup label="인터넷전문은행">
+                <option>카카오뱅크</option><option>케이뱅크</option><option>토스뱅크</option>
+              </optgroup>
+              <optgroup label="지방·특수">
+                <option>부산</option><option>iM뱅크(대구)</option><option>경남</option><option>광주</option>
+                <option>전북</option><option>제주</option><option>수협</option><option>새마을금고</option>
+                <option>신협</option><option>우체국</option><option>KDB산업</option>
+              </optgroup>
+              <option>기타</option>
+            </select>
+          </div>
+          <div class="field" style="margin-bottom:0;">
+            <input type="text" id="f-account" placeholder="계좌번호 (- 포함)">
+          </div>
+        </div>
         <div class="hint-inline">상품·가입일·이체일·금액은 아래 <b>가입 정보</b>에 입력하세요.</div>
       </div>
     </div>
@@ -1193,7 +1222,7 @@ select{-webkit-appearance:none;appearance:none;background-image:url("data:image/
             <input type="text" id="f-product" placeholder="가입상품명 (예: 종신보험)">
           </div>
           <div class="field" style="margin-bottom:0;">
-            <input type="text" id="f-premium" placeholder="월 납입금액 (원)" inputmode="numeric">
+            <input type="text" id="f-premium" placeholder="예: 270,000원" inputmode="numeric" oninput="formatMoneyField(this)">
           </div>
         </div>
         <div class="row2" style="margin-top:8px;">
@@ -4024,6 +4053,11 @@ function formatJuminField(el){
   const d = el.value.replace(/\D/g,'').slice(0,13);
   el.value = d.length > 6 ? d.slice(0,6) + '-' + d.slice(6) : d;
 }
+// 금액 실시간 포맷 — 숫자만 입력해도 270,000원 처럼 천단위 콤마 + '원'
+function formatMoneyField(el){
+  const d = el.value.replace(/[^0-9]/g,'');
+  el.value = d ? Number(d).toLocaleString() + '원' : '';
+}
 
 // 음수 부호(±) 토글 — 숫자 키패드로 값을 넣은 뒤 버튼으로 마이너스를 붙이거나 뗀다
 function toggleSign(id){
@@ -4757,13 +4791,13 @@ function openDetail(id, keepSub){
   ];
   if(j.custType === '개인'){
     if(rows[2] && rows[2][0] === '기업명') rows[2][0] = '고객명';
-    rows.push(['성별', j.custGender||'-'], ['생년월일', j.custBirth||'-'],
+    rows.push(['관계', j.relation||'-'], ['성별', j.custGender||'-'], ['생년월일', j.custBirth||'-'],
       ['가족관계', j.family||'-'], ['보장분석', j.coverage||'-']);
     const meds = [...(j.meds||[]), j.medsEtc].filter(Boolean).join(', ');
     const hw = [j.height?j.height+'cm':'', j.weight?j.weight+'kg':''].filter(Boolean).join(' / ');
     rows.push(['주민번호', j.jumin||'-'], ['통신사', j.carrier||'-'], ['직업', j.job||'-'],
       ['드시는 약', meds||'-'], ['키/몸무게', hw||'-'],
-      ['계좌번호', j.account||'-'], ['이체일', j.payday||'-']);
+      ['은행', j.bank||'-'], ['계좌번호', j.account||'-'], ['이체일', j.payday||'-']);
   }
   let html = rows.map(r => {
     if(r[0] === '전화번호'){
@@ -4867,6 +4901,7 @@ function applyCustTypeUI(){
   setDisp('subscTitle', personal);
   setDisp('subscCard', personal);
   setDisp('visitorField', !personal);   // 개인 모드에선 방문자(담당자)란 숨김
+  setDisp('f-relation', personal);      // 개인 모드에선 고객명 왼쪽에 관계 선택 표시
   setDisp('interestField', !personal);  // 법인용 방문내용(관심분야) 숨김
   setDisp('insurersField', !personal);  // 법인용 방문내용(현재 가입 보험사) 숨김
   if(personal){
@@ -4889,6 +4924,7 @@ function refreshContractBox(){
 function resetForm(){
   editingId = null;
   formCustType = '법인';
+  document.getElementById('f-relation').value = '';
   document.getElementById('f-cust-gender').value = '';
   document.getElementById('f-cust-birth').value = '';
   document.getElementById('f-cust-family').value = '';
@@ -4899,6 +4935,7 @@ function resetForm(){
   document.getElementById('f-meds-etc').value = '';
   document.getElementById('f-height').value = '';
   document.getElementById('f-weight').value = '';
+  document.getElementById('f-bank').value = '';
   document.getElementById('f-account').value = '';
   document.getElementById('f-payday').value = '';
   selectedChips = { impression:'', result:'', priority:'', stage:'', interest:[], materials:[], insurers:[], companion:[], meds:[] };
@@ -5258,6 +5295,7 @@ function openForm(prefillOrJournal){
     document.getElementById('f-expiry-date').value = j.expiryDate || '';
     document.getElementById('f-renew-date').value = j.renewDate || '';
     formCustType = j.custType || '법인';
+    document.getElementById('f-relation').value = j.relation || '';
     document.getElementById('f-cust-gender').value = j.custGender || '';
     document.getElementById('f-cust-birth').value = j.custBirth || '';
     document.getElementById('f-cust-family').value = j.family || '';
@@ -5268,6 +5306,7 @@ function openForm(prefillOrJournal){
     document.getElementById('f-meds-etc').value = j.medsEtc || '';
     document.getElementById('f-height').value = j.height || '';
     document.getElementById('f-weight').value = j.weight || '';
+    document.getElementById('f-bank').value = j.bank || '';
     document.getElementById('f-account').value = j.account || '';
     document.getElementById('f-payday').value = j.payday || '';
     selectedChips.meds = (j.meds||[]).slice();
@@ -5641,6 +5680,7 @@ function doSaveJournal(){
     expiryDate: document.getElementById('f-expiry-date').value,
     renewDate: document.getElementById('f-renew-date').value,
     custType: formCustType,
+    relation: document.getElementById('f-relation').value,
     custGender: document.getElementById('f-cust-gender').value,
     custBirth: document.getElementById('f-cust-birth').value,
     family: document.getElementById('f-cust-family').value.trim(),
@@ -5652,6 +5692,7 @@ function doSaveJournal(){
     medsEtc: document.getElementById('f-meds-etc').value.trim(),
     height: document.getElementById('f-height').value.trim(),
     weight: document.getElementById('f-weight').value.trim(),
+    bank: document.getElementById('f-bank').value,
     account: document.getElementById('f-account').value.trim(),
     payday: document.getElementById('f-payday').value,
     interest: interestText,
