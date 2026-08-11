@@ -37,7 +37,7 @@ html,body{margin:0;padding:0;height:100%;color:var(--text);
   width:34px;height:34px;border-radius:10px;font-size:18px;line-height:1;flex-shrink:0;}
 #topbar.hasback .backbtn{display:block;}
 #topbar .title{font-size:17px;font-weight:700;flex:1;}
-#topbar .sub{font-size:11px;color:var(--gold-soft);margin-top:1px;}
+#topbar .sub{font-size:13.5px;color:var(--gold-soft);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 
 /* ---------- Screens ---------- */
 #screens{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;position:relative;}
@@ -796,12 +796,6 @@ select{-webkit-appearance:none;appearance:none;background-image:url("data:image/
 
     <!-- ===================== HOME ===================== -->
     <section class="screen active" id="screen-home">
-      <div class="home-print-row">
-        <button class="hp-print-btn" onclick="openPrintSetup()">
-          <span class="ico tile navy"><svg viewBox="0 0 24 24"><path d="M6 9V3h12v6"/><path d="M6 18H4a2 2 0 0 1-2-2v-4a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="7" rx="1"/></svg></span>
-          <span>업체 목록 인쇄 / PDF저장</span>
-        </button>
-      </div>
       <div id="dashboardWrap"></div>
       <div id="followupWrap"></div>
       <div id="contractWrap"></div>
@@ -1126,6 +1120,7 @@ select{-webkit-appearance:none;appearance:none;background-image:url("data:image/
       <div class="field" style="margin-top:10px;">
         <label>드시는 약</label>
         <div class="chip-group" id="chip-meds">
+          <div class="chip" data-v="해당없음">✅ 해당없음</div>
           <div class="chip" data-v="고혈압">고혈압</div>
           <div class="chip" data-v="당뇨">당뇨</div>
           <div class="chip" data-v="고지혈증">고지혈증</div>
@@ -1151,15 +1146,10 @@ select{-webkit-appearance:none;appearance:none;background-image:url("data:image/
           <input type="text" id="f-weight" inputmode="numeric" placeholder="예: 65">
         </div>
       </div>
-      <div class="row2" style="margin-top:10px;">
-        <div class="field" style="margin-bottom:0;">
-          <label>계좌번호</label>
-          <input type="text" id="f-account" placeholder="은행 · 계좌번호" inputmode="numeric">
-        </div>
-        <div class="field" style="margin-bottom:0;">
-          <label>이체일</label>
-          <select id="f-payday"><option value="">선택</option><option>5일</option><option>10일</option><option>15일</option></select>
-        </div>
+      <div class="field" style="margin-top:10px;margin-bottom:0;">
+        <label>계좌번호</label>
+        <input type="text" id="f-account" placeholder="은행 · 계좌번호" inputmode="numeric">
+        <div class="hint-inline">상품·가입일·이체일·금액은 아래 <b>가입 정보</b>에 입력하세요.</div>
       </div>
     </div>
 
@@ -1197,28 +1187,34 @@ select{-webkit-appearance:none;appearance:none;background-image:url("data:image/
         </div>
       </div>
       <div class="field" id="contractBox" style="display:none;">
-        <label>계약 정보 <span style="font-weight:400;color:var(--sub);">(계약 단계 · 실적/갱신 관리에 사용)</span></label>
+        <label><span id="contractBoxLabel">계약 정보</span> <span style="font-weight:400;color:var(--sub);">(상품·금액·날짜 · 실적/갱신 관리)</span></label>
         <div class="row2">
           <div class="field" style="margin-bottom:0;">
-            <input type="text" id="f-product" placeholder="상품명 (예: 종신보험)">
+            <input type="text" id="f-product" placeholder="가입상품명 (예: 종신보험)">
           </div>
           <div class="field" style="margin-bottom:0;">
-            <input type="text" id="f-premium" placeholder="월 보험료 (원)" inputmode="numeric">
+            <input type="text" id="f-premium" placeholder="월 납입금액 (원)" inputmode="numeric">
           </div>
         </div>
         <div class="row2" style="margin-top:8px;">
           <div class="field" style="margin-bottom:0;">
-            <label style="font-weight:600;">계약일</label>
+            <label style="font-weight:600;" id="contractDateLabel">계약일</label>
             <input type="date" id="f-contract-date">
           </div>
+          <div class="field" style="margin-bottom:0;">
+            <label style="font-weight:600;">이체일</label>
+            <select id="f-payday"><option value="">선택</option><option>5일</option><option>10일</option><option>15일</option></select>
+          </div>
+        </div>
+        <div class="row2" style="margin-top:8px;">
           <div class="field" style="margin-bottom:0;">
             <label style="font-weight:600;">만기일</label>
             <input type="date" id="f-expiry-date">
           </div>
-        </div>
-        <div class="field" style="margin-bottom:0;margin-top:8px;">
-          <label style="font-weight:600;">갱신일 <span style="font-weight:400;color:var(--sub);">(다가오면 홈에서 알림)</span></label>
-          <input type="date" id="f-renew-date">
+          <div class="field" style="margin-bottom:0;">
+            <label style="font-weight:600;">갱신일</label>
+            <input type="date" id="f-renew-date">
+          </div>
         </div>
       </div>
       <div class="field">
@@ -1230,7 +1226,7 @@ select{-webkit-appearance:none;appearance:none;background-image:url("data:image/
           <div class="chip priority" data-v="낮음">⚪ 낮음</div>
         </div>
       </div>
-      <div class="field">
+      <div class="field" id="interestField">
         <label>관심분야 <span style="font-weight:400;color:var(--sub);">(여러 개 선택 가능, PC버전과 동일 태그)</span></label>
         <div class="chip-group" id="chip-interest"></div>
         <input type="text" id="f-interest-text" placeholder="선택한 태그가 자동으로 채워집니다 (직접 수정 가능)" style="margin-top:8px;">
@@ -1250,7 +1246,7 @@ select{-webkit-appearance:none;appearance:none;background-image:url("data:image/
           <div class="chip" data-v="기타자료">기타자료</div>
         </div>
       </div>
-      <div class="field" style="margin-bottom:0;">
+      <div class="field" id="insurersField" style="margin-bottom:0;">
         <label>현재 가입 보험사</label>
         <div class="chip-group" id="chip-insurers">
           <div class="chip" data-v="삼성생명">삼성생명</div>
@@ -1355,7 +1351,7 @@ select{-webkit-appearance:none;appearance:none;background-image:url("data:image/
           </div>
         </div>
       </div>
-      <div class="field" style="margin-bottom:0;">
+      <div class="field" id="visitorField" style="margin-bottom:0;">
         <label>방문자(담당자)</label>
         <input type="text" id="f-visitor" placeholder="담당자 이름">
         <div class="hint-inline">담당자 뒤에 동행자가 함께 입력됩니다. 아래에서 동행자를 눌러 선택하세요.</div>
@@ -3367,7 +3363,7 @@ function renderList(){
       return `<div class="comp-folder ${compOpen?'open':''}">
         <div class="folder-head comp-head" style="background:${cg.color};" onclick="toggleCompFolder('${escapeAttr(cg.key)}')">
           <span class="folder-caret">${compOpen?'▼':'▶'}</span>
-          <span class="folder-icon">${cg.solo?'🧍':'👥'}</span>
+          <span class="folder-icon">${cg.personal?'👤':(cg.solo?'🧍':'👥')}</span>
           <span class="folder-name">${escapeHTML(cg.name)}</span>
           <span class="folder-count">${cg.items.length}</span>
           <button type="button" class="comp-add" onclick="event.stopPropagation();openFormForCompanion('${cg.solo?'':escapeAttr(cg.key)}')">📝 정보입력</button>
@@ -3537,7 +3533,9 @@ const SOLO_COMP_KEY = '__solo__';
 function groupJournalsByCompanion(list){
   const groups = [];
   const idxMap = {};
+  const personalItems = [];
   list.forEach(x=>{
+    if(x.j.custType === '개인'){ personalItems.push(x); return; }   // 개인고객은 별도 폴더로
     const comps = journalCompanions(x.j);
     const key = comps[0] || SOLO_COMP_KEY;   // 첫 동행자 기준(다중 동행자도 첫 사람으로 분류)
     if(idxMap[key] === undefined){ idxMap[key] = groups.length; groups.push({ key, items: [] }); }
@@ -3555,6 +3553,26 @@ function groupJournalsByCompanion(list){
         : (r.sigungu ? `${r.sigungu} ${r.key}` : r.key);
     });
   });
+  // 개인고객 전용 최상위 폴더 — 하위는 "고객이름 · 가입상품 · 이체일 · 금액"
+  if(personalItems.length){
+    const map = {}; const order = [];
+    personalItems.forEach(x=>{
+      const nm = (x.j.companyName||'').trim() || '(이름 미입력)';
+      if(!(nm in map)){ map[nm] = []; order.push(nm); }
+      map[nm].push(x);
+    });
+    const regions = order.map(nm=>{
+      const items = map[nm];
+      const j = items[0].j;   // 목록은 최신순 → 대표(최신) 일지 기준
+      const parts = [nm];
+      if(j.product) parts.push(j.product);
+      if(j.payday)  parts.push(j.payday);
+      if(j.premium) parts.push(Number(String(j.premium).replace(/[^0-9]/g,'')).toLocaleString()+'원');
+      const label = parts.join(' · ');
+      return { key:'person::'+nm, items, labelShort:label, label:label, color:'#eaf3ea' };
+    });
+    groups.push({ key:'__personal__', personal:true, solo:false, name:'개인고객', color:'#eaf3ea', items:personalItems, regions });
+  }
   return groups;
 }
 
@@ -4848,6 +4866,24 @@ function applyCustTypeUI(){
   setDisp('custInfoCard', personal);
   setDisp('subscTitle', personal);
   setDisp('subscCard', personal);
+  setDisp('visitorField', !personal);   // 개인 모드에선 방문자(담당자)란 숨김
+  setDisp('interestField', !personal);  // 법인용 방문내용(관심분야) 숨김
+  setDisp('insurersField', !personal);  // 법인용 방문내용(현재 가입 보험사) 숨김
+  if(personal){
+    // 개인 방문기록은 동행자 없이 담당자(본인)만
+    const owner = (appSettings.userName||'').trim();
+    const fv = document.getElementById('f-visitor'); if(fv) fv.value = owner;
+  }
+  refreshContractBox();
+}
+// 가입/계약 정보 박스: 개인 모드이거나 영업단계=계약이면 표시. 라벨도 상황에 맞게.
+function refreshContractBox(){
+  const cbox = document.getElementById('contractBox');
+  if(!cbox) return;
+  const personal = (formCustType === '개인');
+  cbox.style.display = (selectedChips.stage === '계약' || personal) ? '' : 'none';
+  const lbl = document.getElementById('contractBoxLabel'); if(lbl) lbl.textContent = personal ? '가입 정보' : '계약 정보';
+  const cdl = document.getElementById('contractDateLabel'); if(cdl) cdl.textContent = personal ? '가입일' : '계약일';
 }
 
 function resetForm(){
@@ -5135,8 +5171,7 @@ function renderChips(){
   document.querySelectorAll('#chip-result .chip').forEach(c=>c.classList.toggle('on', c.dataset.v===selectedChips.result));
   document.querySelectorAll('#chip-priority .chip').forEach(c=>c.classList.toggle('on', c.dataset.v===selectedChips.priority));
   document.querySelectorAll('#chip-stage .chip').forEach(c=>c.classList.toggle('on', c.dataset.v===selectedChips.stage));
-  const _cbox = document.getElementById('contractBox');
-  if(_cbox) _cbox.style.display = (selectedChips.stage==='계약') ? '' : 'none';
+  refreshContractBox();
   document.querySelectorAll('#chip-interest .chip').forEach(c=>c.classList.toggle('on', selectedChips.interest.includes(c.dataset.v)));
   document.querySelectorAll('#chip-materials .chip').forEach(c=>c.classList.toggle('on', selectedChips.materials.includes(c.dataset.v)));
   document.querySelectorAll('#chip-insurers .chip').forEach(c=>c.classList.toggle('on', selectedChips.insurers.includes(c.dataset.v)));
@@ -5165,8 +5200,15 @@ function setupChipHandlers(){
   });
   document.querySelectorAll('#chip-meds .chip').forEach(c=>{
     c.onclick = ()=>{
-      const v=c.dataset.v; const i=selectedChips.meds.indexOf(v);
-      if(i>-1) selectedChips.meds.splice(i,1); else selectedChips.meds.push(v);
+      const v=c.dataset.v;
+      if(v==='해당없음'){
+        // '해당없음'은 배타 선택 — 켜면 나머지 해제, 다시 누르면 전체 해제
+        selectedChips.meds = (selectedChips.meds.length===1 && selectedChips.meds[0]==='해당없음') ? [] : ['해당없음'];
+      } else {
+        selectedChips.meds = selectedChips.meds.filter(x=>x!=='해당없음');   // 약을 고르면 '해당없음' 해제
+        const i=selectedChips.meds.indexOf(v);
+        if(i>-1) selectedChips.meds.splice(i,1); else selectedChips.meds.push(v);
+      }
       renderChips();
     };
   });
