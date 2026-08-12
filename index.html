@@ -242,6 +242,14 @@ html,body{margin:0;padding:0;height:100%;color:var(--text);
 .j-card .j-move{flex-shrink:0;margin-left:8px;border:1.5px solid var(--line);background:#f4f6fa;
   color:#39435a;border-radius:9px;padding:6px 10px;font-size:11.5px;font-weight:700;white-space:nowrap;
   touch-action:manipulation;}
+/* 즐겨찾기 별표 (방문기록 카드) */
+.j-card .j-actions{display:flex;align-items:center;gap:6px;flex-shrink:0;margin-left:8px;}
+.j-card .j-fav{border:none;background:none;font-size:22px;line-height:1;color:#cbd3e0;padding:0 2px;
+  flex-shrink:0;touch-action:manipulation;}
+.j-card .j-fav.on{color:#f5b301;}
+.j-card .j-actions .j-move{margin-left:0;}
+/* 즐겨찾기 폴더 (방문기록 상단 고정) */
+.comp-folder.fav-folder{border-color:#f5c518;}
 .j-card .snippet{font-size:13px;color:#4a5568;margin-top:8px;line-height:1.4;
   display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
 .empty-hint{text-align:center;color:var(--sub);font-size:13px;padding:40px 10px;}
@@ -351,6 +359,11 @@ select{-webkit-appearance:none;appearance:none;background-image:url("data:image/
 .biz-kind:active{opacity:.75;}
 .detail-actions{display:flex;gap:8px;margin-top:16px;padding-bottom:calc(10px + var(--safe-bottom));}
 .detail-actions button{flex:1;border:none;border-radius:10px;padding:12px 6px;font-weight:700;font-size:13.5px;}
+/* 상세보기: 내용은 스크롤하고 삭제·수정·닫기 버튼은 항상 화면 하단에 고정 */
+#screen-detail{flex-direction:column;padding:calc(14px + var(--safe-top)) 0 0;overflow:hidden;}
+#screen-detail.active{display:flex;}
+#screen-detail #detailBody{flex:1 1 auto;min-height:0;overflow-y:auto;margin:0 14px;}
+#screen-detail .detail-actions{flex-shrink:0;margin:0;padding:10px 14px calc(10px + var(--safe-bottom));background:var(--bg);border-top:1px solid var(--line);}
 .btn-edit{background:var(--navy);color:#fff;}
 .btn-del{background:#fde8e8;color:var(--red);}
 .btn-close-detail{background:#fff;color:var(--sub);border:1.5px solid var(--line) !important;}
@@ -719,7 +732,27 @@ select{-webkit-appearance:none;appearance:none;background-image:url("data:image/
 .gl-term.open{border-color:var(--blue);color:var(--blue);}
 .gl-term.open .gl-arrow{transform:rotate(180deg);}
 .gl-body{max-height:0;overflow:hidden;transition:max-height .3s ease;}
-.gl-body .gl-inner{padding:11px 14px 4px;font-size:13px;line-height:1.65;color:#37425c;}
+.gl-body .gl-inner{padding:11px 14px 6px;font-size:13px;line-height:1.65;color:#37425c;}
+/* 용어 설명 안의 중요 문구 강조 + 쉬운 해설 박스 */
+.gl-body .gl-inner b{color:var(--blue);font-weight:800;}
+.gl-body .gl-inner .gl-expl{margin-top:9px;padding:9px 11px;background:rgba(37,99,235,.06);
+  border-left:3px solid var(--blue);border-radius:0 8px 8px 0;color:#415174;font-size:12.5px;line-height:1.6;}
+.gl-body .gl-inner .gl-expl b{color:var(--navy);}
+/* ---- 단체보험 기업재해보장보험(2510) 설계 계산기 ---- */
+#gj2510-form{margin:12px 0 6px;}
+#gj2510-form .gj-field{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+#gj2510-form .gj-field label{font-size:13px;font-weight:700;color:var(--navy);flex-shrink:0;}
+#gj2510-form #gj2510-grade{flex:1;padding:9px 10px;border:1.5px solid var(--line);border-radius:9px;font-size:14px;background:#fff;}
+#gj2510-form .gj-inputs td{vertical-align:middle;}
+#gj2510-form .gj-inputs input{width:100%;box-sizing:border-box;padding:8px 9px;border:1.5px solid var(--line);border-radius:8px;font-size:14px;text-align:right;}
+#gj2510-form .gj-eg{color:var(--sub);font-size:11px;}
+#gj2510-result .gj-err{background:#fdeaea;border:1px solid #f5c2c2;border-radius:10px;padding:10px 12px;margin-top:10px;}
+#gj2510-result .gj-err-title{font-weight:800;color:var(--red);font-size:13.5px;margin-bottom:6px;}
+#gj2510-result .gj-err-item{font-size:13px;color:#8a2b2b;margin-bottom:7px;line-height:1.55;}
+#gj2510-result .gj-expl2{margin-top:3px;padding:6px 9px;background:#fff;border-left:3px solid var(--red);border-radius:0 6px 6px 0;color:#5a3a3a;font-size:12px;line-height:1.5;}
+#gj2510-result .gj-ok{background:rgba(37,99,235,.06);border:1px solid rgba(37,99,235,.2);border-radius:10px;padding:10px 12px;margin-top:10px;}
+#gj2510-result .gj-ok-title{font-weight:800;color:var(--blue);font-size:13.5px;margin-bottom:6px;}
+#gj2510-result .gj-formula{margin-top:8px;font-size:12px;color:var(--sub);line-height:1.5;}
 
 /* ---- 자료 뷰어 (HTML 슬라이드 재구성) ---- */
 .doc-tag{font-size:10.5px;font-weight:800;color:#a9861d;letter-spacing:.5px;margin-bottom:4px;}
@@ -830,6 +863,7 @@ select{-webkit-appearance:none;appearance:none;background-image:url("data:image/
       <div class="page-title"><span>📂</span> 방문 기록 관리</div>
       <div class="stats-row" id="statsRow"></div>
       <div class="filter-row-scroll" id="resultFilterRow"></div>
+      <div id="journalList"></div>
       <div class="list-search">
         <input type="text" id="listSearchInput" placeholder="🔍 기업명·방문자·주소·상담내용·상품 검색" oninput="setListSearch(this.value)">
         <button type="button" class="ls-clear" id="lsClearBtn" style="display:none;" onclick="clearListSearch()">✕</button>
@@ -841,7 +875,6 @@ select{-webkit-appearance:none;appearance:none;background-image:url("data:image/
         <button onclick="exportExcel()">📥 엑셀 내보내기</button>
         <button onclick="exportPDF()">🖨️ 인쇄 / PDF</button>
       </div>
-      <div id="journalList"></div>
       <div class="bulk-bar hidden" id="bulkBar">
         <button class="cancel" onclick="toggleSelectMode()">취소</button>
         <button class="move" onclick="bulkMove()">📁 선택 이동 (<span id="selCountMove">0</span>)</button>
@@ -2267,6 +2300,24 @@ const GUIDE = [
   { id:'ins', title:'보험 설계', desc:'단체보험·CEO보장·기업재해보장·실손보험', tile:'blue',
     svg:'<path d="M12 3l8 3v6c0 4.5-3.2 7.5-8 9-4.8-1.5-8-4.5-8-9V6z"/>',
     items:[
+      { t:'단체보험 청약 구비서류', html:`
+        <h3>1. 계약 전 필수서류</h3>
+        <ul><li>☐ 단체코드등록: 사업자등록증 사본 (대표 필컨동의)</li>
+        <li>☐ 단체보험 청약설계를 위한 상세 동의서 (유효기간: 1년)</li></ul>
+        <h3>2. 법인사업자 구비서류</h3>
+        <ul><li>☐ 사업자등록증 사본 1부</li>
+        <li>☐ 법인인감증명서 1부 (최근 3개월 내 발급) 단, 공동대표는 전원</li>
+        <li>☐ 법인등기부등본 사본 1부 (최근 3개월 내 발급)</li>
+        <li>☐ 주주명부 · 법인인감도장은 공동대표일 경우 전원</li>
+        <li>☐ 법인통장사본</li>
+        <li>☐ 4대보험 가입자 명부 1부 (4대사회보험정보연계센터에서 발행)</li></ul>
+        <h3>3. 개인사업자 구비서류</h3>
+        <ul><li>☐ 사업자등록증 사본 1부</li>
+        <li>☐ 개인인감증명서 1부 (최근 3개월 내 발급) 단, 공동대표는 전원</li>
+        <li>☐ 대표자 신분증 사본 1부 단, 공동대표는 전원</li>
+        <li>☐ 회사통장사본</li>
+        <li>☐ 4대보험 가입자 명부</li></ul>
+        <div class="guide-note">⚠️ 구비서류·유효기간은 보험사·상품·심사 상황에 따라 달라질 수 있습니다. 청약 전 해당 보험사 기준을 확인하세요.</div>` },
       { t:'단체보험 설계 요령', html:`
         <h3>단체보험이란</h3>
         <p>기업이 계약자가 되어 소속 임직원을 피보험자로 일괄 가입하는 보장성 보험(단체상해·단체정기 등). 복리후생·위험관리 목적.</p>
@@ -2499,6 +2550,154 @@ const GUIDE = [
         <div class="guide-note">⚠️ 본 자료는 <b>판매자 교육용</b>입니다(온라인 게재·광고 활용 금지). 담보 명칭·출시시기는 상품·회사별로 다르며, 실제 보장은 약관·상품설명서로 확인하세요.</div>` },
     ] },
 
+  { id:'group', title:'단체보험', desc:'기업재해보장보험(2510) 설계 · 가입한도 자동계산기', tile:'navy',
+    svg:'<path d="M3 21h18"/><path d="M5 21V7l7-4v18"/><path d="M19 21V10l-7-3"/><path d="M9 9h.01M9 12h.01M9 15h.01"/>',
+    items:[
+      { t:'기업재해보장보험(2510) 설계 계산기', html:`
+        <h3>기업재해보장보험(2510) 설계 계산기 <span style="font-weight:600;color:var(--sub);font-size:12px;">· 삼성생명 · 2025.10.01. 개정</span></h3>
+        <p>위험등급을 고르고 각 <b>특약 가입금액(만원)</b>을 입력하면 <b>가입한도 검증</b>과 <b>위험평가지수(재해사망·재해장해 보장금액)</b>가 자동 계산됩니다. 가입하지 않을 특약은 <b>0</b>으로 두세요. (예: 1억 = 10000)</p>
+        <div id="gj2510-form"></div>
+        <div class="guide-tip">💡 위험등급을 바꾸면 사망·장해 가입한도가 즉시 반영되고, 한도를 넘으면 아래에 <b>오류와 해설</b>이 표시됩니다. 기본값은 상품설명서 샘플(다우통상) 기준으로 채워져 있습니다.</div>
+        <div class="guide-note">⚠️ 본 계산기는 요약서(2025.10.01. 개정) 기준 <b>참고용</b>입니다. 위험평가지수는 인수심사용 지표로 실제 지급 보험금과 다를 수 있으며, 실제 가입한도·보장은 상품설명서·언더라이팅 결과에 따라 달라집니다.</div>` },
+    ] },
+  { id:'leaflet', title:'리플릿', desc:'상품 리플릿·특약 요약 (보장종별·핵심포인트)', tile:'red',
+    svg:'<path d="M6 2h9l5 5v14a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1z"/><path d="M14 2v6h6"/><path d="M8.5 13h7M8.5 17h4.5"/>',
+    items:[
+      { t:'파워수술(1-5종)보장특약IV', html:`
+        <h3>어떤 특약인가 <span style="font-weight:600;color:var(--sub);font-size:12px;">· 삼성생명</span></h3>
+        <p>수술을 <b>1종~5종으로 나눠</b> 경증부터 중증까지 차등 보장하는 수술비 특약. <b>관혈(절개)/비관혈</b> 수술 방식과 부위·난이도에 따라 종을 구분한다.</p>
+        <h3>종별 보장금액</h3>
+        <table class="guide-table"><thead><tr><th>종</th><th>보장금액</th><th>주요 수술 예시</th></tr></thead><tbody>
+        <tr><td>1종</td><td>20만원</td><td>백내장, 축농증, 치핵 등</td></tr>
+        <tr><td>2종</td><td>30만원</td><td>용종제거술, 맹장염, 무릎관절증 등</td></tr>
+        <tr><td>3종</td><td>300만원</td><td>뇌·심장 스텐트, 척추수술, 내시경 암수술 등</td></tr>
+        <tr><td>4종</td><td>1,000만원</td><td>간·폐·장 관혈절제술 등</td></tr>
+        <tr><td>5종</td><td>2,000만원</td><td>암 관혈술, 심장 관혈수술, 대동맥 관혈술 등</td></tr>
+        </tbody></table>
+        <h3>특징</h3>
+        <ul><li>경증 수술부터 중증 수술까지 <b>합리적 차등 보장</b></li>
+        <li>관혈/비관혈 수술 방식에 따른 <b>명확한 종 구분</b></li>
+        <li>심장·암 등 고액 치료비 수술 <b>최대 2,000만원</b> 보장</li></ul>
+        <h3>핵심 포인트</h3>
+        <ul><li><b>재해수술</b>: 동일 사고당 1회 지급</li>
+        <li><b>질병수술</b>: 동일 질병당 연간 1회 지급</li>
+        <li>관혈/비관혈 수술 정의 구분 적용</li></ul>
+        <div class="guide-tip">💡 기존 암보험이 진단비 위주라면, <b>고종(4·5종) 수술비</b>로 리모델링·보완 니즈를 짚어줄 수 있다.</div>
+        <div class="guide-note">⚠️ 종 구분·보장금액·지급조건은 상품 개정·가입시기에 따라 다를 수 있습니다. 정확한 보장은 약관·상품설명서로 확인하세요.</div>` },
+      { t:'통합양성신생물수술(연간1회)보장특약A(무배당)', html:`
+        <h3>어떤 특약인가 <span style="font-weight:600;color:var(--sub);font-size:12px;">· 삼성생명</span></h3>
+        <p>암이 아닌 <b>비암성 종양(양성신생물)</b>을 <b>8개 부위</b>로 나눠 각각 수술비를 보장. 대장용종·자궁근종·갑상선결절 등 건강검진에서 흔히 발견되는 종양에 대비한다.</p>
+        <h3>부위별 보장금액 (최대 가입 기준)</h3>
+        <table class="guide-table"><thead><tr><th>보장 부위</th><th>보장금액 (연 1회)</th></tr></thead><tbody>
+        <tr><td>대장의 양성신생물 수술</td><td>20만원</td></tr>
+        <tr><td>식도·결장·항문의 양성신생물 수술</td><td>20만원</td></tr>
+        <tr><td>위·십이지장의 양성신생물 수술</td><td>60만원</td></tr>
+        <tr><td>여성 및 남성의 특정양성신생물 수술</td><td>100만원</td></tr>
+        <tr><td>갑상선·두경부의 양성신생물 수술</td><td>200만원</td></tr>
+        <tr><td>특정 기타부위의 양성신생물 수술</td><td>100만원</td></tr>
+        <tr><td>간·폐의 양성신생물 수술</td><td>2,000만원</td></tr>
+        <tr><td>뇌·심장의 양성신생물 수술</td><td>2,000만원</td></tr>
+        </tbody></table>
+        <h3>핵심 포인트</h3>
+        <ul><li>비암성 종양(양성신생물) <b>총 8개 부위</b> 수술 각각 보장</li>
+        <li>대장용종·자궁근종·갑상선결절 등 <b>건강검진 다빈도 종양</b> 대비</li>
+        <li>부위별 각각 <b>연간 1회</b> 한도로 보장</li></ul>
+        <h3>체크포인트</h3>
+        <ul><li><b>주요 종양 유형</b>: 용종(혹), 선종, 근종, 낭종(물혹), 결절</li>
+        <li><b>감액 기간</b>: 계약일로부터 1년 이내 지급사유 발생 시 <b>50% 지급</b></li></ul>
+        <div class="guide-tip">💡 건강검진에서 용종·결절을 자주 접하는 고객에게, 암 진단 이전 단계의 <b>양성 종양 수술비</b> 공백을 짚어줄 수 있다.</div>
+        <div class="guide-note">⚠️ 보장 부위·금액·지급조건은 상품 개정·가입시기에 따라 다를 수 있습니다. 정확한 보장은 약관·상품설명서로 확인하세요.</div>` },
+      { t:'질병·재해수술보장특약ⅢAT (무배당, 무해약환급금형)', html:`
+        <h3>어떤 특약인가 <span style="font-weight:600;color:var(--sub);font-size:12px;">· 삼성생명</span></h3>
+        <p>일상에서 생기는 <b>질병·재해 수술</b>을 폭넓게 보장하는 수술비 특약. <b>한국표준질병·사인분류(A00~Y98)</b> 기준 수술을 대상으로 하며(디스크·맹장·골절 등), 무해약환급금형이라 <b>보험료가 저렴</b>하다.</p>
+        <h3>보장 구조 요약</h3>
+        <table class="guide-table"><thead><tr><th>구분</th><th>보장 내용</th><th>보장 한도</th></tr></thead><tbody>
+        <tr><td>질병 수술</td><td>A00~Y98 질병 진단 후 수술 시</td><td>연간 1회한 (1년 이내 50% 감액)</td></tr>
+        <tr><td>재해 수술</td><td>재해 사고로 인한 수술 시 (골절 등)</td><td>연간 1회한</td></tr>
+        </tbody></table>
+        <h3>핵심 포인트</h3>
+        <ul><li>일상 속 다양한 <b>질병 및 재해 수술</b>을 폭넓게 보장</li>
+        <li>한국표준질병·사인분류(A00~Y98) 기준 수술 보장 (디스크·맹장·골절 등)</li>
+        <li>질병·재해 <b>각각 연간 1회한</b> 보장</li></ul>
+        <h3>체크포인트 및 보장 제외</h3>
+        <ul><li><b>보장 제외</b>: 성형·치아·한방·선천성 수술, 분만·불임 목적, 단순 검사·진단 목적 수술</li>
+        <li><b>감액 기간</b>: 계약일로부터 1년 이내 질병 수술 시 <b>50% 지급</b></li></ul>
+        <div class="guide-tip">💡 무해약환급금형이라 같은 보장을 <b>낮은 보험료</b>로 채울 수 있어, 보장 공백 보완 제안에 활용도가 높다.</div>
+        <div class="guide-note">⚠️ 보장 내용·제외·지급조건은 상품 개정·가입시기에 따라 다를 수 있습니다. 정확한 보장은 약관·상품설명서로 확인하세요.</div>` },
+      { t:'암다빈치·레보아이로봇수술보장특약(갱신형, 무배당)', html:`
+        <h3>어떤 특약인가 <span style="font-weight:600;color:var(--sub);font-size:12px;">· 삼성생명</span></h3>
+        <p>암 치료 목적의 <b>다빈치(Da Vinci)·레보아이(Revo-i) 로봇수술</b>을 보장하는 특약. 평균 <b>1,000만원 이상</b>인 고비용 비급여 로봇수술 부담을 덜어준다.</p>
+        <h3>보장 구조 요약 (가입금액 500만원 기준)</h3>
+        <table class="guide-table"><thead><tr><th>특약 구분</th><th>보장 대상</th><th>보장금액 (최초 1회한)</th></tr></thead><tbody>
+        <tr><td>암(특정암·소액암 포함)</td><td>암, 갑상선암, 전립선암, 제자리암, 경계성종양 등</td><td>최대 500만원</td></tr>
+        <tr><td>암(특정암 제외)</td><td>암 (갑상선암·전립선암 제외)</td><td>최대 500만원</td></tr>
+        </tbody></table>
+        <h3>핵심 포인트</h3>
+        <ul><li>암 치료 목적의 <b>다빈치·레보아이 로봇수술</b> 보장</li>
+        <li>평균 <b>1,000만원 이상</b>의 고비용 비급여 로봇수술 부담 완화</li>
+        <li>정밀 절제·적은 출혈·빠른 회복이 장점인 <b>최신 로봇수술</b> 대비</li></ul>
+        <h3>체크포인트 및 지급조건</h3>
+        <ul><li><b>암보장개시일</b>: 계약일로부터 90일 경과 후 익일</li>
+        <li><b>감액 기간(최초계약일 기준)</b>: 180일 이내 25%(125만원) / 1년 이내 50%(250만원)</li>
+        <li><b>상품 특징</b>: 갱신형 선택특약 (갱신 시 보험료 변동 가능)</li></ul>
+        <div class="guide-tip">💡 최신 치료를 받고 싶어 하는 고객에게, 실손·진단비만으로는 부족한 <b>고액 로봇수술비</b> 공백을 짚어줄 수 있다.</div>
+        <div class="guide-note">⚠️ 보장 대상·금액·지급조건은 상품 개정·가입시기에 따라 다를 수 있습니다. 정확한 보장은 약관·상품설명서로 확인하세요.</div>` },
+      { t:'CEO가 알아야 할 노무 체크리스트', html:`
+        <h3>노무 분쟁·소송 현황 <span style="font-weight:600;color:var(--sub);font-size:12px;">· 경인금융법인지점</span></h3>
+        <ul><li>통상임금·정년 연장·주 52시간제 등 <b>노무 분쟁</b>이 계속 늘고 있다</li>
+        <li><b>노동위원회 사건처리</b>: 2021년 12,256건 → 2023년 <b>26,924건</b>으로 급증</li>
+        <li><b>근로자 승소율</b>: 2021년 33.7% → 2023년 <b>50.6%</b>로 상승 → 노무 관리 리스크 대폭 증가</li></ul>
+        <h3>반드시 챙겨야 할 12대 노무 테마</h3>
+        <table class="guide-table"><thead><tr><th>구분</th><th>주요 내용</th><th>위반 시 벌칙</th></tr></thead><tbody>
+        <tr><td><b>1. 근로계약서</b></td><td>근로 시작 전 작성·교부 (3년 보존)</td><td>500만원 이하 과태료</td></tr>
+        <tr><td><b>2. 급여명세서</b></td><td>임금 지급 시 교부 의무화 (3년 보존)</td><td>500만원 이하 과태료</td></tr>
+        <tr><td><b>3. 근로자 명부</b></td><td>서류 작성 후 3년간 보존</td><td>500만원 이하 과태료</td></tr>
+        <tr><td><b>4. 취업규칙</b></td><td>작성·변경 절차 준수, 고용노동부 신고</td><td>500만원 이하 벌금·과태료</td></tr>
+        <tr><td><b>5. 법정의무교육</b></td><td>5대 교육(성희롱·개인정보·산업안전 등) 실시</td><td>항목별 과태료 부과</td></tr>
+        <tr><td><b>6. 최저임금</b></td><td>2025년 기준 시급 10,030원 준수</td><td>3년 이하 징역 / 2천만원 이하 벌금</td></tr>
+        <tr><td><b>7. 주휴수당</b></td><td>주 15시간 이상 개근 시 비례 지급</td><td>2년 이하 징역 / 2천만원 이하 벌금</td></tr>
+        <tr><td><b>8. 법정수당</b></td><td>통상임금 기준 연장·야간·휴일 50% 가산</td><td>3년 이하 징역 / 3천만원 이하 벌금</td></tr>
+        <tr><td><b>9. 연차휴가</b></td><td>휴가 미사용 시 연차수당 지급</td><td>3년 이하 징역 / 3천만원 이하 벌금</td></tr>
+        <tr><td><b>10. 퇴직급여</b></td><td>1년 이상 근무 시 퇴사 후 14일 내 지급</td><td>3년 이하 징역 / 3천만원 이하 벌금</td></tr>
+        <tr><td><b>11. 해고예고</b></td><td>30일 전 예고 또는 30일분 통상임금 지급</td><td>2년 이하 징역 / 2천만원 이하 벌금</td></tr>
+        <tr><td><b>12. 국민연금</b></td><td>일용직 월 8일·60시간 이상 근로 시 가입</td><td>과태료 최대 50만원</td></tr>
+        </tbody></table>
+        <div class="guide-tip">💡 법인 첫 방문 시 <b>노무 리스크 점검</b>으로 대화를 열면, CEO 보장·퇴직금 재원 설계로 자연스럽게 연결된다.</div>
+        <div class="guide-note">⚠️ 벌칙·기준 금액(최저임금 등)은 법 개정에 따라 매년 달라질 수 있습니다. 정확한 내용은 고용노동부·노무전문가 확인이 필요합니다.</div>` },
+      { t:'상속세, 이제 누구나 내는 세금입니다', html:`
+        <h3>상속세 과세 현황 <span style="font-weight:600;color:var(--sub);font-size:12px;">· 경인금융법인지점</span></h3>
+        <ul><li>자산 가격 상승으로 상속세 과세 대상·세액이 급증 (2024년 기준 <b>2.1만 명, 8.2조 원</b>)</li>
+        <li>자산이 8배 늘 때 누진세율 탓에 상속세는 약 <b>40배로 폭증</b> (25억→2억 / 200억→77억)</li></ul>
+        <h3>상속세 vs 증여세 비교</h3>
+        <table class="guide-table"><thead><tr><th>구분</th><th>상속세</th><th>증여세</th></tr></thead><tbody>
+        <tr><td><b>과세 방식</b></td><td>유산세 (전체 재산 기준)</td><td>유산취득세 (수증자 분할 기준)</td></tr>
+        <tr><td><b>주요 공제</b></td><td>일괄 5억 / 배우자 5~30억 / 금융 2억</td><td>배우자 6억 / 성년 5천만 / 미성년 2천만</td></tr>
+        <tr><td><b>100억 이전 시 (4인)</b></td><td>1인당 약 14.5억원 보유</td><td>1인당 약 16.7억원 보유 (절세 효과)</td></tr>
+        </tbody></table>
+        <h3>현명한 상속세 절세 6대 플랜</h3>
+        <ul><li><b>기업 상속</b>: 가업상속공제 및 증여특례 활용</li>
+        <li><b>사전 증여</b>: 10년 주기 사전증여로 상속재산 합산 방지</li>
+        <li><b>세대 생략</b>: 손자녀 대상 사전 증여 활용</li>
+        <li><b>부담부증여</b>: 대출·전세금을 포함해 증여가액 산정</li>
+        <li><b>종신보험</b>: 계약자·수익자(자녀) ≠ 피보험자(부모) 설정으로 납부 유동성 확보</li></ul>
+        <div class="guide-tip">💡 상속세 재원 마련은 <b>종신보험</b>과 직결. 자녀를 계약자·수익자로 설계하면 상속세 납부용 현금을 미리 준비할 수 있다.</div>
+        <div class="guide-note">⚠️ 공제 한도·세율·과세 방식은 세법 개정에 따라 달라질 수 있습니다. 실제 절세 설계는 세무전문가 상담이 필요합니다.</div>` },
+      { t:'CEO를 위한 법인자산유동화 전략', html:`
+        <h3>부자 회사, 가난한 CEO 불균형 해결 <span style="font-weight:600;color:var(--sub);font-size:12px;">· 경인금융법인지점</span></h3>
+        <ul><li><b>개인 리스크</b>: 소득원이 부족해 개인 자산 취득 시 자금 출처 문제가 생긴다</li>
+        <li><b>법인 리스크</b>: 유보금이 쌓여 비상장주식 가치가 오르면 승계·양도 부담이 커진다</li></ul>
+        <h3>법인자산 유동화 3대 핵심 전략</h3>
+        <table class="guide-table"><thead><tr><th>구분</th><th>핵심 실행 내용</th><th>절세·유동화 효과</th></tr></thead><tbody>
+        <tr><td><b>1. 급여 책정</b></td><td>적정 수준의 월급여·상여 책정</td><td>법인 비용(손금) 처리로 법인세 감소 및 총 실효세율 인하</td></tr>
+        <tr><td><b>2. 배당 전략</b></td><td>가족 지분 사전증여 후 차등·분산 배당</td><td>연 2,000만원 이하 15.4% 분리과세 + 주식 가치 하향 효과</td></tr>
+        <tr><td><b>3. 퇴직금 준비</b></td><td>정관 내 퇴직급여 지급규정 정비</td><td>퇴직소득 분류과세(실효세율↓) + 법인세 손금산입 한도 확대</td></tr>
+        </tbody></table>
+        <h3>체크포인트</h3>
+        <ul><li><b>퇴직금 지급규정</b>: 정관에 적정 규정이 없으면 법인세 손금산입 한도가 축소된다</li>
+        <li><b>배당 소득</b>: 1인당 연간 금융소득 2,000만원 초과 시 종합소득에 합산과세된다</li></ul>
+        <div class="guide-tip">💡 급여·배당·퇴직금 세 통로를 함께 설계하면, <b>정기보험·종신보험(퇴직금 재원)</b> 제안으로 자연스럽게 이어진다.</div>
+        <div class="guide-note">⚠️ 세율·분리과세 기준·손금 한도는 세법 개정에 따라 달라질 수 있습니다. 실제 실행은 세무전문가 상담이 필요합니다.</div>` },
+    ] },
   { id:'cert', title:'기업 인증제도', desc:'3종 인증·기업부설연구소 (혜택·요건 상세)', tile:'gold',
     svg:'<circle cx="12" cy="8" r="5"/><path d="M8.5 12.5 7 22l5-3 5 3-1.5-9.5"/>',
     items:[
@@ -2692,7 +2891,68 @@ function openGuideItem(id, i){
     + `<div class="card guide-detail">${c.items[i].html}</div>`
     + subBackBarHTML();
   applyGuideZoom();
+  if(document.getElementById('gj2510-form')) calcGijae2510();   // 설계 계산기 항목이면 초기값으로 즉시 계산
   pushSub('screen-guide-detail', c.items[i].t);
+}
+
+/* ---------------- 단체보험 · 기업재해보장보험(2510) 설계 계산기 ----------------
+   요약서(2025.10.01. 개정) 기준. 위험등급별 가입한도 검증 + 위험평가지수(재해사망보장금액) 산출.
+   window.gj2510Result 에 최종값을 담아 두어, 추후 "최종값 출력" 기능에서 그대로 활용할 수 있게 한다. */
+function calcGijae2510(){
+  const gEl = document.getElementById('gj2510-grade');
+  if(!gEl) return;
+  const g = gEl.value;
+  const gradeName  = {'1':'위험 1급','2':'위험 2급','3':'위험 3급','4':'위험 4급','0':'비위험'}[g];
+  const deathLimit = {'1':20000,'2':50000,'3':50000,'4':100000,'0':100000}[g];   // 사망 가입한도(만원)
+  const disLimit   = {'1':20000,'2':50000,'3':100000,'4':100000,'0':100000}[g];  // 장해 가입한도(만원)
+  const main  = parseInt(document.getElementById('gj2510-main').value, 10)  || 0;
+  const newG  = parseInt(document.getElementById('gj2510-new').value, 10)   || 0;
+  const death = parseInt(document.getElementById('gj2510-death').value, 10) || 0;
+  const fmt = n => Number(n).toLocaleString();
+  const errs = [];
+  const add = (m, e) => errs.push({ m, e: e || '' });
+
+  // 1) 주보험 : 500만~1억, 100만원 단위
+  if(main < 500 || main > 10000) add('주보험은 최저 500만원 ~ 최고 1억원(10,000만원) 이내로 입력하세요.', '1억을 넣으려면 10000을, 500만원은 500을 입력합니다.');
+  if(main % 100 !== 0) add('주보험은 100만원 단위로만 가입됩니다.', '예를 들어 1,250만원(1250)은 안 되고 1,300만원(1300)처럼 끝이 00으로 떨어져야 합니다.');
+  // 2) 주보험 + 신재해보장G ≤ 위험등급별 사망 가입한도
+  if(main + newG > deathLimit) add('[' + gradeName + '] 주보험+신재해보장G 합산 사망한도는 최대 ' + (deathLimit/10000) + '억원(' + fmt(deathLimit) + '만원)입니다. 현재 합계 ' + fmt(main + newG) + '만원.', '위험 1급에 가까울수록 한도가 낮습니다. 합계를 한도 이하로 줄이거나 위험등급을 확인하세요.');
+  // 3) 신재해보장G ≤ 주보험의 4배
+  if(newG > main * 4) add('신재해보장G특약은 주보험의 최대 4배(' + fmt(main * 4) + '만원)까지 가능합니다.', '주보험을 키우면 신재해보장G도 그만큼 크게 넣을 수 있습니다.');
+  // 4) 재해사망G : 500만~5,000만, 주보험 1배 이내, 10만원 단위
+  if(death < 500 || death > 5000) add('재해사망G특약은 500만원 ~ 5,000만원 사이로 입력하세요.', '');
+  if(death > main) add('재해사망G특약은 주보험의 1배(' + fmt(main) + '만원) 이내여야 합니다.', '재해사망G는 주보험 가입금액을 넘을 수 없습니다.');
+  if(death % 10 !== 0) add('재해사망G특약은 10만원 단위로 입력하세요.', '예) 1,005만원(1005)은 안 되고 1,010만원(1010)처럼 끝이 0이어야 합니다.');
+
+  const box = document.getElementById('gj2510-result');
+  if(!box) return;
+
+  if(errs.length){
+    box.innerHTML = '<div class="gj-err"><div class="gj-err-title">⚠️ 가입한도 오류 (' + errs.length + '건)</div>'
+      + errs.map(x => '<div class="gj-err-item">• ' + escapeHTML(x.m)
+          + (x.e ? '<div class="gj-expl2">💡 해설 : ' + escapeHTML(x.e) + '</div>' : '')
+          + '</div>').join('')
+      + '</div>';
+    window.gj2510Result = null;
+    return;
+  }
+
+  // 위험평가지수(재해사망보장금액) = 주보험×2.5 + 신재해보장G×2.5 + 재해사망G×1  (요약서 6번 산식)
+  const covManwon = Math.round(main * 2.5 + newG * 2.5 + death * 1);   // 만원
+  const covWon = covManwon * 10000;                                    // 원
+  box.innerHTML = '<div class="gj-ok"><div class="gj-ok-title">✅ 자동 계산된 보장내용</div>'
+    + '<table class="guide-table"><tbody>'
+    + '<tr><td>선택 위험등급</td><td><b>' + gradeName + '</b></td></tr>'
+    + '<tr><td>사망 가입한도</td><td>' + (deathLimit/10000) + '억원 (' + fmt(deathLimit) + '만원)</td></tr>'
+    + '<tr><td>장해 가입한도</td><td>' + (disLimit/10000) + '억원 (' + fmt(disLimit) + '만원)</td></tr>'
+    + '<tr><td>주보험+신재해보장G 합계</td><td>' + fmt(main + newG) + '만원 / 한도 ' + fmt(deathLimit) + '만원</td></tr>'
+    + '<tr><td><b>위험평가지수(재해사망보장금액)</b></td><td><b style="color:var(--blue)">' + fmt(covManwon) + '만원</b><br>(' + fmt(covWon) + '원)</td></tr>'
+    + '</tbody></table>'
+    + '<div class="gj-formula">산식 : 주보험×2.5 + 신재해보장G×2.5 + 재해사망G×1 = ' + fmt(main) + '×2.5 + ' + fmt(newG) + '×2.5 + ' + fmt(death) + '×1</div>'
+    + '</div>';
+
+  // 추후 "최종값 출력"에서 사용할 결과 저장
+  window.gj2510Result = { gradeName, main, newG, death, deathLimit, disLimit, covManwon, covWon };
 }
 
 /* ---------------- 세금 계산기 (영업백과) ---------------- */
@@ -2758,70 +3018,70 @@ function runCompareCalc(){
 /* ---------------- 용어정리 (단일 열림 아코디언) ---------------- */
 const GLOSSARY = [
   { cat:'세무·재무', terms:[
-    {t:'과세표준', d:'세금을 매기는 기준 금액. 소득·이익에서 각종 공제를 뺀 뒤 세율을 곱하는 대상이 된다.'},
-    {t:'누진공제', d:'누진세율 구간 계산을 간편히 하려고 빼주는 금액. 세액 = 과세표준 × 세율 − 누진공제.'},
-    {t:'소득공제', d:'과세표준 자체를 줄여주는 항목(인적공제 등). 세율을 적용하기 "전" 단계에서 차감된다.'},
-    {t:'세액공제', d:'산출된 세액에서 직접 빼주는 항목(연금저축·R&D 등). 같은 금액이면 소득공제보다 절세 효과가 크다.'},
-    {t:'종합소득', d:'이자·배당·사업·근로·연금·기타소득을 합산한 개인의 소득. 이를 기준으로 종합소득세를 계산한다.'},
-    {t:'원천징수', d:'소득을 지급할 때 지급자가 세금을 미리 떼어 국가에 대신 납부하는 것.'},
-    {t:'손금·익금', d:'법인세에서 비용으로 인정되는 것이 손금, 수익으로 잡히는 것이 익금. (익금−손금)이 과세소득.'},
-    {t:'가지급금', d:'명확한 근거 없이 법인에서 대표 등에게 나간 대여금 성격의 자금. 인정이자 등 세무 리스크가 크다.'},
-    {t:'미처분이익잉여금', d:'배당·처분되지 않고 회사에 쌓인 이익. 승계·가지급금 정리와 밀접하게 연결된다.'},
-    {t:'이월결손금', d:'과거의 사업 손실(적자)을 이후 연도의 이익과 상계해 세금을 줄이는 것.'},
-    {t:'감가상각', d:'건물·기계 등 자산의 가치 감소를 한 번에 처리하지 않고 여러 해에 나눠 비용으로 반영.'},
-    {t:'이월과세', d:'세금을 지금 매기지 않고 나중 시점으로 미뤄주는 것(법인전환·현물출자 특례 등).'},
-    {t:'부가가치세', d:'재화·용역 거래에 붙는 10% 세금. 매출세액에서 매입세액을 빼 납부한다.'},
-    {t:'양도소득세', d:'부동산·주식 등 자산을 팔 때 발생한 차익에 매기는 세금.'},
-    {t:'상속세·증여세', d:'사망으로 물려받으면 상속세, 살아서 무상으로 받으면 증여세가 부과된다.'},
-    {t:'실효세율', d:'실제 부담한 세액 ÷ 소득. 명목 최고세율과 달리 평균적인 실제 부담률을 뜻한다.'},
+    {t:'과세표준', d:'세금을 매기는 <b>기준 금액</b>. 번 돈에서 경비·공제를 뺀 나머지에 세율을 곱해 세금을 정한다.<div class="gl-expl">*해설 : 1억을 벌어도 경비·공제 4천만원을 빼면 과세표준은 6천만원. 세금은 이 <b>6천만원에만</b> 매겨진다.</div>'},
+    {t:'누진공제', d:'<b>세액 = 과세표준 × 세율 − 누진공제.</b> 소득이 클수록 세율이 오르는 누진세를 한 번에 계산하도록 빼주는 보정 금액.<div class="gl-expl">*해설 : 구간마다 따로 계산할 필요 없이, <b>최고세율 한 번 곱하고 누진공제만 빼면</b> 같은 답이 나오는 계산 지름길.</div>'},
+    {t:'소득공제', d:'세율을 곱하기 <b>전에 과세표준 자체를 줄여</b>주는 항목(인적공제·연금 등).<div class="gl-expl">*해설 : 점수를 매기기 전에 문제 수를 줄여주는 셈. <b>세율이 높은 사람일수록</b> 절세 효과가 커진다.</div>'},
+    {t:'세액공제', d:'계산이 끝난 <b>세금에서 직접 빼주는</b> 항목(연금저축·R&D 등).<div class="gl-expl">*해설 : 낼 세금 300만원에서 50만원 세액공제면 딱 <b>250만원</b>. 소득과 상관없이 뺀 만큼 그대로 줄어든다.</div>'},
+    {t:'종합소득', d:'이자·배당·사업·근로·연금·기타, <b>여섯 가지 소득을 합산</b>한 개인 소득. 이 합계로 다음 해 5월 종합소득세를 신고한다.<div class="gl-expl">*해설 : 월급 외에 <b>상가 임대료·강의료</b>가 있으면 전부 합쳐 한 번에 정산한다는 뜻.</div>'},
+    {t:'원천징수', d:'돈을 줄 때 지급자가 <b>세금을 미리 떼어</b> 국가에 대신 내주는 것.<div class="gl-expl">*해설 : 월급 통장에 <b>세금이 이미 빠진 실수령액</b>이 들어오는 것이 대표적인 원천징수.</div>'},
+    {t:'손금·익금', d:'법인세에서 비용으로 인정되면 <b>손금</b>, 수익으로 잡히면 <b>익금</b>. (익금 − 손금)이 과세소득이 된다.<div class="gl-expl">*해설 : 가게로 치면 익금은 판 돈, 손금은 인정되는 지출. <b>남은 이익에만</b> 법인세가 붙는다.</div>'},
+    {t:'가지급금', d:'뚜렷한 근거 없이 <b>법인 돈이 대표에게 빠져나간</b> 대여금 성격의 자금. <b>인정이자·세무조사</b> 리스크가 크다.<div class="gl-expl">*해설 : 회사 돈을 개인이 꺼내 쓴 셈이라 <b>이자를 물고 언젠가 갚아야</b> 하는 부담이 남는다.</div>'},
+    {t:'미처분이익잉여금', d:'배당·처분하지 않고 <b>회사에 쌓아둔 이익</b>. 많을수록 승계·가지급금 정리 부담이 커진다.<div class="gl-expl">*해설 : 회사 통장에 쌓인 비상금. <b>대표가 배당·퇴직금으로 꺼낼 때</b> 세금이 함께 따라온다.</div>'},
+    {t:'이월결손금', d:'<b>과거의 적자</b>를 이후 흑자 연도의 이익과 상계해 세금을 줄여주는 제도.<div class="gl-expl">*해설 : 작년 1천만원 손해, 올해 3천만원 이익이면 <b>2천만원에만</b> 세금. 손해를 다음 해로 넘겨 인정해준다.</div>'},
+    {t:'감가상각', d:'건물·기계처럼 오래 쓰는 자산의 가치 감소를 <b>여러 해에 나눠</b> 비용으로 반영하는 것.<div class="gl-expl">*해설 : 1억짜리 기계를 산 해에 다 처리하지 않고 <b>10년간 매년 1천만원씩</b> 비용으로 잡는다.</div>'},
+    {t:'이월과세', d:'세금을 지금 매기지 않고 <b>나중 시점으로 미뤄</b>주는 것(법인전환·현물출자 특례 등).<div class="gl-expl">*해설 : 지금 파는 게 아니라 넘기는 것이라, <b>세금도 실제로 처분하는 미래</b>로 함께 넘어간다.</div>'},
+    {t:'부가가치세', d:'재화·용역 거래에 붙는 <b>10% 세금</b>. 받은 매출세액에서 낸 매입세액을 빼 납부한다.<div class="gl-expl">*해설 : 소비자가 낸 부가세를 사업자가 잠깐 맡았다가 대신 내는 구조. <b>내 돈이 아니라 맡은 돈</b>에 가깝다.</div>'},
+    {t:'양도소득세', d:'부동산·주식 등 자산을 팔아 생긴 <b>차익(판 값 − 산 값)</b>에 매기는 세금.<div class="gl-expl">*해설 : 3억에 산 상가를 5억에 팔면 <b>차익 2억에만</b> 과세. 판 금액 전체가 아니다.</div>'},
+    {t:'상속세·증여세', d:'<b>사망으로 물려받으면 상속세</b>, <b>살아서 무상으로 받으면 증여세</b>가 부과된다.<div class="gl-expl">*해설 : 같은 재산도 넘긴 시점이 갈림길. <b>미리 나눠 증여</b>하면 세율을 낮출 여지가 생긴다.</div>'},
+    {t:'실효세율', d:'<b>실제 부담 세액 ÷ 소득</b>. 명목 최고세율과 달리 평균적인 실제 부담률을 뜻한다.<div class="gl-expl">*해설 : 최고세율 45% 구간이어도 공제를 빼면 <b>실제로는 20%대</b>만 낼 수 있다. 체감 세율에 가깝다.</div>'},
   ]},
   { cat:'법인·경영', terms:[
-    {t:'법인전환', d:'개인사업자를 법인으로 조직 변경하는 것. 세율 절감·대외신용·가업승계 등이 목적.'},
-    {t:'현물출자', d:'현금 대신 사업·부동산 등 자산을 회사에 출자하고 그 대가로 주식을 받는 것.'},
-    {t:'가업승계', d:'요건을 갖춘 기업을 자녀 등에게 물려줄 때 상속·증여세 부담을 완화해주는 제도.'},
-    {t:'정관', d:'회사의 기본 규칙을 정한 문서. 임원 퇴직금 규정 등 손금 처리의 근거가 된다.'},
-    {t:'임원퇴직금', d:'임원에게 지급하는 퇴직금. 정관·규정의 근거가 있어야 비용(손금)으로 인정된다.'},
-    {t:'배당', d:'회사 이익을 주주에게 나눠주는 것. 배당소득세가 과세된다.'},
-    {t:'자본금', d:'주주가 회사에 출자한 기본 자금.'},
-    {t:'대표이사', d:'회사를 대표해 업무를 집행하는 임원.'},
-    {t:'이사회', d:'회사의 주요 의사결정을 담당하는 이사들의 회의체.'},
+    {t:'법인전환', d:'개인사업자를 <b>법인으로 바꾸는</b> 것. 세율 절감·대외신용·가업승계 등이 목적이다.<div class="gl-expl">*해설 : 사장님 개인 가게를 주식회사로 만드는 절차. <b>이익이 커질수록 낮은 법인세율</b>이 유리해진다.</div>'},
+    {t:'현물출자', d:'현금 대신 <b>부동산·사업 등 자산을 회사에 넣고</b> 그 대가로 주식을 받는 것.<div class="gl-expl">*해설 : 통장에 돈을 넣는 대신 <b>내 건물을 회사에 주고 그만큼 지분(주식)</b>을 받는 방식.</div>'},
+    {t:'가업승계', d:'요건을 갖춘 기업을 <b>자녀 등에게 물려줄 때</b> 상속·증여세를 크게 <b>완화</b>해주는 제도.<div class="gl-expl">*해설 : 오래 운영한 가업을 잇도록 돕는 지원. <b>업력·고용유지 조건</b>을 못 지키면 감면이 취소된다.</div>'},
+    {t:'정관', d:'회사의 <b>기본 규칙을 정한 문서</b>. 임원 퇴직금 규정 등 손금 처리의 근거가 된다.<div class="gl-expl">*해설 : 회사의 헌법 같은 것. <b>정관에 퇴직금 규정이 없으면</b> 나중에 비용으로 인정받기 어렵다.</div>'},
+    {t:'임원퇴직금', d:'임원에게 주는 퇴직금. <b>정관·규정 근거</b>가 있어야 비용(손금)으로 인정된다.<div class="gl-expl">*해설 : 대표가 은퇴할 때 <b>세금 부담을 낮춰 회사 자금을 꺼내는 통로</b>. 단, 미리 규정을 갖춰둬야 한다.</div>'},
+    {t:'배당', d:'회사 이익을 <b>주주에게 나눠주는</b> 것. 받은 사람에게 배당소득세가 붙는다.<div class="gl-expl">*해설 : 지분만큼 나눠 갖는 몫. <b>미리 조금씩 배당</b>하면 회사에 쌓이는 잉여금 부담을 줄일 수 있다.</div>'},
+    {t:'자본금', d:'주주가 회사를 세울 때 <b>출자한 기본 밑천</b>. 등기부·재무제표의 자본 항목에 표시된다.'},
+    {t:'대표이사', d:'회사를 <b>대표해 업무를 집행</b>하는 임원. 계약·경영의 최종 책임을 진다.'},
+    {t:'이사회', d:'회사의 <b>주요 의사결정</b>을 맡는 이사들의 회의체. 중요 계약·투자 등을 의결한다.'},
   ]},
   { cat:'보험', terms:[
-    {t:'계약자', d:'보험료를 내고 계약을 체결·관리하는 사람. 계약상의 권리를 갖는다.'},
-    {t:'피보험자', d:'보험의 대상이 되는 사람. 이 사람의 사망·질병·상해 등이 보장 대상이 된다.'},
-    {t:'수익자', d:'보험사고 발생 시 보험금을 받는 사람.'},
-    {t:'보장성보험', d:'사망·질병·상해 등 위험 보장이 주된 목적인 보험.'},
-    {t:'저축성보험', d:'만기·해지 시 환급 등 저축·목돈 마련 기능이 큰 보험.'},
-    {t:'정기보험', d:'정해진 기간 동안만 사망을 보장하는 보험. 보험료가 저렴하다.'},
-    {t:'종신보험', d:'사망 시점과 무관하게 평생 사망을 보장하는 보험.'},
-    {t:'경영인정기보험', d:'법인이 계약자·수익자, 대표를 피보험자로 가입하는 정기보험. 퇴직금 재원·CEO 리스크 대비에 활용.'},
-    {t:'단체보험', d:'기업이 계약자가 되어 소속 임직원을 일괄로 가입시키는 보장성 보험.'},
-    {t:'해지환급금', d:'계약을 중도 해지할 때 돌려받는 금액.'},
-    {t:'예정이율', d:'보험사가 보험료를 산정할 때 적용하는 가정 이율. 높을수록 보험료가 낮아진다.'},
-    {t:'공시이율', d:'저축성보험의 적립금에 적용되는 변동 이율. 시장금리 등에 따라 바뀐다.'},
-    {t:'사업비', d:'납입 보험료 중 보험사의 운영·모집 등에 쓰이는 비용.'},
-    {t:'위험보험료', d:'보험료 중 실제 보장(사고 대비)에 쓰이는 부분.'},
-    {t:'실손의료보험', d:'실제 부담한 의료비를 보장하는 보험. "제2의 건강보험"으로 불린다.'},
-    {t:'고지의무', d:'계약 시 병력 등 중요한 사항을 사실대로 알릴 의무. 위반 시 계약 해지·보험금 부지급 가능.'},
-    {t:'면책기간', d:'보험금을 지급하지 않는 일정 기간(예: 가입 후 2년 내 자살 면책 등).'},
-    {t:'청약철회', d:'가입 후 일정 기간 내에 계약을 무를 수 있는 소비자 권리.'},
-    {t:'부활', d:'보험료 미납으로 실효된 계약을 일정 요건을 갖춰 다시 살리는 것.'},
-    {t:'감액완납', d:'이후 보험료 납입을 멈추는 대신 보장을 줄여서 계약을 유지하는 방식.'},
-    {t:'연금보험', d:'노후에 연금 형태로 나눠 받는 것을 목적으로 하는 보험.'},
-    {t:'변액보험', d:'보험료의 일부를 펀드에 투자해 운용 실적에 따라 환급금이 변동되는 보험.'},
-    {t:'책임준비금', d:'보험사가 미래의 보험금 지급을 위해 회계상 쌓아두는 적립금.'},
-    {t:'언더라이팅', d:'보험 가입 심사. 피보험자의 위험을 평가해 인수 여부·조건을 결정한다.'},
+    {t:'계약자', d:'<b>보험료를 내고 계약을 관리</b>하는 사람. 해지·수익자 변경 등 계약상 권리를 갖는다.<div class="gl-expl">*해설 : 보험의 주인. 피보험자·수익자와 다를 수 있고 <b>세금·권리는 계약자 기준</b>으로 따진다.</div>'},
+    {t:'피보험자', d:'<b>보험의 대상이 되는 사람</b>. 이 사람의 사망·질병·상해가 보장 대상이 된다.<div class="gl-expl">*해설 : 보장이 걸려 있는 사람. 사망보험이라면 <b>이 사람이 사망해야</b> 보험금이 나온다.</div>'},
+    {t:'수익자', d:'보험사고가 나면 <b>보험금을 받는 사람</b>.<div class="gl-expl">*해설 : 배우자·자녀·법인 등으로 지정할 수 있어, <b>누구로 정하느냐가 상속·세금</b>에 영향을 준다.</div>'},
+    {t:'보장성보험', d:'<b>사망·질병·상해 등 위험 보장</b>이 주목적인 보험. 만기 환급은 적거나 없다.<div class="gl-expl">*해설 : 저축이 아니라 사고 대비용. 낸 돈을 돌려받기보다 <b>위험이 닥쳤을 때 목돈</b>을 받는 게 핵심.</div>'},
+    {t:'저축성보험', d:'<b>만기·해지 환급 등 저축 기능</b>이 큰 보험.<div class="gl-expl">*해설 : 보장보다 목돈 마련에 무게. 대신 사업비 때문에 <b>초반에 해지하면 원금 손실</b>이 날 수 있다.</div>'},
+    {t:'정기보험', d:'<b>정해진 기간 동안만</b> 사망을 보장하는 보험. 보험료가 저렴하다.<div class="gl-expl">*해설 : 20년 만기 등 기간 한정 보장이라, 평생 보장하는 <b>종신보험보다 보험료가 훨씬 싸다</b>.</div>'},
+    {t:'종신보험', d:'<b>사망 시점과 무관하게 평생</b> 사망을 보장하는 보험.<div class="gl-expl">*해설 : 언제 사망해도 보험금이 나온다. <b>상속 재원·유족 생활비</b> 마련에 주로 쓰인다.</div>'},
+    {t:'경영인정기보험', d:'법인이 계약자·수익자, <b>대표를 피보험자</b>로 드는 정기보험. <b>퇴직금 재원·CEO 리스크</b> 대비에 쓴다.<div class="gl-expl">*해설 : 대표 유고 시 회사를 지키고, 평상시엔 <b>대표 퇴직금 재원</b>으로 활용하는 법인 전용 설계.</div>'},
+    {t:'단체보험', d:'기업이 계약자가 되어 <b>임직원을 일괄 가입</b>시키는 보장성 보험.<div class="gl-expl">*해설 : 직원 한 명씩이 아니라 회사가 한 번에 가입. <b>복리후생·산재 리스크 관리</b> 목적이 크다.</div>'},
+    {t:'해지환급금', d:'계약을 <b>중도 해지할 때 돌려받는</b> 금액.<div class="gl-expl">*해설 : 낸 보험료 전부가 아니다. 사업비·위험보험료를 뺀 나머지라 <b>초반 해지일수록 적게</b> 나온다.</div>'},
+    {t:'예정이율', d:'보험사가 보험료를 정할 때 쓰는 <b>가정 이율</b>. <b>높을수록 보험료가 싸진다</b>.<div class="gl-expl">*해설 : 보험사가 굴려 벌 것으로 미리 잡는 이자. <b>예정이율이 내리면</b> 같은 보장도 보험료가 오른다.</div>'},
+    {t:'공시이율', d:'저축성보험 적립금에 적용되는 <b>변동 이율</b>. 시장금리 등에 따라 매달 바뀐다.<div class="gl-expl">*해설 : 은행 변동금리처럼 오르내린다. <b>가입 때 이율이 만기까지 보장되는 게 아니다</b>.</div>'},
+    {t:'사업비', d:'낸 보험료 중 보험사의 <b>운영·설계사 모집 등에 쓰이는 비용</b>.<div class="gl-expl">*해설 : 보험료가 전부 적립되는 게 아니다. 이 사업비 때문에 <b>초반 해지환급금이 원금보다 적다</b>.</div>'},
+    {t:'위험보험료', d:'보험료 중 <b>실제 보장(사고 대비)에 쓰이는</b> 부분.<div class="gl-expl">*해설 : 낸 보험료는 위험보험료·저축보험료·사업비로 나뉜다. 그중 <b>순수 보장 몫</b>이 위험보험료다.</div>'},
+    {t:'실손의료보험', d:'실제 부담한 <b>의료비를 보장</b>하는 보험. <b>제2의 건강보험</b>으로 불린다.<div class="gl-expl">*해설 : 병원비 영수증 기준으로 보상. <b>진단만 되면 정액을 주는 진단비</b> 보험과는 성격이 다르다.</div>'},
+    {t:'고지의무', d:'계약 시 <b>병력 등 중요사항을 사실대로 알릴 의무</b>. 위반하면 <b>해지·보험금 부지급</b>이 가능하다.<div class="gl-expl">*해설 : 아픈 걸 숨기고 가입하면 <b>나중에 보험금을 못 받을 수</b> 있다. 청약서 질문에 솔직히 답해야 한다.</div>'},
+    {t:'면책기간', d:'보험금을 <b>지급하지 않는 일정 기간</b>(예: 가입 후 2년 내 자살 면책 등).<div class="gl-expl">*해설 : 가입 직후 보장이 바로 다 열리지 않는 항목이 있다. <b>이 기간이 지나야</b> 보장이 온전해진다.</div>'},
+    {t:'청약철회', d:'가입 후 <b>일정 기간 내 계약을 무를 수 있는</b> 소비자 권리.<div class="gl-expl">*해설 : 보통 <b>청약 후 15일 내</b>라면 위약금 없이 취소하고 보험료를 돌려받을 수 있다.</div>'},
+    {t:'부활', d:'보험료 미납으로 <b>실효된 계약을 다시 살리는</b> 것.<div class="gl-expl">*해설 : 새로 가입하면 나이가 올라 보험료가 비싸지므로, <b>기존 계약을 되살리는</b> 편이 유리할 수 있다.</div>'},
+    {t:'감액완납', d:'이후 <b>보험료 납입을 멈추는 대신 보장을 줄여</b> 계약을 유지하는 방식.<div class="gl-expl">*해설 : 보험료가 부담될 때 <b>해지 대신 선택</b>. 보장은 작아지지만 계약은 살아 있게 하는 절충안.</div>'},
+    {t:'연금보험', d:'노후에 <b>연금 형태로 나눠 받는</b> 것을 목적으로 하는 보험.<div class="gl-expl">*해설 : 목돈을 한 번에 받는 대신 <b>매달 생활비처럼</b> 지급. 은퇴 후 소득 공백을 메우는 용도.</div>'},
+    {t:'변액보험', d:'보험료 일부를 <b>펀드에 투자</b>해 <b>실적에 따라 환급금이 변동</b>되는 보험.<div class="gl-expl">*해설 : 수익이 나면 더 받지만 손실도 본인 몫. <b>원금이 보장되지 않을 수</b> 있는 투자형 보험이다.</div>'},
+    {t:'책임준비금', d:'보험사가 <b>미래 보험금 지급을 위해</b> 회계상 쌓아두는 적립금.<div class="gl-expl">*해설 : 보험사가 약속을 지키려고 따로 모아두는 비상금. <b>재무 건전성을 보는 핵심 지표</b>다.</div>'},
+    {t:'언더라이팅', d:'<b>보험 가입 심사</b>. 피보험자의 위험을 평가해 인수 여부·조건을 정한다.<div class="gl-expl">*해설 : 병력·직업·나이를 보고 <b>받아줄지, 보험료를 올릴지(할증)</b> 정하는 과정.</div>'},
   ]},
   { cat:'영업·재무진단', terms:[
-    {t:'니즈환기', d:'고객이 스스로 필요를 인식하도록 이끄는 상담 기법.'},
-    {t:'클로징', d:'상담을 계약 체결로 마무리하는 단계.'},
-    {t:'재무제표', d:'기업의 재무상태와 경영성과를 보여주는 표의 총칭(재무상태표·손익계산서 등).'},
-    {t:'손익계산서', d:'일정 기간의 매출·비용·이익을 보여주는 표.'},
-    {t:'재무상태표', d:'특정 시점의 자산·부채·자본을 보여주는 표(과거 명칭: 대차대조표).'},
-    {t:'현금흐름표', d:'일정 기간 현금의 유입·유출을 보여주는 표.'},
-    {t:'매출·영업이익·순이익', d:'매출액, 영업활동으로 번 이익(영업이익), 모든 비용·세금 차감 후 최종 이익(순이익).'},
-    {t:'부채비율', d:'부채 ÷ 자기자본. 재무 안정성을 보는 지표로, 낮을수록 안정적.'},
-    {t:'ROE·ROA', d:'자기자본이익률(ROE)·총자산이익률(ROA). 얼마나 효율적으로 이익을 냈는지 보는 수익성 지표.'},
+    {t:'니즈환기', d:'고객이 <b>스스로 필요를 느끼도록</b> 이끄는 상담 기법.<div class="gl-expl">*해설 : 상품을 들이밀기 전에 <b>왜 필요한지 질문으로 깨닫게</b> 하는 단계. 설득보다 자각이 먼저다.</div>'},
+    {t:'클로징', d:'상담을 <b>계약 체결로 마무리</b>하는 단계.<div class="gl-expl">*해설 : 결정을 미루는 고객이 <b>자연스럽게 서명·청약으로</b> 넘어가도록 이끄는 마지막 한 걸음.</div>'},
+    {t:'재무제표', d:'기업의 재무상태·경영성과를 보여주는 <b>표의 총칭</b>(재무상태표·손익계산서 등).<div class="gl-expl">*해설 : 회사의 건강검진표. 방문 전 이 표만 봐도 <b>자금 여력·니즈</b>를 가늠할 수 있다.</div>'},
+    {t:'손익계산서', d:'일정 기간의 <b>매출·비용·이익</b>을 보여주는 표.<div class="gl-expl">*해설 : 1년 동안 <b>얼마 벌고 얼마 써서 얼마 남았는지</b> 보여주는 성적표.</div>'},
+    {t:'재무상태표', d:'<b>특정 시점의 자산·부채·자본</b>을 보여주는 표(옛 명칭: 대차대조표).<div class="gl-expl">*해설 : 결산일 하루의 사진 한 장. <b>가진 것(자산)과 갚을 것(부채)</b>을 한눈에 보여준다.</div>'},
+    {t:'현금흐름표', d:'일정 기간 <b>현금의 유입·유출</b>을 보여주는 표.<div class="gl-expl">*해설 : 장부상 이익이 나도 통장엔 현금이 없을 수 있다. <b>실제 돈의 움직임</b>을 보는 표.</div>'},
+    {t:'매출·영업이익·순이익', d:'<b>매출</b>은 판 돈, <b>영업이익</b>은 본업으로 번 이익, <b>순이익</b>은 세금까지 뺀 최종 이익.<div class="gl-expl">*해설 : 매출이 커도 순이익은 작을 수 있다. <b>실제 남는 돈은 맨 아래 순이익</b>을 봐야 한다.</div>'},
+    {t:'부채비율', d:'<b>부채 ÷ 자기자본</b>. 재무 안정성 지표로 <b>낮을수록 안정적</b>이다.<div class="gl-expl">*해설 : 내 돈 대비 빚의 비율. 100%면 빚과 자기자본이 같다는 뜻으로, <b>높으면 위험 신호</b>다.</div>'},
+    {t:'ROE·ROA', d:'<b>자기자본이익률(ROE)</b>·<b>총자산이익률(ROA)</b>. 얼마나 효율적으로 이익을 냈는지 보는 수익성 지표.<div class="gl-expl">*해설 : 같은 이익도 <b>적은 밑천으로 냈으면 ROE가 높다</b>. 돈을 잘 굴리는 회사인지 판단하는 잣대.</div>'},
   ]},
 ];
 
@@ -2832,9 +3092,9 @@ function openGuideGlossary(){
     + `<input class="gl-search" id="gl-search" placeholder="🔍 용어 검색 (예: 과세표준, 종신보험)" oninput="filterGloss()">`
     + GLOSSARY.map(g=>`<div class="gl-group">
         <div class="gl-cat">${escapeHTML(g.cat)}</div>
-        ${g.terms.map(tm=>`<div class="gl-item" data-k="${escapeHTML((tm.t+' '+tm.d).toLowerCase())}">
+        ${g.terms.map(tm=>`<div class="gl-item" data-k="${escapeHTML((tm.t+' '+tm.d.replace(/<[^>]+>/g,' ')).toLowerCase())}">
           <button class="gl-term" onclick="toggleGloss(this)">${escapeHTML(tm.t)}<span class="gl-arrow">▾</span></button>
-          <div class="gl-body"><div class="gl-inner">${escapeHTML(tm.d)}</div></div>
+          <div class="gl-body"><div class="gl-inner">${tm.d}</div></div>
         </div>`).join('')}
       </div>`).join('')
     + subBackBarHTML();
@@ -3392,11 +3652,25 @@ function renderList(){
       ? `<div class="empty-hint">"${escapeHTML(listSearch.trim())}" 검색 결과가 없습니다.</div>`
       : '<div class="empty-hint">조건에 맞는 방문일지가 없습니다.</div>';
   } else if(folderView && !selectMode && !orderMode && !searching){
+    // 상단 고정 "⭐ 즐겨찾기" 폴더 — 별표한 기록만 모아서 맨 위에 보여준다.
+    const favItems = list.filter(x => x.j.favorite);
+    const favKey = 'comp::__fav__';
+    const favOpen = !!openFolders[favKey];
+    const favHTML = favItems.length ? `<div class="comp-folder fav-folder ${favOpen?'open':''}">
+      <div class="folder-head comp-head" style="background:#fff7e0;" onclick="toggleCompFolder('__fav__')">
+        <span class="folder-caret">${favOpen?'▼':'▶'}</span>
+        <span class="folder-icon">⭐</span>
+        <span class="folder-name">즐겨찾기</span>
+        <span class="folder-count">${favItems.length}</span>
+      </div>
+      ${favOpen ? `<div class="comp-body"><div class="folder-body">${favItems.map(x => journalCardHTML(x.j, true, x.idx)).join('')}</div></div>` : ''}
+    </div>` : '';
+
     // 동행자 → 지역 → 기록 (2단계 중첩 아코디언). 동행자 폴더를 펼치면 그 안에 지역 폴더가 보인다.
     const compGroups = groupJournalsByCompanion(list);
     // renameFolder는 지역(하위) 그룹을 참조하므로 모든 지역 그룹을 펼쳐서 보관
     window._lastGroups = compGroups.reduce((acc,c)=>acc.concat(c.regions), []);
-    wrap.innerHTML = compGroups.map(cg=>{
+    wrap.innerHTML = favHTML + compGroups.map(cg=>{
       const compKey = 'comp::' + cg.key;
       const compOpen = !!openFolders[compKey];
       const regionsHTML = cg.regions.map(g=>{
@@ -3766,6 +4040,16 @@ function moveJournal(idx, dir){
   renderList();
 }
 
+// 즐겨찾기 토글 — 방문기록 카드의 별표를 눌렀을 때. 상단 "⭐ 즐겨찾기" 폴더에 넣거나 뺀다.
+function toggleFavorite(id){
+  const j = journals.find(x => x.id === id);
+  if(!j) return;
+  j.favorite = !j.favorite;
+  persistJournals();
+  renderList();
+  toast(j.favorite ? '⭐ 즐겨찾기에 추가했습니다.' : '즐겨찾기에서 뺐습니다.');
+}
+
 function journalCardHTML(j, withTools, idx){
   const checkbox = (withTools && selectMode) ? `<input type="checkbox" class="chk" onclick="event.stopPropagation();toggleCheck(${j.id})" ${selectedIds.has(j.id)?'checked':''}>` : '';
   const orderBtns = (withTools && orderMode) ? `<div class="ord" onclick="event.stopPropagation();">
@@ -3775,6 +4059,8 @@ function journalCardHTML(j, withTools, idx){
     </div>` : '';
   // 폴더 이동 버튼 (일반 보기에서만 표시)
   const moveBtn = (withTools && !selectMode && !orderMode) ? `<button type="button" class="j-move" onclick="event.stopPropagation();openMoveFolder([${j.id}])">📁 폴더이동</button>` : '';
+  // 즐겨찾기 별표 — 누르면 상단 "⭐ 즐겨찾기" 폴더에 보이거나 빠진다
+  const favBtn = (withTools && !selectMode && !orderMode) ? `<button type="button" class="j-fav ${j.favorite?'on':''}" onclick="event.stopPropagation();toggleFavorite(${j.id})" title="즐겨찾기">${j.favorite?'★':'☆'}</button>` : '';
   const clickable = (selectMode) ? `onclick="toggleCheck(${j.id});renderList();"` : (orderMode ? '' : `onclick="openDetail(${j.id})"`);
   const resultClass = j.result ? 'r-'+j.result : '';
   return `<div class="j-card ${resultClass}" data-jid="${j.id}" ${clickable}>
@@ -3785,7 +4071,7 @@ function journalCardHTML(j, withTools, idx){
           <div class="company">${escapeHTML(j.companyName||'(기업명 없음)')}</div>
           <div class="date">${j.visitDate||''} ${j.visitTime||''} · ${escapeHTML(j.visitor||'')}</div>
         </div>
-        ${moveBtn}
+        <div class="j-actions">${favBtn}${moveBtn}</div>
       </div>
       ${j.result ? `<span class="tag">${escapeHTML(j.result)}</span>` : ''}
       ${j.priority ? `<span class="tag">${escapeHTML(j.priority)}</span>` : ''}
