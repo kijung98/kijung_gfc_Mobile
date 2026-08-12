@@ -746,6 +746,9 @@ select{-webkit-appearance:none;appearance:none;background-image:url("data:image/
 #gj2510-form .gj-inputs td{vertical-align:middle;}
 #gj2510-form .gj-inputs input{width:100%;box-sizing:border-box;padding:8px 9px;border:1.5px solid var(--line);border-radius:8px;font-size:14px;text-align:right;}
 #gj2510-form .gj-eg{color:var(--sub);font-size:11px;}
+#gj2510-form .gj-inputs td:first-child{font-weight:600;font-size:12.5px;}
+#gj2510-form .gj-inputs td:last-child{width:92px;}
+#gj2510-form .gj-note{font-weight:400;color:var(--sub);font-size:11px;margin-top:3px;line-height:1.4;}
 #gj2510-result .gj-err{background:#fdeaea;border:1px solid #f5c2c2;border-radius:10px;padding:10px 12px;margin-top:10px;}
 #gj2510-result .gj-err-title{font-weight:800;color:var(--red);font-size:13.5px;margin-bottom:6px;}
 #gj2510-result .gj-err-item{font-size:13px;color:#8a2b2b;margin-bottom:7px;line-height:1.55;}
@@ -2891,68 +2894,132 @@ function openGuideItem(id, i){
     + `<div class="card guide-detail">${c.items[i].html}</div>`
     + subBackBarHTML();
   applyGuideZoom();
-  if(document.getElementById('gj2510-form')) calcGijae2510();   // 설계 계산기 항목이면 초기값으로 즉시 계산
+  if(document.getElementById('gj2510-form')) buildGj2510();   // 설계 계산기 항목이면 입력표 생성 + 즉시 계산
   pushSub('screen-guide-detail', c.items[i].t);
 }
 
 /* ---------------- 단체보험 · 기업재해보장보험(2510) 설계 계산기 ----------------
-   요약서(2025.10.01. 개정) 기준. 위험등급별 가입한도 검증 + 위험평가지수(재해사망보장금액) 산출.
-   window.gj2510Result 에 최종값을 담아 두어, 추후 "최종값 출력" 기능에서 그대로 활용할 수 있게 한다. */
-function calcGijae2510(){
-  const gEl = document.getElementById('gj2510-grade');
-  if(!gEl) return;
-  const g = gEl.value;
-  const gradeName  = {'1':'위험 1급','2':'위험 2급','3':'위험 3급','4':'위험 4급','0':'비위험'}[g];
-  const deathLimit = {'1':20000,'2':50000,'3':50000,'4':100000,'0':100000}[g];   // 사망 가입한도(만원)
-  const disLimit   = {'1':20000,'2':50000,'3':100000,'4':100000,'0':100000}[g];  // 장해 가입한도(만원)
-  const main  = parseInt(document.getElementById('gj2510-main').value, 10)  || 0;
-  const newG  = parseInt(document.getElementById('gj2510-new').value, 10)   || 0;
-  const death = parseInt(document.getElementById('gj2510-death').value, 10) || 0;
+   요약서(2025.10.01. 개정) 기준. 상품가입한도표(섹션5) 전체 특약을 입력받아
+   위험등급별 가입한도 검증 + 위험평가지수(재해사망/재해장해 보장금액)를 산출한다.
+   d = 재해사망보장금액 계수, j = 재해장해보장금액 계수 (요약서 6번 위험평가지수 산식).
+   base/mult = 배수 한도(기준: mn=주보험+신재해보장G, main=주보험, newG=신재해보장G),
+   baseNo/multNo/maxNo = 신재해보장G 미가입 시 대체 한도.
+   window.gj2510Result 에 최종값을 담아 추후 "최종값 출력" 기능에서 활용한다. */
+const GJ_GRADE_NAME  = {'1':'위험 1급','2':'위험 2급','3':'위험 3급','4':'위험 4급','0':'비위험'};
+const GJ_DEATH_LIMIT = {'1':20000,'2':50000,'3':50000,'4':100000,'0':100000};   // 사망 가입한도(만원)
+const GJ_DIS_LIMIT   = {'1':20000,'2':50000,'3':100000,'4':100000,'0':100000};  // 장해 가입한도(만원)
+const GJ_ROWS = [
+  {k:'main',    n:'주보험',                 min:500,  max:10000, step:100, note:'최저 500만~1억 · 100만 단위',                       def:2500, d:2.5, j:2.5},
+  {k:'newG',    n:'신재해보장G특약E',        min:500,  max:null,  step:null,base:'main', mult:4, note:'(주보험+신재해보장G)=등급 사망한도 內 · 주보험의 4배', def:500,  d:2.5, j:2.5},
+  {k:'death',   n:'재해사망G특약E',          min:500,  max:5000,  step:10,  note:'500만~5,000만 · 10만 단위',                          def:2500, d:1},
+  {k:'jaebo',   n:'재해보장G특약E',          min:500,  max:10000, step:10,  base:'mn', mult:2.5, baseNo:'main', multNo:2, maxNo:20000, note:'주보험+신재해보장G의 2.5배 (미가입시 주보험 2배·최대 2억)', def:5000, d:1, j:1},
+  {k:'traffic', n:'교통재해보장특약E',        min:500,  max:10000, step:10,  base:'mn', mult:1,   baseNo:'main', multNo:2, note:'주보험+신재해보장G의 1배 · 사망합산 등급한도 內', def:0, d:1, j:1},
+  {k:'annuity', n:'신재해장해연금G특약E',      min:500,  max:3000,  step:10,  base:'annuity', note:'신재해보장G의 2배 / 재해보장G의 1배 / 두 특약 합의 2배 이내', def:3000, j:3.5},
+  {k:'indDeath',n:'신산업재해사망특약E',       min:500,  max:10000, step:10,  base:'mn', mult:2,   note:'주보험+신재해보장G의 2배 · 단체합산 1.5억',    def:5000, d:1},
+  {k:'indDis',  n:'신산업재해장해특약E',       min:500,  max:5000,  step:10,  base:'mn', mult:2,   note:'단일건 · 단체합산 1억 內',                    def:3000, j:1},
+  {k:'diseaseDeath', n:'질병사망보장특약IIE',  min:500,  max:20000, step:10,  base:'mn', mult:5,   note:'주보험+신재해보장G의 5배 · 기계약합산 5억',    def:0},
+  {k:'gododis', n:'고도장해보장특약E',         min:1000, max:20000, step:10,  note:'1,000만~2억 · 기계약합산 5억',                       def:0, j:1},
+  {k:'jaechiryo',n:'재해치료보장특약E',        min:500,  max:1000,  step:10,  base:'mn', mult:1,   note:'주보험+신재해보장G의 1배',                    def:1000},
+  {k:'ipwon',   n:'신재해입원특약E / 신입원특약', min:500, max:3000, step:10,  base:'mn', mult:1,   note:'주보험+신재해보장G의 1배',                    def:3000},
+  {k:'gwaro',   n:'과로사관련특정질병사망특약E', min:500,  max:3000, step:10,  note:'500만~3,000만',                                     def:0},
+  {k:'dokgam',  n:'독감치료및응급의료아나필락시스보장특약E', min:1000, max:2000, step:10, note:'1,000만~2,000만',                        def:0},
+  {k:'noe',     n:'뇌출혈진단특약E',           min:1000, max:2000,  step:10,  note:'뇌출혈+뇌졸중 기계약 합산 3,000만 內',               def:0},
+  {k:'simgun',  n:'급성심근경색증진단특약E',    min:1000, max:2000,  step:10,  note:'1,000만~2,000만',                                   def:0},
+  {k:'amjindan',n:'암진단특약IIE',            min:500,  max:2000,  step:10,  note:'기계약합산 3,000만 內',                              def:0},
+  {k:'gips',    n:'깁스치료(부목제외)특약E',    min:500,  max:1000,  step:10,  note:'500만~1,000만',                                     def:1000},
+  {k:'hwasang', n:'화상진단(심재성2도이상)특약E', min:500, max:1000, step:10,  note:'500만~1,000만',                                     def:1000},
+  {k:'susul',   n:'질병·재해수술특약E',        min:500,  max:1000,  step:10,  note:'500만~1,000만',                                     def:0},
+  {k:'yoyang',  n:'신산업재해요양특약E',        min:500,  max:2000,  step:10,  note:'500만~2,000만',                                     def:0},
+  {k:'eunggeup',n:'재해응급환자응급실내원특약E', min:500,  max:2000,  step:10,  note:'산재보장 주보험 기계약 합산 2,000만 內',             def:0},
+];
+
+// 입력표 생성 후 최초 계산
+function buildGj2510(){
+  const host = document.getElementById('gj2510-form');
+  if(!host) return;
+  const rows = GJ_ROWS.map(r =>
+    '<tr><td>' + escapeHTML(r.n) + '<div class="gj-note">' + escapeHTML(r.note) + '</div></td>'
+    + '<td><input type="number" inputmode="numeric" data-k="' + r.k + '" value="' + r.def + '" oninput="calcGj2510()"></td></tr>'
+  ).join('');
+  host.innerHTML =
+    '<div class="gj-field"><label>위험등급</label>'
+    + '<select id="gj2510-grade" onchange="calcGj2510()">'
+    + '<option value="1">위험 1급</option><option value="2">위험 2급</option><option value="3">위험 3급</option><option value="4">위험 4급</option><option value="0">비위험</option>'
+    + '</select></div>'
+    + '<table class="guide-table gj-inputs"><thead><tr><th>구분 · 가입한도</th><th>가입금액(만원)</th></tr></thead><tbody>' + rows + '</tbody></table>'
+    + '<div id="gj2510-result"></div>';
+  calcGj2510();
+}
+
+function calcGj2510(){
+  const host = document.getElementById('gj2510-form');
+  if(!host) return;
+  const g = (document.getElementById('gj2510-grade') || {}).value || '1';
+  const gradeName = GJ_GRADE_NAME[g], deathLimit = GJ_DEATH_LIMIT[g], disLimit = GJ_DIS_LIMIT[g];
   const fmt = n => Number(n).toLocaleString();
+  const val = {};
+  host.querySelectorAll('input[data-k]').forEach(inp => { val[inp.dataset.k] = parseInt(inp.value, 10) || 0; });
+  const main = val.main, newG = val.newG, mn = main + newG;
   const errs = [];
   const add = (m, e) => errs.push({ m, e: e || '' });
 
-  // 1) 주보험 : 500만~1억, 100만원 단위
-  if(main < 500 || main > 10000) add('주보험은 최저 500만원 ~ 최고 1억원(10,000만원) 이내로 입력하세요.', '1억을 넣으려면 10000을, 500만원은 500을 입력합니다.');
-  if(main % 100 !== 0) add('주보험은 100만원 단위로만 가입됩니다.', '예를 들어 1,250만원(1250)은 안 되고 1,300만원(1300)처럼 끝이 00으로 떨어져야 합니다.');
-  // 2) 주보험 + 신재해보장G ≤ 위험등급별 사망 가입한도
-  if(main + newG > deathLimit) add('[' + gradeName + '] 주보험+신재해보장G 합산 사망한도는 최대 ' + (deathLimit/10000) + '억원(' + fmt(deathLimit) + '만원)입니다. 현재 합계 ' + fmt(main + newG) + '만원.', '위험 1급에 가까울수록 한도가 낮습니다. 합계를 한도 이하로 줄이거나 위험등급을 확인하세요.');
-  // 3) 신재해보장G ≤ 주보험의 4배
-  if(newG > main * 4) add('신재해보장G특약은 주보험의 최대 4배(' + fmt(main * 4) + '만원)까지 가능합니다.', '주보험을 키우면 신재해보장G도 그만큼 크게 넣을 수 있습니다.');
-  // 4) 재해사망G : 500만~5,000만, 주보험 1배 이내, 10만원 단위
-  if(death < 500 || death > 5000) add('재해사망G특약은 500만원 ~ 5,000만원 사이로 입력하세요.', '');
-  if(death > main) add('재해사망G특약은 주보험의 1배(' + fmt(main) + '만원) 이내여야 합니다.', '재해사망G는 주보험 가입금액을 넘을 수 없습니다.');
-  if(death % 10 !== 0) add('재해사망G특약은 10만원 단위로 입력하세요.', '예) 1,005만원(1005)은 안 되고 1,010만원(1010)처럼 끝이 0이어야 합니다.');
+  GJ_ROWS.forEach(r => {
+    const v = val[r.k];
+    if(v <= 0) return;                       // 미가입(0)은 검증 제외
+    if(r.min != null && v < r.min) add(r.n + '은(는) 최소 ' + fmt(r.min) + '만원 이상이어야 합니다.', '');
+    if(r.max != null && v > r.max) add(r.n + '은(는) 최대 ' + fmt(r.max) + '만원 이내여야 합니다.', '');
+    if(r.step && v % r.step !== 0) add(r.n + '은(는) ' + fmt(r.step) + '만원 단위로 입력하세요.', r.step === 100 ? '끝이 00으로 떨어져야 합니다.' : '끝이 0으로 떨어져야 합니다.');
+    // 배수(동적) 한도
+    let base = r.base, mult = r.mult;
+    if(newG === 0 && r.baseNo){ base = r.baseNo; mult = r.multNo; }
+    if(base === 'annuity'){
+      const cap = (newG + (val.jaebo || 0)) * 2;   // 신재해보장G+재해보장G의 2배 (가장 넓은 기준)
+      if(v > cap) add(r.n + '은(는) 신재해보장G+재해보장G의 2배(' + fmt(cap) + '만원) 이내여야 합니다.', '재해보장G를 함께 키우면 한도가 커집니다.');
+    } else if(base){
+      const baseVal = base === 'mn' ? mn : (base === 'main' ? main : newG);
+      const cap = baseVal * mult;
+      const label = base === 'mn' ? '주보험+신재해보장G' : (base === 'main' ? '주보험' : '신재해보장G');
+      if(v > cap) add(r.n + '은(는) ' + label + '의 ' + mult + '배(' + fmt(cap) + '만원) 이내여야 합니다.', base === 'main' ? '주보험을 키우면 한도도 함께 커집니다.' : '');
+    }
+  });
+  // 주보험+신재해보장G 합산 사망한도
+  if(mn > deathLimit) add('[' + gradeName + '] 주보험+신재해보장G 합산은 사망 가입한도 ' + (deathLimit/10000) + '억원(' + fmt(deathLimit) + '만원) 이내여야 합니다. 현재 ' + fmt(mn) + '만원.', '위험 1급에 가까울수록 한도가 낮습니다. 합계를 줄이거나 위험등급을 확인하세요.');
 
   const box = document.getElementById('gj2510-result');
   if(!box) return;
-
   if(errs.length){
     box.innerHTML = '<div class="gj-err"><div class="gj-err-title">⚠️ 가입한도 오류 (' + errs.length + '건)</div>'
       + errs.map(x => '<div class="gj-err-item">• ' + escapeHTML(x.m)
-          + (x.e ? '<div class="gj-expl2">💡 해설 : ' + escapeHTML(x.e) + '</div>' : '')
-          + '</div>').join('')
+          + (x.e ? '<div class="gj-expl2">💡 해설 : ' + escapeHTML(x.e) + '</div>' : '') + '</div>').join('')
       + '</div>';
     window.gj2510Result = null;
     return;
   }
 
-  // 위험평가지수(재해사망보장금액) = 주보험×2.5 + 신재해보장G×2.5 + 재해사망G×1  (요약서 6번 산식)
-  const covManwon = Math.round(main * 2.5 + newG * 2.5 + death * 1);   // 만원
-  const covWon = covManwon * 10000;                                    // 원
-  box.innerHTML = '<div class="gj-ok"><div class="gj-ok-title">✅ 자동 계산된 보장내용</div>'
+  // 위험평가지수(요약서 6번 산식)
+  let riskDeath = 0, riskDis = 0;
+  GJ_ROWS.forEach(r => { const v = val[r.k]; if(r.d) riskDeath += v * r.d; if(r.j) riskDis += v * r.j; });
+  riskDeath = Math.round(riskDeath); riskDis = Math.round(riskDis);
+
+  const joined = GJ_ROWS.filter(r => val[r.k] > 0)
+    .map(r => '<tr><td>' + escapeHTML(r.n) + '</td><td>' + fmt(val[r.k]) + '만원</td></tr>').join('');
+
+  box.innerHTML = '<div class="gj-ok"><div class="gj-ok-title">✅ 가입 내역</div>'
+    + '<table class="guide-table"><thead><tr><th>구분</th><th>가입금액</th></tr></thead><tbody>' + joined + '</tbody></table>'
+    + '<div class="gj-ok-title" style="margin-top:12px;">📊 주요 보장금액 요약</div>'
     + '<table class="guide-table"><tbody>'
     + '<tr><td>선택 위험등급</td><td><b>' + gradeName + '</b></td></tr>'
-    + '<tr><td>사망 가입한도</td><td>' + (deathLimit/10000) + '억원 (' + fmt(deathLimit) + '만원)</td></tr>'
-    + '<tr><td>장해 가입한도</td><td>' + (disLimit/10000) + '억원 (' + fmt(disLimit) + '만원)</td></tr>'
-    + '<tr><td>주보험+신재해보장G 합계</td><td>' + fmt(main + newG) + '만원 / 한도 ' + fmt(deathLimit) + '만원</td></tr>'
-    + '<tr><td><b>위험평가지수(재해사망보장금액)</b></td><td><b style="color:var(--blue)">' + fmt(covManwon) + '만원</b><br>(' + fmt(covWon) + '원)</td></tr>'
+    + '<tr><td>사망 / 장해 가입한도</td><td>' + (deathLimit/10000) + '억 / ' + (disLimit/10000) + '억</td></tr>'
+    + '<tr><td>주보험+신재해보장G</td><td>' + fmt(mn) + '만원 (한도 ' + fmt(deathLimit) + '만원)</td></tr>'
+    + '<tr><td><b>위험평가지수 · 재해사망보장금액</b></td><td><b style="color:var(--blue)">' + fmt(riskDeath) + '만원</b></td></tr>'
+    + '<tr><td><b>위험평가지수 · 재해장해보장금액</b></td><td><b style="color:var(--blue)">' + fmt(riskDis) + '만원</b></td></tr>'
     + '</tbody></table>'
-    + '<div class="gj-formula">산식 : 주보험×2.5 + 신재해보장G×2.5 + 재해사망G×1 = ' + fmt(main) + '×2.5 + ' + fmt(newG) + '×2.5 + ' + fmt(death) + '×1</div>'
+    + '<div class="gj-formula">재해사망 = (주보험·신재해보장G)×2.5 + (재해사망G·재해보장G·신산업재해사망·교통재해)×1<br>'
+    + '재해장해 = (주보험·신재해보장G)×2.5 + 신재해장해연금G×3.5 + (재해보장G·고도장해·신산업재해장해·교통재해)×1</div>'
     + '</div>';
 
   // 추후 "최종값 출력"에서 사용할 결과 저장
-  window.gj2510Result = { gradeName, main, newG, death, deathLimit, disLimit, covManwon, covWon };
+  window.gj2510Result = { grade: g, gradeName, amounts: val, mn, deathLimit, disLimit, riskDeath, riskDis };
 }
 
 /* ---------------- 세금 계산기 (영업백과) ---------------- */
