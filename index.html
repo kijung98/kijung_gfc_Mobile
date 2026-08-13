@@ -248,8 +248,8 @@ html,body{margin:0;padding:0;height:100%;color:var(--text);
   flex-shrink:0;touch-action:manipulation;}
 .j-card .j-fav.on{color:#f5b301;}
 .j-card .j-actions .j-move{margin-left:0;}
-/* 즐겨찾기 폴더 (방문기록 상단 고정) */
-.comp-folder.fav-folder{border-color:#f5c518;}
+/* 즐겨찾기 폴더 (방문자별 · 이름 폴더 안 맨 위) */
+.region-folder.fav-folder{border-color:#f5c518;}
 .j-card .snippet{font-size:13px;color:#4a5568;margin-top:8px;line-height:1.4;
   display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
 .empty-hint{text-align:center;color:var(--sub);font-size:13px;padding:40px 10px;}
@@ -1898,6 +1898,7 @@ let cameFromList = false;
 
 function switchTab(tab){
   subStack = [];
+  cameFromList = false;   // 탭을 바꾸면 "방문기록에서 진입" 플래그 초기화 (영업백과 뒤로가기가 방문기록으로 튀는 문제 방지)
   hideAllSub();
   document.querySelectorAll('#screens > .screen').forEach(s=>s.classList.remove('active'));
   document.getElementById('screen-'+tab).classList.add('active');
@@ -2300,68 +2301,9 @@ const GUIDE = [
         <div class="guide-note">⚠️ 계약 가능 법인은 통상 <b>본점(81·86·87·88)</b> 기준입니다. 지점(85)·비법인단체(82)·외국법인(84) 등은 상품·심사 요건이 달라 확인이 필요합니다.</div>` },
     ] },
 
-  { id:'ins', title:'보험 설계', desc:'단체보험·CEO보장·기업재해보장·실손보험', tile:'blue',
+  { id:'ins', title:'보험 설계', desc:'CEO보장·실손보험·수술비·암보험 리모델링', tile:'blue',
     svg:'<path d="M12 3l8 3v6c0 4.5-3.2 7.5-8 9-4.8-1.5-8-4.5-8-9V6z"/>',
     items:[
-      { t:'단체보험 청약 구비서류', html:`
-        <h3>1. 계약 전 필수서류</h3>
-        <ul><li>☐ 단체코드등록: 사업자등록증 사본 (대표 필컨동의)</li>
-        <li>☐ 단체보험 청약설계를 위한 상세 동의서 (유효기간: 1년)</li></ul>
-        <h3>2. 법인사업자 구비서류</h3>
-        <ul><li>☐ 사업자등록증 사본 1부</li>
-        <li>☐ 법인인감증명서 1부 (최근 3개월 내 발급) 단, 공동대표는 전원</li>
-        <li>☐ 법인등기부등본 사본 1부 (최근 3개월 내 발급)</li>
-        <li>☐ 주주명부 · 법인인감도장은 공동대표일 경우 전원</li>
-        <li>☐ 법인통장사본</li>
-        <li>☐ 4대보험 가입자 명부 1부 (4대사회보험정보연계센터에서 발행)</li></ul>
-        <h3>3. 개인사업자 구비서류</h3>
-        <ul><li>☐ 사업자등록증 사본 1부</li>
-        <li>☐ 개인인감증명서 1부 (최근 3개월 내 발급) 단, 공동대표는 전원</li>
-        <li>☐ 대표자 신분증 사본 1부 단, 공동대표는 전원</li>
-        <li>☐ 회사통장사본</li>
-        <li>☐ 4대보험 가입자 명부</li></ul>
-        <div class="guide-note">⚠️ 구비서류·유효기간은 보험사·상품·심사 상황에 따라 달라질 수 있습니다. 청약 전 해당 보험사 기준을 확인하세요.</div>` },
-      { t:'단체보험 설계 요령', html:`
-        <h3>단체보험이란</h3>
-        <p>기업이 계약자가 되어 소속 임직원을 피보험자로 일괄 가입하는 보장성 보험(단체상해·단체정기 등). 복리후생·위험관리 목적.</p>
-        <h3>설계 포인트</h3>
-        <ul><li>피보험자 동의·규약 확인(근로자 동의 필요)</li>
-        <li>보장범위: 업무상/외 재해, 사망·후유장해·실손 등</li>
-        <li>보험료 손금 처리 요건 확인(복리후생 성격)</li>
-        <li>수익자 지정(회사/유족)에 따른 세무 효과</li></ul>
-        <div class="guide-tip">💡 근로자수 증가·산재 리스크가 큰 제조업 타깃에 특히 유효. '근로자수 필터'로 대상 발굴.</div>
-        <div class="guide-note">⚠️ 손금·과세 처리는 계약형태에 따라 상이. 세무 검토 병행.</div>
-        <h3>📋 설계 샘플 — 탄탄보장 2억Plan</h3>
-        <p>4만원 초반대 저렴한 보험료로 <b>산재사망 최대 2억원</b> 보장 (제조업·위험3등급 기준).</p>
-        <table class="guide-table"><thead><tr><th>설계내용</th><th>가입금액</th><th>남자</th><th>여자</th></tr></thead><tbody>
-        <tr><td>주보험 60%환급형</td><td>1,600</td><td>4,672원</td><td>3,936원</td></tr>
-        <tr><td>신재해보장G</td><td>2,400</td><td>26,592원</td><td>22,368원</td></tr>
-        <tr><td>재해보장G</td><td>5,000</td><td>3,150원</td><td>1,750원</td></tr>
-        <tr><td>산재사망</td><td>5,000</td><td>1,000원</td><td>1,000원</td></tr>
-        <tr><td>장해연금G</td><td>3,000</td><td>420원</td><td>180원</td></tr>
-        <tr><td>재해치료비</td><td>1,000</td><td>2,600원</td><td>2,000원</td></tr>
-        <tr><td>깁스</td><td>1,000</td><td>150원</td><td>130원</td></tr>
-        <tr><td>신재해입원</td><td>3,000</td><td>1,500원</td><td>1,500원</td></tr>
-        <tr><td>응급실내원</td><td>2,000</td><td>1,100원</td><td>700원</td></tr>
-        <tr><td><b>합계보험료</b></td><td>-</td><td><b>41,184원</b></td><td><b>33,564원</b></td></tr>
-        <tr><td><b>만기환급율</b></td><td>-</td><td><b>52.8%</b></td><td><b>54.6%</b></td></tr>
-        </tbody></table>
-        <h3>보장내용</h3>
-        <table class="guide-table"><thead><tr><th>보장항목</th><th>보장금액</th></tr></thead><tbody>
-        <tr><td>산재사망</td><td>2억원</td></tr>
-        <tr><td>재해사망</td><td>1.5억원</td></tr>
-        <tr><td>재해장해</td><td>1.3억 × 장해지급율</td></tr>
-        <tr><td>재해장해연금</td><td>900만원 × 20년</td></tr>
-        <tr><td>중화상 진단</td><td>1,000만원</td></tr>
-        <tr><td>재해성형</td><td>200~300만원</td></tr>
-        <tr><td>재해수술</td><td>100만원</td></tr>
-        <tr><td>재해골절</td><td>30만원</td></tr>
-        <tr><td>5대재해골절</td><td>50만원</td></tr>
-        <tr><td>깁스</td><td>10만원</td></tr>
-        <tr><td>재해입원</td><td>3만원</td></tr>
-        <tr><td>재해응급실내원</td><td>10만원</td></tr>
-        </tbody></table>
-        <div class="guide-note">※ 제조업 · 위험3등급 · 1종 · 60%환급형 · 10년납 10년만기 기준 샘플. 가입금액 단위는 만원. 실제 보험료·보장금액은 연령·직업·상품개정에 따라 달라지며 상품설명서·상담으로 확인.</div>` },
       { t:'경영인정기보험(CEO보장)', html:`
         <h3>경영인정기보험이란</h3>
         <p>법인이 계약자·수익자, 대표이사를 피보험자로 하는 정기보험. 대표 유고 시 기업 리스크 대비 + 퇴직금 재원·가지급금 정리 등 자금설계에 활용.</p>
@@ -2370,32 +2312,6 @@ const GUIDE = [
         <div class="guide-tip">💡 '법인 & 대표 50~60대 & 순이익 존재' 조건에서 니즈가 큼.</div>
         ${guideLink('corp','가업승계·사전증여 요약','가업승계·사전증여 요약 보기','법인영업·법인전환 섹션')}
         <div class="guide-note">⚠️ 손금산입·해지환급 관련 과세는 사안별로 상이. 세무 확인 필수.</div>` },
-      { t:'기업재해보장보험 (중대재해 대비)', html:`
-        <h3>왜 필요한가 — 중대재해처벌법</h3>
-        <p>2024.1.27부터 <b>상시근로자 5인 이상 모든 사업장</b>에 전면 적용. 제조업은 기계·설비 사고 위험이 커 특히 취약합니다.</p>
-        <ul><li>근로자 사망 시 경영책임자: <b>1년 이상 징역 또는 10억원 이하 벌금</b></li>
-        <li>민사상 손해액의 <b>최대 5배</b> 징벌적 손해배상</li>
-        <li>2026년부터 중대재해 발생 사업장명·업종·원인 공개 → 평판 리스크</li></ul>
-        <h3>산재보험만으로 부족한 이유</h3>
-        <p>산재보험은 평균임금 기준 <b>법정 상한 내</b>에서만 보상합니다. 실제 손해액(일실수익·위자료·개호비 등)과의 차액, 사업주 형사처벌·징벌적 배상은 산재보험으로 해결되지 않습니다.</p>
-        <h3>산재보험 vs 기업재해보장보험</h3>
-        <table class="guide-table"><thead><tr><th>구분</th><th>산재(국가)</th><th>기업재해보장</th></tr></thead><tbody>
-        <tr><td>보상기준</td><td>법정 상한 내</td><td>설계 보장금액(초과분까지)</td></tr>
-        <tr><td>초과 손해배상</td><td>미보장</td><td>특약으로 재원 마련</td></tr>
-        <tr><td>징벌적 배상(최대5배)</td><td>대상 아님</td><td>특약 설계로 대비</td></tr>
-        <tr><td>복리후생</td><td>법정 최소</td><td>수익자 근로자 지정 시 강화</td></tr>
-        </tbody></table>
-        <h3>핵심 활용 포인트</h3>
-        <ul><li>주보험: 재해 사망·장해 / 특약: 산재 초과 손해배상금·합의금 재원</li>
-        <li>신속한 합의 → 형사재판 양형에 유리한 <b>정상참작</b> 확보</li>
-        <li>근로자 중도 퇴직 시 피보험자만 교체해 계약 유지</li></ul>
-        <h3>가입 시 필요서류(요약)</h3>
-        <ul><li>사업자등록증·법인등기부등본·대표자 신분증</li>
-        <li>근로자명부(피보험자)·<b>근로자 서면동의서</b>(상법상 필수)</li>
-        <li>보험료 자동이체 통장, 법인인감증명서(법인계약 시)</li></ul>
-        <div class="guide-tip">💡 '제조업 & 5인 이상'이면 사실상 전 사업장이 대상. 대표 형사·재무 리스크를 함께 낮추는 강력한 접근 포인트.</div>
-        ${guideLink('ins','단체보험 설계 요령','단체보험 설계 요령 보기','보험 설계 섹션')}
-        <div class="guide-note">⚠️ 형사처벌(징역·벌금) 자체를 보험으로 대납·면제할 수는 없습니다. 신속한 손해배상·합의로 양형 정상참작에 도움. 정확한 보장·서류는 약관·상품설명서 및 상담으로 확인.</div>` },
       { t:'실손보험 1~5세대 완전정리', html:`
         <h3>실손이 자꾸 바뀌는 이유</h3>
         <p>보험사가 임의로 바꾸는 게 아니라 <b>①나라 정책 → ②병원(진료·환자구성) → ③보험 반영</b> 순으로 바뀝니다. 지금 방향은 <b>'중증 집중, 비중증·비급여 축소'</b>.</p>
@@ -2553,9 +2469,94 @@ const GUIDE = [
         <div class="guide-note">⚠️ 본 자료는 <b>판매자 교육용</b>입니다(온라인 게재·광고 활용 금지). 담보 명칭·출시시기는 상품·회사별로 다르며, 실제 보장은 약관·상품설명서로 확인하세요.</div>` },
     ] },
 
-  { id:'group', title:'단체보험', desc:'기업재해보장보험(2510) 설계 · 가입한도 자동계산기', tile:'navy',
+  { id:'group', title:'단체보험', desc:'단체보험 설계·청약서류·기업재해보장 · 2510 가입한도 자동계산기', tile:'navy',
     svg:'<path d="M3 21h18"/><path d="M5 21V7l7-4v18"/><path d="M19 21V10l-7-3"/><path d="M9 9h.01M9 12h.01M9 15h.01"/>',
     items:[
+      { t:'단체보험 설계 요령', html:`
+        <h3>단체보험이란</h3>
+        <p>기업이 계약자가 되어 소속 임직원을 피보험자로 일괄 가입하는 보장성 보험(단체상해·단체정기 등). 복리후생·위험관리 목적.</p>
+        <h3>설계 포인트</h3>
+        <ul><li>피보험자 동의·규약 확인(근로자 동의 필요)</li>
+        <li>보장범위: 업무상/외 재해, 사망·후유장해·실손 등</li>
+        <li>보험료 손금 처리 요건 확인(복리후생 성격)</li>
+        <li>수익자 지정(회사/유족)에 따른 세무 효과</li></ul>
+        <div class="guide-tip">💡 근로자수 증가·산재 리스크가 큰 제조업 타깃에 특히 유효. '근로자수 필터'로 대상 발굴.</div>
+        <div class="guide-note">⚠️ 손금·과세 처리는 계약형태에 따라 상이. 세무 검토 병행.</div>
+        <h3>📋 설계 샘플 — 탄탄보장 2억Plan</h3>
+        <p>4만원 초반대 저렴한 보험료로 <b>산재사망 최대 2억원</b> 보장 (제조업·위험3등급 기준).</p>
+        <table class="guide-table"><thead><tr><th>설계내용</th><th>가입금액</th><th>남자</th><th>여자</th></tr></thead><tbody>
+        <tr><td>주보험 60%환급형</td><td>1,600</td><td>4,672원</td><td>3,936원</td></tr>
+        <tr><td>신재해보장G</td><td>2,400</td><td>26,592원</td><td>22,368원</td></tr>
+        <tr><td>재해보장G</td><td>5,000</td><td>3,150원</td><td>1,750원</td></tr>
+        <tr><td>산재사망</td><td>5,000</td><td>1,000원</td><td>1,000원</td></tr>
+        <tr><td>장해연금G</td><td>3,000</td><td>420원</td><td>180원</td></tr>
+        <tr><td>재해치료비</td><td>1,000</td><td>2,600원</td><td>2,000원</td></tr>
+        <tr><td>깁스</td><td>1,000</td><td>150원</td><td>130원</td></tr>
+        <tr><td>신재해입원</td><td>3,000</td><td>1,500원</td><td>1,500원</td></tr>
+        <tr><td>응급실내원</td><td>2,000</td><td>1,100원</td><td>700원</td></tr>
+        <tr><td><b>합계보험료</b></td><td>-</td><td><b>41,184원</b></td><td><b>33,564원</b></td></tr>
+        <tr><td><b>만기환급율</b></td><td>-</td><td><b>52.8%</b></td><td><b>54.6%</b></td></tr>
+        </tbody></table>
+        <h3>보장내용</h3>
+        <table class="guide-table"><thead><tr><th>보장항목</th><th>보장금액</th></tr></thead><tbody>
+        <tr><td>산재사망</td><td>2억원</td></tr>
+        <tr><td>재해사망</td><td>1.5억원</td></tr>
+        <tr><td>재해장해</td><td>1.3억 × 장해지급율</td></tr>
+        <tr><td>재해장해연금</td><td>900만원 × 20년</td></tr>
+        <tr><td>중화상 진단</td><td>1,000만원</td></tr>
+        <tr><td>재해성형</td><td>200~300만원</td></tr>
+        <tr><td>재해수술</td><td>100만원</td></tr>
+        <tr><td>재해골절</td><td>30만원</td></tr>
+        <tr><td>5대재해골절</td><td>50만원</td></tr>
+        <tr><td>깁스</td><td>10만원</td></tr>
+        <tr><td>재해입원</td><td>3만원</td></tr>
+        <tr><td>재해응급실내원</td><td>10만원</td></tr>
+        </tbody></table>
+        <div class="guide-note">※ 제조업 · 위험3등급 · 1종 · 60%환급형 · 10년납 10년만기 기준 샘플. 가입금액 단위는 만원. 실제 보험료·보장금액은 연령·직업·상품개정에 따라 달라지며 상품설명서·상담으로 확인.</div>` },
+      { t:'단체보험 청약 구비서류', html:`
+        <h3>1. 계약 전 필수서류</h3>
+        <ul><li>☐ 단체코드등록: 사업자등록증 사본 (대표 필컨동의)</li>
+        <li>☐ 단체보험 청약설계를 위한 상세 동의서 (유효기간: 1년)</li></ul>
+        <h3>2. 법인사업자 구비서류</h3>
+        <ul><li>☐ 사업자등록증 사본 1부</li>
+        <li>☐ 법인인감증명서 1부 (최근 3개월 내 발급) 단, 공동대표는 전원</li>
+        <li>☐ 법인등기부등본 사본 1부 (최근 3개월 내 발급)</li>
+        <li>☐ 주주명부 · 법인인감도장은 공동대표일 경우 전원</li>
+        <li>☐ 법인통장사본</li>
+        <li>☐ 4대보험 가입자 명부 1부 (4대사회보험정보연계센터에서 발행)</li></ul>
+        <h3>3. 개인사업자 구비서류</h3>
+        <ul><li>☐ 사업자등록증 사본 1부</li>
+        <li>☐ 개인인감증명서 1부 (최근 3개월 내 발급) 단, 공동대표는 전원</li>
+        <li>☐ 대표자 신분증 사본 1부 단, 공동대표는 전원</li>
+        <li>☐ 회사통장사본</li>
+        <li>☐ 4대보험 가입자 명부</li></ul>
+        <div class="guide-note">⚠️ 구비서류·유효기간은 보험사·상품·심사 상황에 따라 달라질 수 있습니다. 청약 전 해당 보험사 기준을 확인하세요.</div>` },
+      { t:'기업재해보장보험 (중대재해 대비)', html:`
+        <h3>왜 필요한가 — 중대재해처벌법</h3>
+        <p>2024.1.27부터 <b>상시근로자 5인 이상 모든 사업장</b>에 전면 적용. 제조업은 기계·설비 사고 위험이 커 특히 취약합니다.</p>
+        <ul><li>근로자 사망 시 경영책임자: <b>1년 이상 징역 또는 10억원 이하 벌금</b></li>
+        <li>민사상 손해액의 <b>최대 5배</b> 징벌적 손해배상</li>
+        <li>2026년부터 중대재해 발생 사업장명·업종·원인 공개 → 평판 리스크</li></ul>
+        <h3>산재보험만으로 부족한 이유</h3>
+        <p>산재보험은 평균임금 기준 <b>법정 상한 내</b>에서만 보상합니다. 실제 손해액(일실수익·위자료·개호비 등)과의 차액, 사업주 형사처벌·징벌적 배상은 산재보험으로 해결되지 않습니다.</p>
+        <h3>산재보험 vs 기업재해보장보험</h3>
+        <table class="guide-table"><thead><tr><th>구분</th><th>산재(국가)</th><th>기업재해보장</th></tr></thead><tbody>
+        <tr><td>보상기준</td><td>법정 상한 내</td><td>설계 보장금액(초과분까지)</td></tr>
+        <tr><td>초과 손해배상</td><td>미보장</td><td>특약으로 재원 마련</td></tr>
+        <tr><td>징벌적 배상(최대5배)</td><td>대상 아님</td><td>특약 설계로 대비</td></tr>
+        <tr><td>복리후생</td><td>법정 최소</td><td>수익자 근로자 지정 시 강화</td></tr>
+        </tbody></table>
+        <h3>핵심 활용 포인트</h3>
+        <ul><li>주보험: 재해 사망·장해 / 특약: 산재 초과 손해배상금·합의금 재원</li>
+        <li>신속한 합의 → 형사재판 양형에 유리한 <b>정상참작</b> 확보</li>
+        <li>근로자 중도 퇴직 시 피보험자만 교체해 계약 유지</li></ul>
+        <h3>가입 시 필요서류(요약)</h3>
+        <ul><li>사업자등록증·법인등기부등본·대표자 신분증</li>
+        <li>근로자명부(피보험자)·<b>근로자 서면동의서</b>(상법상 필수)</li>
+        <li>보험료 자동이체 통장, 법인인감증명서(법인계약 시)</li></ul>
+        <div class="guide-tip">💡 '제조업 & 5인 이상'이면 사실상 전 사업장이 대상. 대표 형사·재무 리스크를 함께 낮추는 강력한 접근 포인트.</div>
+        ${guideLink('group','단체보험 설계 요령','단체보험 설계 요령 보기','단체보험 섹션')}
+        <div class="guide-note">⚠️ 형사처벌(징역·벌금) 자체를 보험으로 대납·면제할 수는 없습니다. 신속한 손해배상·합의로 양형 정상참작에 도움. 정확한 보장·서류는 약관·상품설명서 및 상담으로 확인.</div>` },
       { t:'기업재해보장보험(2510) 설계 계산기', html:`
         <h3>기업재해보장보험(2510) 설계 계산기 <span style="font-weight:600;color:var(--sub);font-size:12px;">· 삼성생명 · 2025.10.01. 개정</span></h3>
         <p>위험등급을 고르고 각 <b>특약 가입금액(만원)</b>을 입력하면 <b>가입한도 검증</b>과 <b>위험평가지수(재해사망·재해장해 보장금액)</b>가 자동 계산됩니다. 가입하지 않을 특약은 <b>0</b>으로 두세요. (예: 1억 = 10000)</p>
@@ -2899,38 +2900,37 @@ function openGuideItem(id, i){
 }
 
 /* ---------------- 단체보험 · 기업재해보장보험(2510) 설계 계산기 ----------------
-   요약서(2025.10.01. 개정) 기준. 상품가입한도표(섹션5) 전체 특약을 입력받아
-   위험등급별 가입한도 검증 + 위험평가지수(재해사망/재해장해 보장금액)를 산출한다.
-   d = 재해사망보장금액 계수, j = 재해장해보장금액 계수 (요약서 6번 위험평가지수 산식).
-   base/mult = 배수 한도(기준: mn=주보험+신재해보장G, main=주보험, newG=신재해보장G),
-   baseNo/multNo/maxNo = 신재해보장G 미가입 시 대체 한도.
+   공식 "단체 가입한도 계산기(2406)" 엑셀 로직 기반. 특약별 가입금액을 입력하면
+   6개 보장금액(재해사망·질병사망·장해·수술·진단)을 특약별 계수로 자동 산출한다.
+   sat=재해사망, jil=질병사망, jang=장해, sul=수술, diag=진단(질병사망보장E분),
+   diagMax=진단(암·뇌·심 중 최댓값 1개). 주보험은 종류(1종/2종)에 따라 계수 적용.
    window.gj2510Result 에 최종값을 담아 추후 "최종값 출력" 기능에서 활용한다. */
 const GJ_GRADE_NAME  = {'1':'위험 1급','2':'위험 2급','3':'위험 3급','4':'위험 4급','0':'비위험'};
 const GJ_DEATH_LIMIT = {'1':20000,'2':50000,'3':50000,'4':100000,'0':100000};   // 사망 가입한도(만원)
 const GJ_DIS_LIMIT   = {'1':20000,'2':50000,'3':100000,'4':100000,'0':100000};  // 장해 가입한도(만원)
+// max=null 은 배수 한도(4배 등)나 합산한도로만 제한되는 항목. cap4=주보험 4배 한도.
 const GJ_ROWS = [
-  {k:'main',    n:'주보험',                 min:500,  max:10000, step:100, note:'최저 500만~1억 · 100만 단위',                       def:2500, d:2.5, j:2.5},
-  {k:'newG',    n:'신재해보장G특약E',        min:500,  max:null,  step:null,base:'main', mult:4, note:'(주보험+신재해보장G)=등급 사망한도 內 · 주보험의 4배', def:500,  d:2.5, j:2.5},
-  {k:'death',   n:'재해사망G특약E',          min:500,  max:5000,  step:10,  note:'500만~5,000만 · 10만 단위',                          def:2500, d:1},
-  {k:'jaebo',   n:'재해보장G특약E',          min:500,  max:10000, step:10,  base:'mn', mult:2.5, baseNo:'main', multNo:2, maxNo:20000, note:'주보험+신재해보장G의 2.5배 (미가입시 주보험 2배·최대 2억)', def:5000, d:1, j:1},
-  {k:'traffic', n:'교통재해보장특약E',        min:500,  max:10000, step:10,  base:'mn', mult:1,   baseNo:'main', multNo:2, note:'주보험+신재해보장G의 1배 · 사망합산 등급한도 內', def:0, d:1, j:1},
-  {k:'annuity', n:'신재해장해연금G특약E',      min:500,  max:3000,  step:10,  base:'annuity', note:'신재해보장G의 2배 / 재해보장G의 1배 / 두 특약 합의 2배 이내', def:3000, j:3.5},
-  {k:'indDeath',n:'신산업재해사망특약E',       min:500,  max:10000, step:10,  base:'mn', mult:2,   note:'주보험+신재해보장G의 2배 · 단체합산 1.5억',    def:5000, d:1},
-  {k:'indDis',  n:'신산업재해장해특약E',       min:500,  max:5000,  step:10,  base:'mn', mult:2,   note:'단일건 · 단체합산 1억 內',                    def:3000, j:1},
-  {k:'diseaseDeath', n:'질병사망보장특약IIE',  min:500,  max:20000, step:10,  base:'mn', mult:5,   note:'주보험+신재해보장G의 5배 · 기계약합산 5억',    def:0},
-  {k:'gododis', n:'고도장해보장특약E',         min:1000, max:20000, step:10,  note:'1,000만~2억 · 기계약합산 5억',                       def:0, j:1},
-  {k:'jaechiryo',n:'재해치료보장특약E',        min:500,  max:1000,  step:10,  base:'mn', mult:1,   note:'주보험+신재해보장G의 1배',                    def:1000},
-  {k:'ipwon',   n:'신재해입원특약E / 신입원특약', min:500, max:3000, step:10,  base:'mn', mult:1,   note:'주보험+신재해보장G의 1배',                    def:3000},
-  {k:'gwaro',   n:'과로사관련특정질병사망특약E', min:500,  max:3000, step:10,  note:'500만~3,000만',                                     def:0},
-  {k:'dokgam',  n:'독감치료및응급의료아나필락시스보장특약E', min:1000, max:2000, step:10, note:'1,000만~2,000만',                        def:0},
-  {k:'noe',     n:'뇌출혈진단특약E',           min:1000, max:2000,  step:10,  note:'뇌출혈+뇌졸중 기계약 합산 3,000만 內',               def:0},
-  {k:'simgun',  n:'급성심근경색증진단특약E',    min:1000, max:2000,  step:10,  note:'1,000만~2,000만',                                   def:0},
-  {k:'amjindan',n:'암진단특약IIE',            min:500,  max:2000,  step:10,  note:'기계약합산 3,000만 內',                              def:0},
-  {k:'gips',    n:'깁스치료(부목제외)특약E',    min:500,  max:1000,  step:10,  note:'500만~1,000만',                                     def:1000},
-  {k:'hwasang', n:'화상진단(심재성2도이상)특약E', min:500, max:1000, step:10,  note:'500만~1,000만',                                     def:1000},
-  {k:'susul',   n:'질병·재해수술특약E',        min:500,  max:1000,  step:10,  note:'500만~1,000만',                                     def:0},
-  {k:'yoyang',  n:'신산업재해요양특약E',        min:500,  max:2000,  step:10,  note:'500만~2,000만',                                     def:0},
-  {k:'eunggeup',n:'재해응급환자응급실내원특약E', min:500,  max:2000,  step:10,  note:'산재보장 주보험 기계약 합산 2,000만 內',             def:0},
+  {k:'main',     n:'주보험(1종/2종)',            min:500,  max:10000, step:100, note:'500만~1억 · 1종/2종 동시선택 불가', def:2500},
+  {k:'newG',     n:'신재해보장G',                min:500,  max:null,            note:'(주보험+신재해보장G)=등급 주보험한도 內 · 주보험의 4배 (2종은 설계불가)', def:500,  sat:2.5, jang:2.5, cap4:true},
+  {k:'jaebo',    n:'재해보장G',                  min:500,  max:10000,           note:'500만~1억', def:5000, sat:1, jang:1},
+  {k:'death',    n:'재해사망G',                  min:500,  max:5000,            note:'500만~5,000만', def:2500, sat:1},
+  {k:'indDeath', n:'신산업재해사망E',            min:500,  max:10000,           note:'500만~1억 · 기계약/단일상품군 합산 1.5억', def:0, sat:1},
+  {k:'traffic',  n:'교통재해보장E',              min:500,  max:10000,           note:'500만~1억', def:0, sat:1, jang:1},
+  {k:'annuity',  n:'신재해장해연금G',            min:500,  max:3000,            note:'500만~3,000만', def:3000, jang:3.5},
+  {k:'indDis',   n:'신산업재해장해E',            min:500,  max:5000,            note:'500만~5,000만 · 단체상품군 합산 1억', def:0, jang:1},
+  {k:'gododis',  n:'고도장해보장E',              min:1000, max:20000,           note:'1,000만~2억 · 기계약합산 5억', def:0, jang:1},
+  {k:'jaechiryo',n:'재해치료비E',                min:500,  max:1000,            note:'500만~1,000만', def:0},
+  {k:'ipwon',    n:'신재해입원E',                min:500,  max:3000,            note:'500만~3,000만', def:0},
+  {k:'gips',     n:'깁스치료E',                  min:500,  max:1000,            note:'500만~1,000만', def:0},
+  {k:'hwasang',  n:'화상진단(심재성2도이상)E',    min:500,  max:1000,            note:'500만~1,000만', def:0},
+  {k:'dokgam',   n:'독감치료·응급의료아나필락시스E', min:500, max:2000,           note:'500만~2,000만', def:0},
+  {k:'diseaseDeath', n:'질병사망보장E',          min:500,  max:20000,           note:'500만~2억 · 기계약합산 5억', def:0, jil:0.8, diag:0.5},
+  {k:'gwaro',    n:'과로사관련특정질병사망E',      min:500,  max:3000,            note:'500만~3,000만', def:0, jil:1},
+  {k:'amjindan', n:'암진단E',                    min:500,  max:2000,            note:'500만~2,000만 · 기계약합산 3천', def:0, diagMax:0.5},
+  {k:'noe',      n:'뇌출혈진단E',                min:1000, max:2000,            note:'1,000만~2,000만', def:0, diagMax:0.25},
+  {k:'simgun',   n:'급성심근경색증진단E',         min:1000, max:2000,            note:'1,000만~2,000만', def:0, diagMax:0.25},
+  {k:'sinipwon', n:'신입원E',                    min:500,  max:3000,            note:'500만~3,000만', def:0},
+  {k:'susul',    n:'질병·재해수술E',             min:500,  max:1000,            note:'500만~1,000만', def:0, sul:0.06},
 ];
 
 // 입력표 생성 후 최초 계산
@@ -2946,6 +2946,10 @@ function buildGj2510(){
     + '<select id="gj2510-grade" onchange="calcGj2510()">'
     + '<option value="1">위험 1급</option><option value="2">위험 2급</option><option value="3">위험 3급</option><option value="4">위험 4급</option><option value="0">비위험</option>'
     + '</select></div>'
+    + '<div class="gj-field"><label>주보험 종류</label>'
+    + '<select id="gj2510-type" onchange="calcGj2510()">'
+    + '<option value="1">1종 (재해사망보장형)</option><option value="2">2종 (재해사망+장해보장형)</option>'
+    + '</select></div>'
     + '<table class="guide-table gj-inputs"><thead><tr><th>구분 · 가입한도</th><th>가입금액(만원)</th></tr></thead><tbody>' + rows + '</tbody></table>'
     + '<div id="gj2510-result"></div>';
   calcGj2510();
@@ -2955,6 +2959,7 @@ function calcGj2510(){
   const host = document.getElementById('gj2510-form');
   if(!host) return;
   const g = (document.getElementById('gj2510-grade') || {}).value || '1';
+  const type = (document.getElementById('gj2510-type') || {}).value || '1';
   const gradeName = GJ_GRADE_NAME[g], deathLimit = GJ_DEATH_LIMIT[g], disLimit = GJ_DIS_LIMIT[g];
   const fmt = n => Number(n).toLocaleString();
   const val = {};
@@ -2963,26 +2968,18 @@ function calcGj2510(){
   const errs = [];
   const add = (m, e) => errs.push({ m, e: e || '' });
 
+  // 특약별 가입한도 범위(최소~최대) 검증 — 엑셀의 "초과 입력시 붉은색표시"
   GJ_ROWS.forEach(r => {
     const v = val[r.k];
     if(v <= 0) return;                       // 미가입(0)은 검증 제외
     if(r.min != null && v < r.min) add(r.n + '은(는) 최소 ' + fmt(r.min) + '만원 이상이어야 합니다.', '');
     if(r.max != null && v > r.max) add(r.n + '은(는) 최대 ' + fmt(r.max) + '만원 이내여야 합니다.', '');
-    if(r.step && v % r.step !== 0) add(r.n + '은(는) ' + fmt(r.step) + '만원 단위로 입력하세요.', r.step === 100 ? '끝이 00으로 떨어져야 합니다.' : '끝이 0으로 떨어져야 합니다.');
-    // 배수(동적) 한도
-    let base = r.base, mult = r.mult;
-    if(newG === 0 && r.baseNo){ base = r.baseNo; mult = r.multNo; }
-    if(base === 'annuity'){
-      const cap = (newG + (val.jaebo || 0)) * 2;   // 신재해보장G+재해보장G의 2배 (가장 넓은 기준)
-      if(v > cap) add(r.n + '은(는) 신재해보장G+재해보장G의 2배(' + fmt(cap) + '만원) 이내여야 합니다.', '재해보장G를 함께 키우면 한도가 커집니다.');
-    } else if(base){
-      const baseVal = base === 'mn' ? mn : (base === 'main' ? main : newG);
-      const cap = baseVal * mult;
-      const label = base === 'mn' ? '주보험+신재해보장G' : (base === 'main' ? '주보험' : '신재해보장G');
-      if(v > cap) add(r.n + '은(는) ' + label + '의 ' + mult + '배(' + fmt(cap) + '만원) 이내여야 합니다.', base === 'main' ? '주보험을 키우면 한도도 함께 커집니다.' : '');
-    }
+    if(r.step && v % r.step !== 0) add(r.n + '은(는) ' + fmt(r.step) + '만원 단위로 입력하세요.', '끝이 00으로 떨어져야 합니다.');
   });
-  // 주보험+신재해보장G 합산 사망한도
+  // 주보험 종류별 규칙
+  if(type === '2' && newG > 0) add('2종 선택 시 신재해보장G는 설계할 수 없습니다.', '주보험 종류를 1종으로 바꾸거나 신재해보장G를 0으로 두세요.');
+  if(type === '1' && newG > main * 4) add('신재해보장G는 주보험의 4배(' + fmt(main * 4) + '만원) 이내여야 합니다.', '주보험을 키우면 신재해보장G 한도도 함께 커집니다.');
+  // 주보험+신재해보장G 합산 사망 가입한도
   if(mn > deathLimit) add('[' + gradeName + '] 주보험+신재해보장G 합산은 사망 가입한도 ' + (deathLimit/10000) + '억원(' + fmt(deathLimit) + '만원) 이내여야 합니다. 현재 ' + fmt(mn) + '만원.', '위험 1급에 가까울수록 한도가 낮습니다. 합계를 줄이거나 위험등급을 확인하세요.');
 
   const box = document.getElementById('gj2510-result');
@@ -2996,30 +2993,51 @@ function calcGj2510(){
     return;
   }
 
-  // 위험평가지수(요약서 6번 산식)
-  let riskDeath = 0, riskDis = 0;
-  GJ_ROWS.forEach(r => { const v = val[r.k]; if(r.d) riskDeath += v * r.d; if(r.j) riskDis += v * r.j; });
-  riskDeath = Math.round(riskDeath); riskDis = Math.round(riskDis);
+  // 보장금액 산출 (엑셀 K~P 열 로직)
+  let sat = main * 2.5;                       // 재해사망 : 주보험(1·2종 공통) ×2.5
+  let jang = (type === '2') ? main * 2.5 : 0; // 장해 : 주보험 2종만 ×2.5
+  let jil = 0, sul = 0, diagBase = 0, diagMax = 0;
+  GJ_ROWS.forEach(r => {
+    if(r.k === 'main') return;
+    const v = val[r.k]; if(v <= 0) return;
+    if(r.sat)  sat  += v * r.sat;
+    if(r.jang) jang += v * r.jang;
+    if(r.jil)  jil  += v * r.jil;
+    if(r.sul)  sul  += v * r.sul;
+    if(r.diag) diagBase += v * r.diag;             // 질병사망보장E ×0.5
+    if(r.diagMax) diagMax = Math.max(diagMax, v * r.diagMax); // 암·뇌·심 중 최댓값 1개
+  });
+  const diag = diagBase + diagMax;
+  const cover = {
+    재해사망: Math.round(sat), 질병사망: Math.round(jil), 장해: Math.round(jang),
+    수술: Math.round(sul), 진단: Math.round(diag)
+  };
 
   const joined = GJ_ROWS.filter(r => val[r.k] > 0)
     .map(r => '<tr><td>' + escapeHTML(r.n) + '</td><td>' + fmt(val[r.k]) + '만원</td></tr>').join('');
 
-  box.innerHTML = '<div class="gj-ok"><div class="gj-ok-title">✅ 가입 내역</div>'
-    + '<table class="guide-table"><thead><tr><th>구분</th><th>가입금액</th></tr></thead><tbody>' + joined + '</tbody></table>'
-    + '<div class="gj-ok-title" style="margin-top:12px;">📊 주요 보장금액 요약</div>'
-    + '<table class="guide-table"><tbody>'
-    + '<tr><td>선택 위험등급</td><td><b>' + gradeName + '</b></td></tr>'
-    + '<tr><td>사망 / 장해 가입한도</td><td>' + (deathLimit/10000) + '억 / ' + (disLimit/10000) + '억</td></tr>'
-    + '<tr><td>주보험+신재해보장G</td><td>' + fmt(mn) + '만원 (한도 ' + fmt(deathLimit) + '만원)</td></tr>'
-    + '<tr><td><b>위험평가지수 · 재해사망보장금액</b></td><td><b style="color:var(--blue)">' + fmt(riskDeath) + '만원</b></td></tr>'
-    + '<tr><td><b>위험평가지수 · 재해장해보장금액</b></td><td><b style="color:var(--blue)">' + fmt(riskDis) + '만원</b></td></tr>'
+  box.innerHTML = '<div class="gj-ok"><div class="gj-ok-title">✅ 가입 내역 · ' + (type === '2' ? '2종' : '1종') + '</div>'
+    + '<table class="guide-table"><thead><tr><th>구분</th><th>가입금액</th></tr></thead><tbody>'
+    + '<tr><td>주보험 (' + (type === '2' ? '2종' : '1종') + ')</td><td>' + fmt(main) + '만원</td></tr>'
+    + joined.replace(/<tr><td>주보험\(1종\/2종\)<\/td>[^]*?<\/tr>/, '')
     + '</tbody></table>'
-    + '<div class="gj-formula">재해사망 = (주보험·신재해보장G)×2.5 + (재해사망G·재해보장G·신산업재해사망·교통재해)×1<br>'
-    + '재해장해 = (주보험·신재해보장G)×2.5 + 신재해장해연금G×3.5 + (재해보장G·고도장해·신산업재해장해·교통재해)×1</div>'
+    + '<div class="gj-ok-title" style="margin-top:12px;">📊 보장금액 자동 계산</div>'
+    + '<table class="guide-table"><tbody>'
+    + '<tr><td>선택 위험등급</td><td><b>' + gradeName + '</b> (사망한도 ' + (deathLimit/10000) + '억 / 장해한도 ' + (disLimit/10000) + '억)</td></tr>'
+    + '<tr><td><b>재해사망 보장금액</b></td><td><b style="color:var(--blue)">' + fmt(cover.재해사망) + '만원</b></td></tr>'
+    + '<tr><td><b>질병사망 보장금액</b></td><td><b style="color:var(--blue)">' + fmt(cover.질병사망) + '만원</b></td></tr>'
+    + '<tr><td><b>장해 보장금액</b></td><td><b style="color:var(--blue)">' + fmt(cover.장해) + '만원</b></td></tr>'
+    + '<tr><td><b>수술 보장금액</b></td><td><b style="color:var(--blue)">' + fmt(cover.수술) + '만원</b></td></tr>'
+    + '<tr><td><b>진단 보장금액</b></td><td><b style="color:var(--blue)">' + fmt(cover.진단) + '만원</b></td></tr>'
+    + '</tbody></table>'
+    + '<div class="gj-formula">재해사망 = 주보험×2.5 + 신재해보장G×2.5 + (재해보장G·재해사망G·신산업재해사망·교통재해)×1<br>'
+    + '질병사망 = 질병사망보장E×0.8 + 과로사특약×1<br>'
+    + '장해 = 주보험(2종)×2.5 + 신재해보장G×2.5 + (재해보장G·교통재해·신산업재해장해·고도장해)×1 + 신재해장해연금G×3.5<br>'
+    + '수술 = 질병·재해수술E×0.06 · 진단 = 질병사망보장E×0.5 + MAX(암×0.5, 뇌출혈×0.25, 급성심근×0.25)</div>'
     + '</div>';
 
   // 추후 "최종값 출력"에서 사용할 결과 저장
-  window.gj2510Result = { grade: g, gradeName, amounts: val, mn, deathLimit, disLimit, riskDeath, riskDis };
+  window.gj2510Result = { grade: g, gradeName, type, amounts: val, mn, deathLimit, disLimit, cover };
 }
 
 /* ---------------- 세금 계산기 (영업백과) ---------------- */
@@ -3719,27 +3737,26 @@ function renderList(){
       ? `<div class="empty-hint">"${escapeHTML(listSearch.trim())}" 검색 결과가 없습니다.</div>`
       : '<div class="empty-hint">조건에 맞는 방문일지가 없습니다.</div>';
   } else if(folderView && !selectMode && !orderMode && !searching){
-    // 상단 고정 "⭐ 즐겨찾기" 폴더 — 별표한 기록만 모아서 맨 위에 보여준다.
-    const favItems = list.filter(x => x.j.favorite);
-    const favKey = 'comp::__fav__';
-    const favOpen = !!openFolders[favKey];
-    const favHTML = favItems.length ? `<div class="comp-folder fav-folder ${favOpen?'open':''}">
-      <div class="folder-head comp-head" style="background:#fff7e0;" onclick="toggleCompFolder('__fav__')">
-        <span class="folder-caret">${favOpen?'▼':'▶'}</span>
-        <span class="folder-icon">⭐</span>
-        <span class="folder-name">즐겨찾기</span>
-        <span class="folder-count">${favItems.length}</span>
-      </div>
-      ${favOpen ? `<div class="comp-body"><div class="folder-body">${favItems.map(x => journalCardHTML(x.j, true, x.idx)).join('')}</div></div>` : ''}
-    </div>` : '';
-
-    // 동행자 → 지역 → 기록 (2단계 중첩 아코디언). 동행자 폴더를 펼치면 그 안에 지역 폴더가 보인다.
+    // 동행자 → 지역 → 기록 (2단계 중첩 아코디언). 각 방문자 폴더 안 맨 위에 그 방문자의 ⭐즐겨찾기가 보인다.
     const compGroups = groupJournalsByCompanion(list);
     // renameFolder는 지역(하위) 그룹을 참조하므로 모든 지역 그룹을 펼쳐서 보관
     window._lastGroups = compGroups.reduce((acc,c)=>acc.concat(c.regions), []);
-    wrap.innerHTML = favHTML + compGroups.map(cg=>{
+    wrap.innerHTML = compGroups.map(cg=>{
       const compKey = 'comp::' + cg.key;
       const compOpen = !!openFolders[compKey];
+      // 이 방문자의 즐겨찾기(별표) 기록 — 방문자 폴더 맨 위에 표시
+      const favList = cg.items.filter(x => x.j.favorite);
+      const favSubKey = 'fav::' + cg.key;
+      const favSubOpen = !!openFolders[favSubKey];
+      const favSubHTML = favList.length ? `<div class="region-folder sub fav-folder ${favSubOpen?'open':''}">
+          <div class="folder-head" style="background:#fff7e0;" onclick="toggleFolder('${escapeAttr(favSubKey)}')">
+            <span class="folder-caret">${favSubOpen?'▼':'▶'}</span>
+            <span class="folder-icon">⭐</span>
+            <span class="folder-name">즐겨찾기</span>
+            <span class="folder-count">${favList.length}</span>
+          </div>
+          ${favSubOpen ? `<div class="folder-body">${favList.map(x => journalCardHTML(x.j, true, x.idx)).join('')}</div>` : ''}
+        </div>` : '';
       const regionsHTML = cg.regions.map(g=>{
         const isOpen = !!openFolders[g.key];
         const inner = isOpen
@@ -3764,7 +3781,7 @@ function renderList(){
           <span class="folder-count">${cg.items.length}</span>
           <button type="button" class="comp-add" onclick="event.stopPropagation();openFormForCompanion('${cg.solo?'':escapeAttr(cg.key)}')">📝 정보입력</button>
         </div>
-        ${compOpen ? `<div class="comp-body">${regionsHTML}</div>` : ''}
+        ${compOpen ? `<div class="comp-body">${favSubHTML}${regionsHTML}</div>` : ''}
       </div>`;
     }).join('');
   } else {
@@ -4107,7 +4124,7 @@ function moveJournal(idx, dir){
   renderList();
 }
 
-// 즐겨찾기 토글 — 방문기록 카드의 별표를 눌렀을 때. 상단 "⭐ 즐겨찾기" 폴더에 넣거나 뺀다.
+// 즐겨찾기 토글 — 방문기록 카드의 별표를 눌렀을 때. 해당 방문자 폴더 안의 "⭐ 즐겨찾기"에 넣거나 뺀다.
 function toggleFavorite(id){
   const j = journals.find(x => x.id === id);
   if(!j) return;
@@ -4126,7 +4143,7 @@ function journalCardHTML(j, withTools, idx){
     </div>` : '';
   // 폴더 이동 버튼 (일반 보기에서만 표시)
   const moveBtn = (withTools && !selectMode && !orderMode) ? `<button type="button" class="j-move" onclick="event.stopPropagation();openMoveFolder([${j.id}])">📁 폴더이동</button>` : '';
-  // 즐겨찾기 별표 — 누르면 상단 "⭐ 즐겨찾기" 폴더에 보이거나 빠진다
+  // 즐겨찾기 별표 — 누르면 그 방문자 폴더 안의 "⭐ 즐겨찾기"에 보이거나 빠진다
   const favBtn = (withTools && !selectMode && !orderMode) ? `<button type="button" class="j-fav ${j.favorite?'on':''}" onclick="event.stopPropagation();toggleFavorite(${j.id})" title="즐겨찾기">${j.favorite?'★':'☆'}</button>` : '';
   const clickable = (selectMode) ? `onclick="toggleCheck(${j.id});renderList();"` : (orderMode ? '' : `onclick="openDetail(${j.id})"`);
   const resultClass = j.result ? 'r-'+j.result : '';
