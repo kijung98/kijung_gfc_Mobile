@@ -756,6 +756,21 @@ select{-webkit-appearance:none;appearance:none;background-image:url("data:image/
 #gj2510-result .gj-ok{background:rgba(37,99,235,.06);border:1px solid rgba(37,99,235,.2);border-radius:10px;padding:10px 12px;margin-top:10px;}
 #gj2510-result .gj-ok-title{font-weight:800;color:var(--blue);font-size:13.5px;margin-bottom:6px;}
 #gj2510-result .gj-formula{margin-top:8px;font-size:12px;color:var(--sub);line-height:1.5;}
+/* ---- 산재 손가락 장해 보상금 계산기 ---- */
+#sanjae-form{margin:12px 0 6px;}
+#sanjae-form .gj-field{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+#sanjae-form .gj-field label{font-size:13px;font-weight:700;color:var(--navy);flex-shrink:0;width:96px;}
+#sanjae-form .gj-field select,#sanjae-form .gj-field input{flex:1;min-width:0;padding:9px 10px;border:1.5px solid var(--line);border-radius:9px;font-size:14px;background:#fff;}
+#sanjae-form #sanjae-wage{text-align:right;}
+#sanjae-result .gj-ok{background:rgba(37,99,235,.06);border:1px solid rgba(37,99,235,.2);border-radius:10px;padding:10px 12px;margin-top:10px;}
+#sanjae-result .gj-ok-title{font-weight:800;color:var(--blue);font-size:13.5px;margin-bottom:6px;}
+#sanjae-result .gj-formula{margin-top:8px;font-size:12px;color:var(--sub);line-height:1.5;}
+/* 접이식(자동 숨김) 표 */
+.guide-detail .gj-details{border:1px solid var(--line);border-radius:10px;padding:0 12px;margin:10px 0;background:#fbfcfe;}
+.guide-detail .gj-details summary{cursor:pointer;padding:11px 2px;font-weight:800;color:var(--navy);font-size:13.5px;list-style:none;}
+.guide-detail .gj-details summary::-webkit-details-marker{display:none;}
+.guide-detail .gj-details[open] summary{border-bottom:1px solid var(--line);margin-bottom:8px;}
+.guide-detail .gj-details p b{color:var(--navy);}
 
 /* ---- 자료 뷰어 (HTML 슬라이드 재구성) ---- */
 .doc-tag{font-size:10.5px;font-weight:800;color:#a9861d;letter-spacing:.5px;margin-bottom:4px;}
@@ -2559,10 +2574,62 @@ const GUIDE = [
         <div class="guide-note">⚠️ 형사처벌(징역·벌금) 자체를 보험으로 대납·면제할 수는 없습니다. 신속한 손해배상·합의로 양형 정상참작에 도움. 정확한 보장·서류는 약관·상품설명서 및 상담으로 확인.</div>` },
       { t:'기업재해보장보험(2510) 설계 계산기', html:`
         <h3>기업재해보장보험(2510) 설계 계산기 <span style="font-weight:600;color:var(--sub);font-size:12px;">· 삼성생명 · 2025.10.01. 개정</span></h3>
-        <p>위험등급을 고르고 각 <b>특약 가입금액(만원)</b>을 입력하면 <b>가입한도 검증</b>과 <b>위험평가지수(재해사망·재해장해 보장금액)</b>가 자동 계산됩니다. 가입하지 않을 특약은 <b>0</b>으로 두세요. (예: 1억 = 10000)</p>
+        <p>위험등급·주보험 종류(1종/2종)·만기환급형을 고르고 각 <b>특약 가입금액(만원)</b>을 입력하면, <b>가입한도 검증</b>과 <b>보장금액(재해사망·질병사망·장해·수술·진단)</b>이 공식 가입한도 계산기(2406) 로직으로 자동 산출됩니다. 가입하지 않을 특약은 <b>0</b>으로 두세요. (예: 1억 = 10000)</p>
         <div id="gj2510-form"></div>
         <div class="guide-tip">💡 위험등급을 바꾸면 사망·장해 가입한도가 즉시 반영되고, 한도를 넘으면 아래에 <b>오류와 해설</b>이 표시됩니다. 기본값은 상품설명서 샘플(다우통상) 기준으로 채워져 있습니다.</div>
         <div class="guide-note">⚠️ 본 계산기는 요약서(2025.10.01. 개정) 기준 <b>참고용</b>입니다. 위험평가지수는 인수심사용 지표로 실제 지급 보험금과 다를 수 있으며, 실제 가입한도·보장은 상품설명서·언더라이팅 결과에 따라 달라집니다.</div>` },
+      { t:'산재 손가락 장해등급 보상금 계산기', html:`
+        <h3>산재 손가락 장해등급 보상금 계산기 <span style="font-weight:600;color:var(--sub);font-size:12px;">· 산재보험법 시행령 별표6 · 근로복지공단</span></h3>
+        <p>월 평균임금과 다친 <b>손가락 부위·장해 상태</b>를 고르면 <b>장해등급·보상일수·예상 보상금(일시금)</b>이 자동 계산됩니다.</p>
+        <div id="sanjae-form"></div>
+        <h3>장해등급별 보상일수 (별표6)</h3>
+        <table class="guide-table"><thead><tr><th>등급</th><th>보상일수</th><th>비고 · 손가락 예시</th></tr></thead><tbody>
+        <tr><td>제1급</td><td>연금</td><td>연 평균임금의 329/100 (연금)</td></tr>
+        <tr><td>제2급</td><td>연금</td><td>연 평균임금의 291/100 (연금)</td></tr>
+        <tr><td>제3급</td><td>연금</td><td>연 평균임금의 257/100 (연금)</td></tr>
+        <tr><td>제4급</td><td>1,474</td><td>-</td></tr>
+        <tr><td>제5급</td><td>1,312</td><td>-</td></tr>
+        <tr><td>제6급</td><td>1,050</td><td>-</td></tr>
+        <tr><td>제7급</td><td>869</td><td>-</td></tr>
+        <tr><td>제8급</td><td>503</td><td>엄지 완전절단</td></tr>
+        <tr><td>제9급</td><td>385</td><td>엄지 기능상실 / 소지 3개 절단</td></tr>
+        <tr><td>제10급</td><td>302</td><td>검지 완전절단 / 엄지 끝마디 절단</td></tr>
+        <tr><td>제11급</td><td>220</td><td>검지 기능상실</td></tr>
+        <tr><td>제12급</td><td>156</td><td>검지·중지 끝마디 절단</td></tr>
+        <tr><td>제13급</td><td>101</td><td>손가락 기능 일부 상실</td></tr>
+        <tr><td>제14급</td><td>50</td><td>손가락 기능 경미한 장해</td></tr>
+        </tbody></table>
+        <details class="gj-details"><summary>👆 손가락 장해등급표 (부위별 상세 · 눌러서 펼치기)</summary>
+        <p style="margin-top:8px;"><b>▶ 엄지손가락</b></p>
+        <table class="guide-table"><thead><tr><th>장해 상태</th><th>등급</th><th>보상일수</th><th>보상금(300만 기준)</th></tr></thead><tbody>
+        <tr><td>완전 절단 (지골 전체)</td><td>제8급</td><td>503</td><td>50,300,000</td></tr>
+        <tr><td>기능 완전 상실</td><td>제9급</td><td>385</td><td>38,500,000</td></tr>
+        <tr><td>제1관절 이하 절단 (끝마디)</td><td>제10급</td><td>302</td><td>30,200,000</td></tr>
+        <tr><td>기능 뚜렷한 장해 (1/2 이상 상실)</td><td>제11급</td><td>244</td><td>24,400,000</td></tr>
+        <tr><td>기능 일부 상실 (1/4 이상)</td><td>제12급</td><td>156</td><td>15,600,000</td></tr>
+        <tr><td>기능 경미한 장해</td><td>제14급</td><td>50</td><td>5,000,000</td></tr>
+        </tbody></table>
+        <p><b>▶ 검지손가락</b></p>
+        <table class="guide-table"><thead><tr><th>장해 상태</th><th>등급</th><th>보상일수</th><th>보상금(300만 기준)</th></tr></thead><tbody>
+        <tr><td>완전 절단</td><td>제10급</td><td>302</td><td>30,200,000</td></tr>
+        <tr><td>기능 완전 상실</td><td>제11급</td><td>244</td><td>24,400,000</td></tr>
+        <tr><td>제1관절 이하 절단 (끝마디)</td><td>제12급</td><td>156</td><td>15,600,000</td></tr>
+        <tr><td>기능 뚜렷한 장해 (1/2 이상 상실)</td><td>제12급</td><td>156</td><td>15,600,000</td></tr>
+        <tr><td>기능 일부 상실 (1/4 이상)</td><td>제13급</td><td>101</td><td>10,100,000</td></tr>
+        <tr><td>기능 경미한 장해</td><td>제14급</td><td>50</td><td>5,000,000</td></tr>
+        </tbody></table>
+        <p><b>▶ 중지·약지·소지</b></p>
+        <table class="guide-table"><thead><tr><th>장해 상태</th><th>등급</th><th>보상일수</th><th>보상금(300만 기준)</th></tr></thead><tbody>
+        <tr><td>완전 절단 (3개)</td><td>제9급</td><td>385</td><td>38,500,000</td></tr>
+        <tr><td>완전 절단 (2개)</td><td>제10급</td><td>302</td><td>30,200,000</td></tr>
+        <tr><td>완전 절단 (1개)</td><td>제12급</td><td>156</td><td>15,600,000</td></tr>
+        <tr><td>기능 완전 상실 (1개)</td><td>제13급</td><td>101</td><td>10,100,000</td></tr>
+        <tr><td>제1관절 이하 절단</td><td>제14급</td><td>50</td><td>5,000,000</td></tr>
+        <tr><td>기능 뚜렷한 장해</td><td>제14급</td><td>50</td><td>5,000,000</td></tr>
+        </tbody></table>
+        </details>
+        <div class="guide-tip">💡 <b>보상금 = (월 평균임금 ÷ 30) × 장해급여 일수.</b> 평균임금 = 사고 전 3개월 임금 합계 ÷ 3 (야근수당·상여금 포함).</div>
+        <div class="guide-note">⚠️ 산업재해보상보험법 시행령 별표6 기준 <b>참고용 추정치</b>입니다. 실제 지급액·등급은 근로복지공단 심사 결과에 따라 달라집니다. 1~3급은 연금, 4~14급은 일시금 지급(손가락은 주로 8~14급). 손가락 상태별 보상일수는 원 계산기 표 기준.</div>` },
     ] },
   { id:'leaflet', title:'리플릿', desc:'상품 리플릿·특약 요약 (보장종별·핵심포인트)', tile:'red',
     svg:'<path d="M6 2h9l5 5v14a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1z"/><path d="M14 2v6h6"/><path d="M8.5 13h7M8.5 17h4.5"/>',
@@ -2896,6 +2963,7 @@ function openGuideItem(id, i){
     + subBackBarHTML();
   applyGuideZoom();
   if(document.getElementById('gj2510-form')) buildGj2510();   // 설계 계산기 항목이면 입력표 생성 + 즉시 계산
+  if(document.getElementById('sanjae-form')) buildSanjae();   // 산재 손가락 보상금 계산기 항목이면 초기화
   pushSub('screen-guide-detail', c.items[i].t);
 }
 
@@ -2908,29 +2976,39 @@ function openGuideItem(id, i){
 const GJ_GRADE_NAME  = {'1':'위험 1급','2':'위험 2급','3':'위험 3급','4':'위험 4급','0':'비위험'};
 const GJ_DEATH_LIMIT = {'1':20000,'2':50000,'3':50000,'4':100000,'0':100000};   // 사망 가입한도(만원)
 const GJ_DIS_LIMIT   = {'1':20000,'2':50000,'3':100000,'4':100000,'0':100000};  // 장해 가입한도(만원)
+// 만기환급형(환급률) 및 유형별 선택 가능한 보험기간 (요약서 섹션1) — 보장금액엔 영향 없고 보험기간·환급률만 결정
+const GJ_REFUND = {
+  '1': {label:'만기환급형 1형 (90%환급형)', terms:[10,15]},
+  '2': {label:'만기환급형 2형 (60%환급형)', terms:[5,7,10,15]},
+  '3': {label:'만기환급형 3형 (40%환급형)', terms:[5,7,10,15]},
+  '0': {label:'순수보장형', terms:[3]},
+};
+const GJ_TERM_AGE = {3:77, 5:75, 7:73, 10:70, 15:65};   // 보험기간별 최대 가입나이(만15세~, 80-보험기간)
 // max=null 은 배수 한도(4배 등)나 합산한도로만 제한되는 항목. cap4=주보험 4배 한도.
 const GJ_ROWS = [
-  {k:'main',     n:'주보험(1종/2종)',            min:500,  max:10000, step:100, note:'500만~1억 · 1종/2종 동시선택 불가', def:2500},
-  {k:'newG',     n:'신재해보장G',                min:500,  max:null,            note:'(주보험+신재해보장G)=등급 주보험한도 內 · 주보험의 4배 (2종은 설계불가)', def:500,  sat:2.5, jang:2.5, cap4:true},
-  {k:'jaebo',    n:'재해보장G',                  min:500,  max:10000,           note:'500만~1억', def:5000, sat:1, jang:1},
-  {k:'death',    n:'재해사망G',                  min:500,  max:5000,            note:'500만~5,000만', def:2500, sat:1},
-  {k:'indDeath', n:'신산업재해사망E',            min:500,  max:10000,           note:'500만~1억 · 기계약/단일상품군 합산 1.5억', def:0, sat:1},
-  {k:'traffic',  n:'교통재해보장E',              min:500,  max:10000,           note:'500만~1억', def:0, sat:1, jang:1},
-  {k:'annuity',  n:'신재해장해연금G',            min:500,  max:3000,            note:'500만~3,000만', def:3000, jang:3.5},
-  {k:'indDis',   n:'신산업재해장해E',            min:500,  max:5000,            note:'500만~5,000만 · 단체상품군 합산 1억', def:0, jang:1},
-  {k:'gododis',  n:'고도장해보장E',              min:1000, max:20000,           note:'1,000만~2억 · 기계약합산 5억', def:0, jang:1},
-  {k:'jaechiryo',n:'재해치료비E',                min:500,  max:1000,            note:'500만~1,000만', def:0},
-  {k:'ipwon',    n:'신재해입원E',                min:500,  max:3000,            note:'500만~3,000만', def:0},
-  {k:'gips',     n:'깁스치료E',                  min:500,  max:1000,            note:'500만~1,000만', def:0},
-  {k:'hwasang',  n:'화상진단(심재성2도이상)E',    min:500,  max:1000,            note:'500만~1,000만', def:0},
-  {k:'dokgam',   n:'독감치료·응급의료아나필락시스E', min:500, max:2000,           note:'500만~2,000만', def:0},
-  {k:'diseaseDeath', n:'질병사망보장E',          min:500,  max:20000,           note:'500만~2억 · 기계약합산 5억', def:0, jil:0.8, diag:0.5},
-  {k:'gwaro',    n:'과로사관련특정질병사망E',      min:500,  max:3000,            note:'500만~3,000만', def:0, jil:1},
-  {k:'amjindan', n:'암진단E',                    min:500,  max:2000,            note:'500만~2,000만 · 기계약합산 3천', def:0, diagMax:0.5},
-  {k:'noe',      n:'뇌출혈진단E',                min:1000, max:2000,            note:'1,000만~2,000만', def:0, diagMax:0.25},
-  {k:'simgun',   n:'급성심근경색증진단E',         min:1000, max:2000,            note:'1,000만~2,000만', def:0, diagMax:0.25},
-  {k:'sinipwon', n:'신입원E',                    min:500,  max:3000,            note:'500만~3,000만', def:0},
-  {k:'susul',    n:'질병·재해수술E',             min:500,  max:1000,            note:'500만~1,000만', def:0, sul:0.06},
+  {k:'main',        n:'주보험',                    min:500,  max:10000, step:100, note:'500만~1억 · 100만 단위 · 1종/2종 동시선택 불가', def:2500},
+  {k:'newG',        n:'신재해보장G특약E',           min:500,  max:null,            note:'(주보험+신재해보장G)=위험등급별 주보험 가입한도 內 · 주보험의 4배 (2종 설계불가)', def:500, sat:2.5, jang:2.5, cap4:true},
+  {k:'death',       n:'재해사망G특약E',             min:500,  max:5000,            note:'500만~5,000만 · 최소 10만 단위', def:2500, sat:1},
+  {k:'jaebo',       n:'재해보장G특약E',             min:500,  max:10000,           note:'500만~1억 (신재해보장G 미가입시 500만~2억)', def:5000, sat:1, jang:1},
+  {k:'traffic',     n:'교통재해보장특약E',           min:500,  max:10000,           note:'500만~1억 · 사망합산 위험등급별 한도 內', def:0, sat:1, jang:1},
+  {k:'annuity',     n:'신재해장해연금G특약E',        min:500,  max:3000,            note:'500만~3,000만', def:3000, jang:3.5},
+  {k:'indDeath',    n:'신산업재해사망특약E',         min:500,  max:10000,           note:'500만~1억 · 단체상품군 합산 1.5억', def:0, sat:1},
+  {k:'indDis',      n:'신산업재해장해특약E',         min:500,  max:5000,            note:'500만~5,000만[단일건] · 단체상품군 합산 1억', def:0, jang:1},
+  {k:'diseaseDeath',n:'질병사망보장특약IIE',         min:500,  max:20000,           note:'500만~2억[단일건] · 기계약합산 5억', def:0, jil:0.8, diag:0.5},
+  {k:'gododis',     n:'고도장해보장특약E',           min:1000, max:20000,           note:'1,000만~2억 · 기계약합산 5억', def:0, jang:1},
+  {k:'jaechiryo',   n:'재해치료보장특약E',           min:500,  max:1000,            note:'500만~1,000만', def:0},
+  {k:'ipwon',       n:'신재해입원특약E',             min:500,  max:3000,            note:'500만~3,000만', def:0},
+  {k:'sinipwon',    n:'신입원특약',                  min:500,  max:3000,            note:'500만~3,000만', def:0},
+  {k:'gwaro',       n:'과로사관련특정질병사망특약E',   min:500,  max:3000,            note:'500만~3,000만', def:0, jil:1},
+  {k:'dokgam',      n:'독감치료및응급의료아나필락시스보장특약E', min:1000, max:2000,   note:'1,000만~2,000만', def:0},
+  {k:'noe',         n:'뇌출혈진단특약E',             min:1000, max:2000,            note:'1,000만~2,000만 · 뇌출혈+뇌졸중 합산 3,000만', def:0, diagMax:0.25},
+  {k:'simgun',      n:'급성심근경색증진단특약E',      min:1000, max:2000,            note:'1,000만~2,000만', def:0, diagMax:0.25},
+  {k:'amjindan',    n:'암진단특약IIE',               min:500,  max:2000,            note:'500만~2,000만 · 기계약합산 3,000만', def:0, diagMax:0.5},
+  {k:'gips',        n:'깁스치료(부목제외)특약E',      min:500,  max:1000,            note:'500만~1,000만', def:0},
+  {k:'hwasang',     n:'화상진단(심재성2도이상)특약E',  min:500,  max:1000,            note:'500만~1,000만', def:0},
+  {k:'susul',       n:'질병·재해수술특약E',          min:500,  max:1000,            note:'500만~1,000만', def:0, sul:0.06},
+  {k:'yoyang',      n:'신산업재해요양특약E',          min:500,  max:2000,            note:'500만~2,000만', def:0},
+  {k:'eunggeup',    n:'재해응급환자응급실내원특약E',   min:500,  max:2000,            note:'500만~2,000만 · 산재보장보험 주보험 합산 2,000만', def:0},
 ];
 
 // 입력표 생성 후 최초 계산
@@ -2939,7 +3017,7 @@ function buildGj2510(){
   if(!host) return;
   const rows = GJ_ROWS.map(r =>
     '<tr><td>' + escapeHTML(r.n) + '<div class="gj-note">' + escapeHTML(r.note) + '</div></td>'
-    + '<td><input type="number" inputmode="numeric" data-k="' + r.k + '" value="' + r.def + '" oninput="calcGj2510()"></td></tr>'
+    + '<td><input type="number" inputmode="numeric" step="' + (r.step || 100) + '" min="0" data-k="' + r.k + '" value="' + r.def + '" oninput="calcGj2510()"></td></tr>'
   ).join('');
   host.innerHTML =
     '<div class="gj-field"><label>위험등급</label>'
@@ -2950,8 +3028,23 @@ function buildGj2510(){
     + '<select id="gj2510-type" onchange="calcGj2510()">'
     + '<option value="1">1종 (재해사망보장형)</option><option value="2">2종 (재해사망+장해보장형)</option>'
     + '</select></div>'
+    + '<div class="gj-field"><label>만기환급형</label>'
+    + '<select id="gj2510-refund" onchange="gj2510RefundChanged()">'
+    + Object.keys(GJ_REFUND).map(k => '<option value="' + k + '">' + GJ_REFUND[k].label + '</option>').join('')
+    + '</select></div>'
+    + '<div class="gj-field"><label>보험기간</label><select id="gj2510-term" onchange="calcGj2510()"></select></div>'
     + '<table class="guide-table gj-inputs"><thead><tr><th>구분 · 가입한도</th><th>가입금액(만원)</th></tr></thead><tbody>' + rows + '</tbody></table>'
     + '<div id="gj2510-result"></div>';
+  gj2510RefundChanged();   // 보험기간 옵션 채운 뒤 최초 계산
+}
+
+// 만기환급형이 바뀌면 선택 가능한 보험기간 목록을 다시 채우고 재계산
+function gj2510RefundChanged(){
+  const rk = (document.getElementById('gj2510-refund') || {}).value || '1';
+  const termSel = document.getElementById('gj2510-term');
+  if(termSel){
+    termSel.innerHTML = GJ_REFUND[rk].terms.map(t => '<option value="' + t + '">' + t + '년</option>').join('');
+  }
   calcGj2510();
 }
 
@@ -2960,6 +3053,8 @@ function calcGj2510(){
   if(!host) return;
   const g = (document.getElementById('gj2510-grade') || {}).value || '1';
   const type = (document.getElementById('gj2510-type') || {}).value || '1';
+  const refund = (document.getElementById('gj2510-refund') || {}).value || '1';
+  const term = parseInt((document.getElementById('gj2510-term') || {}).value, 10) || GJ_REFUND[refund].terms[0];
   const gradeName = GJ_GRADE_NAME[g], deathLimit = GJ_DEATH_LIMIT[g], disLimit = GJ_DIS_LIMIT[g];
   const fmt = n => Number(n).toLocaleString();
   const val = {};
@@ -3024,6 +3119,7 @@ function calcGj2510(){
     + '<div class="gj-ok-title" style="margin-top:12px;">📊 보장금액 자동 계산</div>'
     + '<table class="guide-table"><tbody>'
     + '<tr><td>선택 위험등급</td><td><b>' + gradeName + '</b> (사망한도 ' + (deathLimit/10000) + '억 / 장해한도 ' + (disLimit/10000) + '억)</td></tr>'
+    + '<tr><td>만기환급형 · 보험기간</td><td><b>' + GJ_REFUND[refund].label + '</b> · ' + term + '년만기 (가입 만15세~' + GJ_TERM_AGE[term] + '세)</td></tr>'
     + '<tr><td><b>재해사망 보장금액</b></td><td><b style="color:var(--blue)">' + fmt(cover.재해사망) + '만원</b></td></tr>'
     + '<tr><td><b>질병사망 보장금액</b></td><td><b style="color:var(--blue)">' + fmt(cover.질병사망) + '만원</b></td></tr>'
     + '<tr><td><b>장해 보장금액</b></td><td><b style="color:var(--blue)">' + fmt(cover.장해) + '만원</b></td></tr>'
@@ -3037,7 +3133,89 @@ function calcGj2510(){
     + '</div>';
 
   // 추후 "최종값 출력"에서 사용할 결과 저장
-  window.gj2510Result = { grade: g, gradeName, type, amounts: val, mn, deathLimit, disLimit, cover };
+  window.gj2510Result = { grade: g, gradeName, type, refund, refundLabel: GJ_REFUND[refund].label, term, maxAge: GJ_TERM_AGE[term], amounts: val, mn, deathLimit, disLimit, cover };
+}
+
+/* ---------------- 산재 손가락 장해등급 보상금 계산기 (산재보험법 시행령 별표6) ----------------
+   보상금(일시금) = (월 평균임금 ÷ 30) × 장해급여 일수. 손가락 부위·상태별 등급/일수는 원본 엑셀 표 기준. */
+const SANJAE_FINGERS = {
+  '엄지': [
+    {s:'완전 절단 (지골 전체)',        grade:'제8급',  days:503},
+    {s:'기능 완전 상실',              grade:'제9급',  days:385},
+    {s:'제1관절 이하 절단 (끝마디)',    grade:'제10급', days:302},
+    {s:'기능 뚜렷한 장해 (1/2 이상 상실)', grade:'제11급', days:244},
+    {s:'기능 일부 상실 (1/4 이상)',     grade:'제12급', days:156},
+    {s:'기능 경미한 장해',            grade:'제14급', days:50},
+  ],
+  '검지': [
+    {s:'완전 절단',                  grade:'제10급', days:302},
+    {s:'기능 완전 상실',              grade:'제11급', days:244},
+    {s:'제1관절 이하 절단 (끝마디)',    grade:'제12급', days:156},
+    {s:'기능 뚜렷한 장해 (1/2 이상 상실)', grade:'제12급', days:156},
+    {s:'기능 일부 상실 (1/4 이상)',     grade:'제13급', days:101},
+    {s:'기능 경미한 장해',            grade:'제14급', days:50},
+  ],
+  '중지·약지·소지': [
+    {s:'완전 절단 (3개)',            grade:'제9급',  days:385},
+    {s:'완전 절단 (2개)',            grade:'제10급', days:302},
+    {s:'완전 절단 (1개)',            grade:'제12급', days:156},
+    {s:'기능 완전 상실 (1개)',        grade:'제13급', days:101},
+    {s:'제1관절 이하 절단',           grade:'제14급', days:50},
+    {s:'기능 뚜렷한 장해',            grade:'제14급', days:50},
+  ],
+};
+
+// 월 평균임금 입력 시 천단위 콤마 자동 표시 후 재계산
+function sanjaeWageInput(el){
+  const digits = el.value.replace(/[^0-9]/g, '');
+  el.value = digits ? Number(digits).toLocaleString() : '';
+  calcSanjae();
+}
+
+function buildSanjae(){
+  const host = document.getElementById('sanjae-form');
+  if(!host) return;
+  const parts = Object.keys(SANJAE_FINGERS);
+  host.innerHTML =
+    '<div class="gj-field"><label>월 평균임금(원)</label><input type="text" inputmode="numeric" id="sanjae-wage" value="3,000,000" oninput="sanjaeWageInput(this)"></div>'
+    + '<div class="gj-field"><label>손가락 부위</label><select id="sanjae-finger" onchange="sanjaeFingerChanged()">'
+    + parts.map(p => '<option value="' + p + '">' + p + '</option>').join('') + '</select></div>'
+    + '<div class="gj-field"><label>장해 상태</label><select id="sanjae-state" onchange="calcSanjae()"></select></div>'
+    + '<div id="sanjae-result"></div>';
+  sanjaeFingerChanged();
+}
+
+// 손가락 부위가 바뀌면 그 부위의 장해 상태 목록을 다시 채우고 재계산
+function sanjaeFingerChanged(){
+  const f = (document.getElementById('sanjae-finger') || {}).value;
+  const sel = document.getElementById('sanjae-state');
+  if(sel && SANJAE_FINGERS[f]){
+    sel.innerHTML = SANJAE_FINGERS[f].map((o, i) => '<option value="' + i + '">' + o.s + ' (' + o.grade + ')</option>').join('');
+  }
+  calcSanjae();
+}
+
+function calcSanjae(){
+  const host = document.getElementById('sanjae-form');
+  if(!host) return;
+  const wage = parseInt(String((document.getElementById('sanjae-wage') || {}).value || '').replace(/[^0-9]/g, ''), 10) || 0;
+  const f = (document.getElementById('sanjae-finger') || {}).value;
+  const i = parseInt((document.getElementById('sanjae-state') || {}).value, 10) || 0;
+  const o = (SANJAE_FINGERS[f] || [])[i];
+  const box = document.getElementById('sanjae-result');
+  if(!o || !box) return;
+  const fmt = n => Number(n).toLocaleString();
+  const daily = Math.round(wage / 30);
+  const amount = Math.round(daily * o.days);
+  box.innerHTML = '<div class="gj-ok"><div class="gj-ok-title">✅ 예상 보상금 (일시금)</div>'
+    + '<table class="guide-table"><tbody>'
+    + '<tr><td>일당 평균임금</td><td>' + fmt(daily) + '원 <span style="color:var(--sub)">(월임금÷30)</span></td></tr>'
+    + '<tr><td>장해등급</td><td><b>' + o.grade + '</b></td></tr>'
+    + '<tr><td>장해급여 일수</td><td>' + fmt(o.days) + '일</td></tr>'
+    + '<tr><td><b>예상 보상금(일시금)</b></td><td><b style="color:var(--blue)">' + fmt(amount) + '원</b> <span style="color:var(--sub)">(세전)</span></td></tr>'
+    + '</tbody></table>'
+    + '<div class="gj-formula">보상금 = (월 평균임금 ÷ 30) × 장해급여 일수 = ' + fmt(daily) + '원 × ' + fmt(o.days) + '일</div></div>';
+  window.sanjaeResult = { wage, finger: f, state: o.s, grade: o.grade, days: o.days, daily, amount };
 }
 
 /* ---------------- 세금 계산기 (영업백과) ---------------- */
