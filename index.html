@@ -771,6 +771,10 @@ select{-webkit-appearance:none;appearance:none;background-image:url("data:image/
 .guide-detail .gj-details summary::-webkit-details-marker{display:none;}
 .guide-detail .gj-details[open] summary{border-bottom:1px solid var(--line);margin-bottom:8px;}
 .guide-detail .gj-details p b{color:var(--navy);}
+/* 실손 세대 바로가기 칩 */
+.guide-detail .insa-nav{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:10px 0 4px;font-size:12px;color:var(--sub);}
+.guide-detail .insa-nav button{border:1.5px solid var(--line);background:#eef1f7;color:var(--navy);border-radius:999px;padding:5px 13px;font-size:12.5px;font-weight:700;}
+.guide-detail .insa-nav button:active{opacity:.6;}
 
 /* ---- 자료 뷰어 (HTML 슬라이드 재구성) ---- */
 .doc-tag{font-size:10.5px;font-weight:800;color:#a9861d;letter-spacing:.5px;margin-bottom:4px;}
@@ -888,6 +892,7 @@ select{-webkit-appearance:none;appearance:none;background-image:url("data:image/
       </div>
       <div class="tool-row">
         <button id="btnFolderView" class="on" onclick="toggleFolderView()">📁 지역별 보기</button>
+        <button id="btnCollapseAll" onclick="collapseAllFolders()">🔼 모두 접기</button>
         <button id="btnOrderMode" onclick="toggleOrderMode()">🔀 순서변경</button>
         <button id="btnSelectMode" onclick="toggleSelectMode()">☑️ 선택삭제</button>
         <button onclick="exportExcel()">📥 엑셀 내보내기</button>
@@ -949,6 +954,25 @@ select{-webkit-appearance:none;appearance:none;background-image:url("data:image/
           </div>
           <input type="file" id="restoreFile" accept="application/json" class="hidden" onchange="importBackup(event)">
           <div class="backup-warn">⚠️ 복원하면 지금 이 기기에 있는 방문일지·자료가 백업파일 내용으로 <strong>덮어씌워집니다</strong>. 파일명의 날짜를 꼭 확인하세요.</div>
+        </div>
+      </div>
+
+      <!-- ③-2 방문기록 엑셀 양식 (PC에서 작성 후 업로드해서 추가) -->
+      <div class="dm-section">
+        <div class="dm-section-head"><span>📄</span> 방문기록 엑셀로 추가 (PC에서 작성)</div>
+        <div class="dm-section-body">
+          <div class="backup-steps">
+            <strong>💡 사용법</strong><br>
+            ① "엑셀 양식 다운로드"로 빈 양식(.xlsx) 받기<br>
+            ② PC 엑셀에서 한 줄에 한 건씩 방문기록 입력 (제목 행은 그대로 두기)<br>
+            ③ "엑셀 업로드"로 파일 선택 → 미리보기 확인 후 방문기록에 추가
+          </div>
+          <div class="backup-btns">
+            <button class="b-dl" onclick="downloadJournalTemplate()">📄 엑셀 양식 다운로드</button>
+            <button class="b-up" onclick="document.getElementById('journalXlsxFile').click()">📤 엑셀 업로드</button>
+          </div>
+          <input type="file" id="journalXlsxFile" accept=".xlsx,.xls" class="hidden" onchange="importJournalExcel(event)">
+          <div class="backup-steps" style="background:#eefaf0;color:#166534;">✅ 기존 기록은 <strong>그대로 유지</strong>되고 새 기록만 추가됩니다. 같은 <strong>기업명+방문일+방문시간</strong>이 이미 있으면 중복으로 보고 건너뜁니다. (기존 기록 덮어쓰기 아님)</div>
         </div>
       </div>
 
@@ -2032,19 +2056,19 @@ function journalFollowup(j){
 }
 
 // 홈 상단 재방문 알림 — 동행자별로 묶어 표시. 기본 3건만 보이고 나머지는 '더보기'로 자동 숨김.
-// 대상: 향후 7일 이내 예정 + 오늘 + 지난 지 7일 이내(그보다 오래된 것은 숨김).
+// 대상: 향후 7일 이내 예정 + 오늘 + 지난 지 2일 이내(그보다 오래된 것은 숨김).
 function renderFollowups(){
   const wrap = document.getElementById('followupWrap');
   if(!wrap) return;
   const now = new Date();
   const in7  = new Date(now.getTime() + 7*86400000).toISOString().slice(0,10);
-  const ago7 = new Date(now.getTime() - 7*86400000).toISOString().slice(0,10);
+  const ago2 = new Date(now.getTime() - 2*86400000).toISOString().slice(0,10);
   let items = [];
   journals.forEach(j=>{
     const fu = journalFollowup(j);
     if(!fu) return;
     if(fu.status === 'soon'    && fu.date > in7)  return;   // 향후 7일 이내 예정만
-    if(fu.status === 'overdue' && fu.date < ago7) return;   // 지난 지 7일 이내만(오래된 건 숨김)
+    if(fu.status === 'overdue' && fu.date < ago2) return;   // 지난 지 2일 이내만(오래된 건 숨김)
     const comps = journalCompanions(j);
     items.push({ j, date:fu.date, status:fu.status, comp: comps[0] || '__solo__' });
   });
@@ -2329,22 +2353,91 @@ const GUIDE = [
         <div class="guide-note">⚠️ 손금산입·해지환급 관련 과세는 사안별로 상이. 세무 확인 필수.</div>` },
       { t:'실손보험 1~5세대 완전정리', html:`
         <h3>실손이 자꾸 바뀌는 이유</h3>
-        <p>보험사가 임의로 바꾸는 게 아니라 <b>①나라 정책 → ②병원(진료·환자구성) → ③보험 반영</b> 순으로 바뀝니다. 지금 방향은 <b>'중증 집중, 비중증·비급여 축소'</b>.</p>
-        <h3>세대별 특징 (가입시기 따라 내 부담이 다름)</h3>
-        <table class="guide-table"><thead><tr><th>세대</th><th>별칭·시기</th><th>자기부담(입원)</th></tr></thead><tbody>
-        <tr><td>1세대</td><td>구실손 (~’09.9)</td><td>0%</td></tr>
-        <tr><td>2세대</td><td>표준화 (’09.10~’17.3)</td><td>10~20%</td></tr>
-        <tr><td>3세대</td><td>착한실손 (’17.4~’21.6)</td><td>급여10/비급여20%</td></tr>
-        <tr><td>4세대</td><td>유지형 (’21.7~’26.3)</td><td>급여20/비급여30%</td></tr>
-        <tr><td>5세대</td><td>개편(안) (’26~)</td><td>중증30/비중증50%</td></tr>
+        <p>보험사가 임의로 바꾸는 게 아니라 <b>①나라 정책 → ②병원(진료·환자구성) → ③보험 반영</b> 순으로 바뀝니다. 지금 방향은 <b>'중증 집중 · 비중증/비급여 축소'</b>.</p>
+        <div class="insa-nav"><span>바로가기</span>
+          <button onclick="insaGen('insa-g1')">1세대</button>
+          <button onclick="insaGen('insa-g2')">2세대</button>
+          <button onclick="insaGen('insa-g3')">3세대</button>
+          <button onclick="insaGen('insa-g4')">4세대</button>
+          <button onclick="insaGen('insa-g5')">5세대</button>
+        </div>
+        <h3>한눈에 보는 세대 비교</h3>
+        <table class="guide-table"><thead><tr><th>세대</th><th>별칭·시기</th><th>입원 자기부담</th><th>재가입</th></tr></thead><tbody>
+        <tr><td>1세대</td><td>구실손 (~’09.9)</td><td>0%</td><td>없음</td></tr>
+        <tr><td>2세대</td><td>표준화 (’09.10~’17.3)</td><td>10~20%</td><td>없음/15년</td></tr>
+        <tr><td>3세대</td><td>착한실손 (’17.4~’21.6)</td><td>급여10·비급여20%</td><td>15년</td></tr>
+        <tr><td>4세대</td><td>유지형 (’21.7~’26.5)</td><td>급여20·비급여30%</td><td>5년</td></tr>
+        <tr><td>5세대</td><td>개편 (’26.5.6~)</td><td>중증30·비중증50%</td><td>5년</td></tr>
         </tbody></table>
-        <p>세대가 올라갈수록 <b>보험료는 낮아지고 내 몫은 커집니다.</b> 재가입 주기도 짧아짐(4세대 5년).</p>
-        <h3>5세대(안) 핵심 변화</h3>
-        <ul><li><b>중증(특약1)</b>: 지금과 비슷(연 5천만·입원한도 없음, 부담 30%) + 종합병원 이상 입원 본인부담 500만원 상한</li>
-        <li><b>비중증(특약2)</b>: 크게 축소(연 1천만·부담 50%). 도수·체외충격파·증식치료 등 <b>일부 비급여 미보장</b></li></ul>
-        <div class="guide-tip">💡 오프너: "지금 실손이 몇 세대인지 같이 확인해보실래요?" — 세대별 본인부담 차이가 니즈환기 포인트.</div>
+        <p style="color:var(--sub);font-size:12px;">세대가 올라갈수록 <b>보험료는 낮아지고 내 몫(자기부담)은 커집니다.</b></p>
+
+        <details class="gj-details" id="insa-g1"><summary>📁 1세대 · 구 실손 (~2009.9)</summary>
+          <ul><li><b>상품구조</b>: 급여/비급여 통합</li>
+          <li><b>보장</b>: 입원 3천/5천/1억 · 통원 10~30만</li>
+          <li><b>자기부담</b>: 입원 <b>0%</b>(사실상 전액 보장) · 통원 5천~1만, 약제 미보장</li>
+          <li><b>보장기간</b>: 상해 사고일~365일 · 질병 진단일~365일</li>
+          <li><b>면책</b>: 상해 종료·질병 180일 · <b>재가입 없음</b> · 할인/할증 없음</li></ul>
+          <div class="guide-tip">💡 <b>가입자에게 가장 유리한 세대</b>(자기부담 0%). 보험료 인상폭이 커도 <b>웬만하면 유지</b>가 정답.</div>
+        </details>
+
+        <details class="gj-details" id="insa-g2"><summary>📁 2세대 · 표준화 실손 (2009.10~2017.3)</summary>
+          <ul><li><b>상품구조</b>: 급여/비급여 통합(표준약관으로 회사별 담보 통일)</li>
+          <li><b>보장</b>: 입원 5천만 · 통원 회당 30만(연 180회)</li>
+          <li><b>자기부담</b>: 입원 10% (’15.9~ 비급여 20%) · 통원 1~2만, 약제 8천</li>
+          <li><b>보장기간</b>: 최초입원일~365일 · 면책 90일</li>
+          <li><b>재가입</b>: 없음 → ’13.4부터 15년 · 할인/할증 없음</li></ul>
+        </details>
+
+        <details class="gj-details" id="insa-g3"><summary>📁 3세대 · 착한 실손 (2017.4~2021.6)</summary>
+          <ul><li><b>상품구조</b>: 급여/비급여 통합 + <b>3대 비급여(도수·MRI·주사) 특약 분리</b></li>
+          <li><b>보장</b>: 입원 5천만 · 통원 회당 30만(연 180회)</li>
+          <li><b>자기부담</b>: 급여 10%·비급여 20% · <b>3대 비급여 30%</b></li>
+          <li><b>보장기간</b>: 5천만원 소진 시 · 면책 90일 · 재가입 15년</li>
+          <li><b>할인</b>: 2년 무사고 할인 10%</li></ul>
+        </details>
+
+        <details class="gj-details" id="insa-g4"><summary>📁 4세대 · 유지형 실손 (2021.7~2026.5.6 신규종료)</summary>
+          <ul><li><b>상품구조</b>: <b>급여(주계약) / 비급여(특약) 완전 분리</b></li>
+          <li><b>보장</b>: 입·통원 합산 급여 5천만·비급여 5천만 · 통원 회당 20만(비급여 100회)</li>
+          <li><b>자기부담</b>: 급여 20%·비급여 30% · 통원 비급여 최소 3만</li>
+          <li><b>재가입</b>: 5년 · 할인 2년 무사고 10%</li>
+          <li><b>핵심</b>: <b>비급여 이용량에 따라 개인별 보험료 할증</b>(많이 쓰면 다음 갱신 보험료↑)</li></ul>
+        </details>
+
+        <details class="gj-details" id="insa-g5"><summary>⭐ 5세대 · 2026.5.6 출시 (확정)</summary>
+          <p><b>2026년 5월 6일 출시·판매.</b> 같은 날 4세대 신규가입 종료. 급여를 보장하는 <b>기본계약</b> + <b>중증 비급여(특약1)</b> + <b>비중증 비급여(특약2)</b>를 나눠 선택합니다.</p>
+          <p><b>▶ 중증 비급여 (특약1) — 지금 수준 유지·강화</b></p>
+          <ul><li>연 5천만원 · 통원 회당 20만 · 입원 한도 없음</li>
+          <li>자기부담 입원 30% · 외래 Max[30%, 3만원]</li>
+          <li><b>상급·종합병원 입원 본인부담 연 500만원 상한 신설</b>(큰 병일수록 부담↓)</li></ul>
+          <p><b>▶ 비중증 비급여 (특약2) — 크게 축소</b></p>
+          <ul><li>연 <b>1천만원</b> · 통원 일당 20만 · 입원(병·의원) 회당 300만</li>
+          <li>자기부담 입원 <b>50%</b> · 외래 Max[<b>50%</b>, 5만원]</li>
+          <li><b>미보장</b>: 도수·체외충격파·증식치료 등 근골격계 비급여, 비급여 주사제, 미등재 신의료기술</li></ul>
+          <p><b>▶ 급여(기본계약)</b> : 입원 자기부담 기존 유지, 통원은 건보 본인부담률 연동. <b>임신·출산·발달장애 급여 신규 보장.</b></p>
+          <p><b>▶ 보험료</b> : 4세대 대비 약 <b>30%↓</b>, 1·2세대 대비 <b>50%↓</b>.</p>
+          <p><b>▶ 전환 일정</b> : 기존 가입자는 재가입 시점 도래 시 순차 전환(2026.7~2036.6, 약 10년, 사전 안내). 재가입 없는 1·2세대(’13.3 이전)용 선택형 할인특약·계약전환 할인은 2026.11부터.</p>
+          <div class="guide-tip">💡 한 줄 정리: <b>보험료는 내려가지만 가벼운(비중증) 치료는 내 지갑에서.</b> 큰 병 보장은 오히려 강화 → 가벼운 치료가 잦으면 기존 세대 유지 검토, 큰 병 대비면 5세대도 합리적.</div>
+          <div class="guide-note">✅ 5세대는 토론회 안이 아니라 <b>2026.5.6 출시된 확정 상품</b> 기준입니다. 세부 요율·조건은 회사·약관별로 다를 수 있어 상품설명서로 확인하세요. (출처: 금융위·KB·토스뱅크 등 2026)</div>
+        </details>
+
+        <div class="guide-tip">💡 오프너: "지금 실손이 몇 세대인지, 진단비는 어디까지 준비돼 있는지 같이 확인해볼까요?" — 실손(치료비)과 진단비는 <b>경쟁이 아니라 짝</b>. 병원비는 실손이, 치료받는 동안의 생활(소득·간병)은 진단비가 메웁니다.</div>
         ${guideLink('ins','치료비(실손) vs 진단비 — 왜 둘 다?','치료비 vs 진단비 — 왜 둘 다? 보기','보험 설계 섹션')}
-        <div class="guide-note">⚠️ 5세대는 개혁방안 토론회(’25.1.9) 발표안 기준으로 확정 시 달라질 수 있습니다. 정확한 보장은 약관·상품설명서 확인.</div>` },
+        <div class="guide-note">⚠️ 이해를 돕는 요약입니다. 정확한 보장·자기부담은 가입 상품의 약관·상품설명서를 확인하세요.</div>` },
+      { t:'시니어 시대 — 같은 수술, 다른 영수증 · 치매(레켐비)', html:`
+        <h3>실버가 아니라 '시니어'</h3>
+        <p><b>실버(Silver)</b> = 돌봄 필요 상태(요양 중심). <b>시니어(Senior)</b> = 나이만 들었을 뿐 관리 잘 됨. 목표는 <b>나빠지면 빨리 고쳐서 시니어로 오래 사는 것</b>. (시니어타운은 아프면 입소 불가)</p>
+        <h3>같은 수술인데 영수증이 다르다 — 무릎 인공관절</h3>
+        <table class="guide-table"><thead><tr><th>구분</th><th>비용(예시)</th></tr></thead><tbody>
+        <tr><td>급여 인공관절 사용</td><td>약 400만원</td></tr>
+        <tr><td>비급여 신제품 사용</td><td>약 1,300만원</td></tr>
+        </tbody></table>
+        <p>차이는 <b>수술 실력이 아니라 몸에 넣는 '재료 값'</b>. 준비된 만큼 선택지가 달라집니다. 수술 전 단계인 <b>줄기세포 치료</b>(닳은 연골 재생 → 수술 시점 지연)까지 보장이 확대되는 추세.</p>
+        <h3>치매는 '병 이름'이 아니라 '증상'</h3>
+        <p>가족을 못 알아보는 건 <b>증상</b>이고 원인은 따로 있습니다 — 알츠하이머(이상 단백질 축적) · 혈관성(뇌혈관 문제) · 기타(알코올 등).</p>
+        <div class="guide-tip">💡 알츠하이머 치료제 <b>레켐비</b>는 '트리트먼트'처럼 뇌에 엉긴 단백질을 풀어줍니다. 단 <b>진행을 늦추는</b> 약이라 반복 투여가 필요하고 너무 늦으면 효과가 떨어짐 → <b>'빨리 시작할 준비'</b>가 핵심.</div>
+        ${guideLink('ins','연령별 주요 수술 Top5 (수술비)','연령별 주요 수술 Top5 보기','보험 설계 섹션')}
+        <div class="guide-note">⚠️ 수술 비용은 사례 기준 예시이며 병원·재료·개인 상태에 따라 다릅니다. 정확한 보장은 약관·상품설명서 확인. (출처: 고객설명자료 — 뉴스위크·스태티스타 2026 등)</div>` },
       { t:'치료비(실손) vs 진단비 — 왜 둘 다?', html:`
         <h3>한국은 '걸려도 고치는' 나라</h3>
         <p>세계 암치료 병원 TOP10에 국내 3곳(삼성서울 3위·서울아산 4위·서울대 8위). 남는 문제는 <b>①치료비 ②치료받는 동안의 생활</b>.</p>
@@ -2965,6 +3058,14 @@ function openGuideItem(id, i){
   if(document.getElementById('gj2510-form')) buildGj2510();   // 설계 계산기 항목이면 입력표 생성 + 즉시 계산
   if(document.getElementById('sanjae-form')) buildSanjae();   // 산재 손가락 보상금 계산기 항목이면 초기화
   pushSub('screen-guide-detail', c.items[i].t);
+}
+
+// 실손 세대별 상세 — 바로가기 버튼: 해당 세대 접이식을 펼치고 그 위치로 스크롤
+function insaGen(id){
+  const el = document.getElementById(id);
+  if(!el) return;
+  el.open = true;
+  el.scrollIntoView({ behavior:'smooth', block:'start' });
 }
 
 /* ---------------- 단체보험 · 기업재해보장보험(2510) 설계 계산기 ----------------
@@ -4081,6 +4182,16 @@ function toggleFolder(regionKey){
   openFolders[regionKey] = !openFolders[regionKey];
   persistFolderState();
   renderList();
+}
+
+// 모두 접기 — 펼쳐진 모든 폴더(방문자·지역·즐겨찾기)를 닫아 방문자 이름만 보이게 한다.
+function collapseAllFolders(){
+  const anyOpen = Object.values(openFolders).some(v => v);
+  if(!anyOpen){ toast('이미 모두 접혀 있습니다.'); return; }
+  openFolders = {};
+  persistFolderState();
+  renderList();
+  toast('모든 폴더를 접었습니다.');
 }
 
 function renameFolder(regionKey){
@@ -6836,6 +6947,111 @@ async function shareBackup(){
   }
   await shareOrDownloadJSON(json, `세일즈맵_백업_${ts}.json`,
     '세일즈맵 백업', '세일즈맵 백업 파일입니다. 카카오톡으로 보내려면 공유 목록에서 카카오톡을 선택해주세요.');
+}
+
+/* ---------------- 방문기록 엑셀 양식 다운로드 / 업로드 추가 (안 B: 중복방지 추가) ----------------
+   양식(.xlsx)을 받아 PC에서 작성 → 업로드하면 기업명+방문일+방문시간 기준 중복만 건너뛰고 새 기록만 추가한다.
+   기존 기록은 덮어쓰지 않는다(추가 전용). */
+const JOURNAL_XLSX_HEADERS = ['기업명','방문일(YYYY-MM-DD)','방문시간','방문자','주소','전화','대표자','사업자번호','업종','근로자수','방문결과','우선순위','상담내용','상품','보험료'];
+
+function downloadJournalTemplate(){
+  const ws = XLSX.utils.aoa_to_sheet([JOURNAL_XLSX_HEADERS]);
+  ws['!cols'] = JOURNAL_XLSX_HEADERS.map(h => ({ wch: Math.max(12, h.length + 4) }));
+  const guide = [
+    ['방문기록 엑셀 양식 — 작성 안내'],
+    [''],
+    ['· "방문기록" 시트의 첫 행(제목)은 지우지 말고, 두 번째 행부터 한 줄에 한 건씩 입력하세요.'],
+    ['· 방문일은 2026-08-15 형식(YYYY-MM-DD) 또는 엑셀 날짜 셀로 입력하면 됩니다.'],
+    ['· 방문결과 입력값: 완료 / 재방문필요 / 부재 / 거절 / 취소 / 가벼운터치'],
+    ['· 방문자에 여러 명이면 쉼표로 구분(예: 최기정, 홍길동). 담당자 외 이름은 동행자로 분류됩니다.'],
+    ['· 기업명이 비어 있는 행은 저장되지 않습니다.'],
+    ['· 같은 기업명+방문일+방문시간이 이미 있으면 중복으로 보고 건너뜁니다.'],
+    ['· 업로드는 기존 기록을 덮어쓰지 않고, 새 기록만 추가합니다.'],
+  ];
+  const wg = XLSX.utils.aoa_to_sheet(guide);
+  wg['!cols'] = [{ wch: 70 }];
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, '방문기록');
+  XLSX.utils.book_append_sheet(wb, wg, '작성안내');
+  const ts = new Date().toISOString().slice(0,10);
+  XLSX.writeFile(wb, `방문기록_양식_${ts}.xlsx`);
+  toast('방문기록 엑셀 양식을 다운로드했습니다.');
+}
+
+function importJournalExcel(e){
+  const file = e.target.files && e.target.files[0];
+  e.target.value = '';
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = function(ev){
+    let wb;
+    try { wb = XLSX.read(new Uint8Array(ev.target.result), { type:'array', cellDates:true }); }
+    catch(err){ toast('엑셀 파일을 읽지 못했습니다.'); return; }
+    const sheet = wb.Sheets['방문기록'] || wb.Sheets[wb.SheetNames[0]];
+    if(!sheet){ toast('시트를 찾지 못했습니다.'); return; }
+    const rows = XLSX.utils.sheet_to_json(sheet, { defval:'' });
+    if(!rows.length){ toast('추가할 데이터가 없습니다.'); return; }
+
+    const norm = v => (v instanceof Date) ? v.toISOString().slice(0,10) : String(v == null ? '' : v).trim();
+    // 헤더에 부가설명(YYYY-MM-DD 등)이 붙어 있어도 매칭되도록 부분포함으로 열을 찾는다
+    const pick = (r, keys) => {
+      for(const col of Object.keys(r)){
+        const c = col.replace(/\s/g,'');
+        for(const key of keys){ if(c.includes(key)) return r[col]; }
+      }
+      return '';
+    };
+    const userName = (appSettings.userName || '').trim();
+    const keyOf = (name, date, time) => norm(name) + '|' + norm(date) + '|' + norm(time);
+    const existKeys = new Set(journals.map(j => keyOf(j.companyName, j.visitDate, j.visitTime)));
+
+    let toAdd = [], skipDup = 0, skipEmpty = 0;
+    rows.forEach((r, idx) => {
+      const companyName = norm(pick(r, ['기업명','업체명','회사','고객']));
+      if(!companyName){ skipEmpty++; return; }
+      const visitDate = norm(pick(r, ['방문일','날짜'])) || new Date().toISOString().slice(0,10);
+      const visitTime = norm(pick(r, ['방문시간','시간']));
+      const key = keyOf(companyName, visitDate, visitTime);
+      if(existKeys.has(key)){ skipDup++; return; }
+      existKeys.add(key);
+      const visitor = norm(pick(r, ['방문자']));
+      toAdd.push({
+        id: Date.now() + idx,
+        companyName,
+        visitDate, visitTime, visitor,
+        companions: visitor.split(',').map(s => s.trim()).filter(n => n && n !== userName),
+        address:   norm(pick(r, ['주소'])),
+        phone:     norm(pick(r, ['전화','연락처'])),
+        ceo:       norm(pick(r, ['대표'])),
+        bizNo:     norm(pick(r, ['사업자'])),
+        industry:  norm(pick(r, ['업종'])),
+        employees: norm(pick(r, ['근로자','직원','인원'])),
+        result:    norm(pick(r, ['방문결과','결과'])),
+        priority:  norm(pick(r, ['우선순위'])),
+        content:   norm(pick(r, ['상담내용','내용','메모'])),
+        product:   norm(pick(r, ['상품'])),
+        premium:   norm(pick(r, ['보험료','월납'])),
+        savedAt: new Date().toISOString(),
+        importedFromExcel: true,
+      });
+    });
+
+    if(!toAdd.length){
+      toast(`추가할 새 기록이 없습니다. (중복 ${skipDup} · 기업명 없음 ${skipEmpty})`);
+      return;
+    }
+    let msg = `엑셀에서 새 방문기록 <b>${toAdd.length}건</b>을 추가합니다.`;
+    if(skipDup)   msg += `<br>· 중복(기업명+방문일+시간) ${skipDup}건은 건너뜁니다.`;
+    if(skipEmpty) msg += `<br>· 기업명 없는 ${skipEmpty}행은 제외됩니다.`;
+    msg += '<br>기존 기록은 그대로 유지됩니다. 계속할까요?';
+    showConfirm('엑셀 방문기록 추가', msg, function(){
+      journals = toAdd.concat(journals);
+      persistJournals();
+      renderList(); renderHome();
+      toast(`${toAdd.length}건을 방문기록에 추가했습니다.`);
+    });
+  };
+  reader.readAsArrayBuffer(file);
 }
 
 function importBackup(e){
