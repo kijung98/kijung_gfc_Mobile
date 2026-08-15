@@ -963,16 +963,16 @@ select{-webkit-appearance:none;appearance:none;background-image:url("data:image/
         <div class="dm-section-body">
           <div class="backup-steps">
             <strong>💡 사용법</strong><br>
-            ① "엑셀 양식 다운로드"로 빈 양식(.xlsx) 받기<br>
-            ② PC 엑셀에서 한 줄에 한 건씩 방문기록 입력 (제목 행은 그대로 두기)<br>
-            ③ "엑셀 업로드"로 파일 선택 → 미리보기 확인 후 방문기록에 추가
+            ① "엑셀 양식 다운로드"로 양식(.xlsx) 받기 — <b>법인/사업자 · 개인고객 · 작성안내</b> 3개 시트<br>
+            ② PC 엑셀에서 유형에 맞는 시트에 한 줄에 한 건씩 입력 (제목 행은 그대로 두기)<br>
+            ③ "엑셀 업로드"로 파일(.xlsx/.csv) 선택 → 확인 후 방문기록에 추가
           </div>
           <div class="backup-btns">
             <button class="b-dl" onclick="downloadJournalTemplate()">📄 엑셀 양식 다운로드</button>
             <button class="b-up" onclick="document.getElementById('journalXlsxFile').click()">📤 엑셀 업로드</button>
           </div>
-          <input type="file" id="journalXlsxFile" accept=".xlsx,.xls" class="hidden" onchange="importJournalExcel(event)">
-          <div class="backup-steps" style="background:#eefaf0;color:#166534;">✅ 기존 기록은 <strong>그대로 유지</strong>되고 새 기록만 추가됩니다. 같은 <strong>기업명+방문일+방문시간</strong>이 이미 있으면 중복으로 보고 건너뜁니다. (기존 기록 덮어쓰기 아님)</div>
+          <input type="file" id="journalXlsxFile" accept=".xlsx,.xls,.csv" class="hidden" onchange="importJournalExcel(event)">
+          <div class="backup-steps" style="background:#eefaf0;color:#166534;">✅ 기존 기록은 <strong>그대로 유지</strong>되고 새 기록만 추가됩니다. 같은 <strong>이름(기업명·고객명)+방문일</strong>이 이미 있으면 중복으로 보고 건너뜁니다. (기존 기록 덮어쓰기 아님)</div>
         </div>
       </div>
 
@@ -6962,60 +6962,123 @@ async function shareBackup(){
 }
 
 /* ---------------- 방문기록 엑셀 양식 다운로드 / 업로드 추가 (안 B: 중복방지 추가) ----------------
-   양식(.xlsx)을 받아 PC에서 작성 → 업로드하면 기업명+방문일+방문시간 기준 중복만 건너뛰고 새 기록만 추가한다.
-   기존 기록은 덮어쓰지 않는다(추가 전용). */
-// 방문기록 엑셀 양식 열 정의 (헤더 + 열너비). 담당자는 본인으로 자동 지정, 구분(개인/법인)으로 고객유형을 나눈다.
-const JOURNAL_XLSX_COLS = [
-  { h:'구분(개인/법인)',              w:16 },
-  { h:'기업명 또는 고객명',           w:24 },
+   양식(.xlsx/.csv)은 "법인/사업자" · "개인고객" · "작성안내" 3개 시트로 구성.
+   업로드 시 시트별로 유형(기업/개인고객)을 자동 구분하고, 이름+방문일 중복만 건너뛰고 새 기록만 추가한다.
+   담당자(본인)는 앱 설정 이름으로 자동 지정하고, 동행자만 엑셀에서 받는다. 기존 기록은 덮어쓰지 않는다. */
+// 법인/사업자 시트 열 정의
+const JX_COMPANY_COLS = [
+  { h:'기업명',                      w:24 },
   { h:'방문일(YYYY-MM-DD)',          w:18 },
-  { h:'동행자(여러 명은 쉼표로 구분)', w:24 },
-  { h:'주소',                        w:34 },
-  { h:'전화',                        w:16 },
+  { h:'동행자(쉼표로 구분)',          w:22 },
   { h:'대표자',                      w:12 },
   { h:'사업자번호',                  w:15 },
   { h:'업종',                        w:18 },
   { h:'근로자수',                    w:10 },
+  { h:'전화',                        w:16 },
+  { h:'주소',                        w:34 },
   { h:'상담내용',                    w:44 },
   { h:'상품',                        w:20 },
   { h:'보험료',                      w:12 },
   { h:'메모',                        w:44 },
 ];
+// 개인고객 시트 열 정의
+const JX_PERSONAL_COLS = [
+  { h:'고객명',                      w:20 },
+  { h:'방문일(YYYY-MM-DD)',          w:18 },
+  { h:'동행자(쉼표로 구분)',          w:22 },
+  { h:'관계',                        w:12 },
+  { h:'성별(남/여)',                 w:12 },
+  { h:'생년월일(YYYY-MM-DD)',        w:18 },
+  { h:'전화',                        w:16 },
+  { h:'주소',                        w:34 },
+  { h:'상담내용',                    w:44 },
+  { h:'상품',                        w:20 },
+  { h:'보험료',                      w:12 },
+  { h:'메모',                        w:44 },
+];
+// 헤더 셀 스타일(스타일 지원 빌드일 때만 적용): 남색 배경 · 흰 글씨 · 굵게 · 가운데정렬
+const JX_HEADER_STYLE = {
+  fill: { patternType:'solid', fgColor:{ rgb:'FF1F3D7A' } },
+  font: { bold:true, color:{ rgb:'FFFFFFFF' }, sz:11 },
+  alignment: { horizontal:'center', vertical:'center' },
+};
+
+// 스타일 지원 엑셀 빌드(xlsx-js-style) 지연 로드 — 실패하면 색상 없이 진행
+let styledXlsxTried = false;
+function ensureStyledXLSX(cb){
+  if(window.XLSX && window.XLSX.utils && window.XLSX.__styled){ cb(true); return; }
+  if(styledXlsxTried){ cb(false); return; }
+  styledXlsxTried = true;
+  const s = document.createElement('script');
+  s.src = 'https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js';
+  s.onload = function(){ if(window.XLSX){ window.XLSX.__styled = true; xlsxLoaded = true; cb(true); } else cb(false); };
+  s.onerror = function(){ cb(false); };
+  document.head.appendChild(s);
+}
+
+// 헤더+데이터로 시트를 만들고 열너비·행높이·헤더스타일 적용
+function jxMakeSheet(X, cols, dataRows, styled){
+  const headers = cols.map(c => c.h);
+  const ws = X.utils.aoa_to_sheet([headers].concat(dataRows || []));
+  ws['!cols'] = cols.map(c => ({ wch: c.w }));
+  ws['!rows'] = [{ hpx: 30 }];
+  ws['!freeze'] = { xSplit:0, ySplit:1 };
+  if(styled){
+    for(let c = 0; c < headers.length; c++){
+      const ref = X.utils.encode_cell({ r:0, c });
+      if(ws[ref]) ws[ref].s = JX_HEADER_STYLE;
+    }
+  }
+  return ws;
+}
 
 function downloadJournalTemplate(){
-  ensureXLSX(function(){ _downloadJournalTemplate(); });
+  ensureStyledXLSX(function(styled){
+    if(window.XLSX && window.XLSX.utils){ _downloadJournalTemplate(window.XLSX, styled); }
+    else ensureXLSX(function(){ _downloadJournalTemplate(window.XLSX, false); });
+  });
 }
-function _downloadJournalTemplate(){
-  const headers = JOURNAL_XLSX_COLS.map(c => c.h);
-  const ws = XLSX.utils.aoa_to_sheet([headers]);
-  ws['!cols'] = JOURNAL_XLSX_COLS.map(c => ({ wch: c.w }));
-  ws['!rows'] = [{ hpx: 30 }];              // 제목 행 높이 30px
-  ws['!freeze'] = { xSplit:0, ySplit:1 };   // 첫 행(제목) 고정 (지원 뷰어에서)
-  // 작성안내 + 예시(예시는 데이터 시트가 아닌 안내 시트에 둬서 잘못 업로드되지 않게 함)
+function _downloadJournalTemplate(X, styled){
+  const compEx = ['대한기업','2026-08-15','홍길동, 김영희','김대표','123-45-67890','제조업','25','02-1234-5678','서울 강남구 …','단체보험 관심·견적 요청','기업재해보장','300000','대표 골프 좋아함·경쟁사 A생명 견적'];
+  const persEx = ['박영수','2026-08-16','','배우자','남','1980-05-01','010-2222-3333','인천 남동구 …','종신보험 리모델링 상담','종신보험','120000','자녀 2명·흡연·재무설계 관심'];
+  // 데이터 시트는 제목행만(예시는 아래 작성안내 시트에 둬서 잘못 업로드되지 않게 함)
+  const wsComp = jxMakeSheet(X, JX_COMPANY_COLS, [], styled);
+  const wsPers = jxMakeSheet(X, JX_PERSONAL_COLS, [], styled);
   const guide = [
     ['방문기록 엑셀 양식 — 작성 안내'],
     [''],
-    ['① "방문기록" 시트의 첫 행(제목)은 지우지 말고, 2행부터 한 줄에 한 건씩 입력하세요.'],
-    ['② 구분: 개인고객이면 "개인", 회사/사업장이면 "법인"(또는 사업장)을 입력하세요. 비우면 법인으로 처리됩니다.'],
-    ['③ 개인고객이면 "기업명 또는 고객명" 칸에 고객 이름을 적으면 됩니다.'],
-    ['④ 방문일: 2026-08-15 형식 또는 엑셀 날짜 셀. (2026.8.5 · 2026/8/5 도 자동 인식)'],
-    ['⑤ 담당자(본인)는 앱 설정의 담당자 이름으로 자동 지정됩니다. 함께 간 사람만 "동행자"에 쉼표로 적으세요.'],
-    ['⑥ 기업명(고객명)이 비어 있는 행은 저장되지 않습니다.'],
-    ['⑦ 같은 이름+방문일이 이미 있으면 중복으로 보고 건너뜁니다. 업로드는 기존 기록을 덮어쓰지 않고 새 기록만 추가합니다.'],
+    ['◆ 시트 사용법'],
+    ['· "법인/사업자" 시트 = 회사·사업장 방문기록,  "개인고객" 시트 = 개인 고객 상담기록.'],
+    ['· 각 시트의 첫 행(제목)은 지우지 말고, 2행부터 한 줄에 한 건씩 입력하세요.'],
+    ['· 담당자(본인)는 앱 설정의 담당자 이름으로 자동 지정됩니다. 함께 간 사람만 "동행자"에 쉼표로 적으세요.'],
+    ['· 방문일: 2026-08-15 형식 또는 엑셀 날짜 셀. (2026.8.5 · 2026/8/5 · 엑셀 날짜도 자동 인식)'],
+    ['· 이름(기업명/고객명)이 비어 있는 행은 저장되지 않습니다.'],
+    ['· 같은 이름+방문일이 이미 있으면 중복으로 보고 건너뜁니다. (기존 기록 덮어쓰지 않음, 새 기록만 추가)'],
     [''],
-    ['[입력 예시]'],
-    headers,
-    ['법인','대한기업','2026-08-15','홍길동, 김영희','서울 강남구 …','02-1234-5678','김대표','123-45-67890','제조업','25','단체보험 관심. 견적 요청.','기업재해보장','300000','대표 골프 좋아함 · 경쟁사 A생명 견적 있음'],
-    ['개인','박영수','2026-08-16','','인천 남동구 …','010-2222-3333','','','','','종신보험 리모델링 상담','종신보험','120000','자녀 2명 · 흡연 · 재무설계 관심'],
+    ['◆ 자주 하는 실수'],
+    ['· 제목 행을 지우거나 순서를 바꾸지 마세요(열 제목으로 항목을 인식합니다).'],
+    ['· 개인고객은 반드시 "개인고객" 시트에 적어야 개인고객으로 분류됩니다(법인 시트에 적으면 회사로 처리).'],
+    ['· 보험료·근로자수는 숫자만 입력(예: 300000). 콤마·"원"은 없어도 됩니다.'],
+    ['· 성별은 남 또는 여. 관계는 본인/배우자/자녀/부모 등.'],
+    ['· 사업자번호는 123-45-67890 형식.  전화는 010-1234-5678 형식 권장.'],
+    [''],
+    ['◆ 법인/사업자 입력 예시'],
+    JX_COMPANY_COLS.map(c => c.h),
+    compEx,
+    [''],
+    ['◆ 개인고객 입력 예시'],
+    JX_PERSONAL_COLS.map(c => c.h),
+    persEx,
   ];
-  const wg = XLSX.utils.aoa_to_sheet(guide);
-  wg['!cols'] = JOURNAL_XLSX_COLS.map(c => ({ wch: c.w }));
-  const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, '방문기록');
-  XLSX.utils.book_append_sheet(wb, wg, '작성안내');
+  const wg = X.utils.aoa_to_sheet(guide);
+  wg['!cols'] = [{ wch:42 }].concat(Array(12).fill({ wch:18 }));
+  const wb = X.utils.book_new();
+  X.utils.book_append_sheet(wb, wsComp, '법인／사업자');   // 시트명에 '/'는 엑셀 금지문자라 전각 '／' 사용
+  X.utils.book_append_sheet(wb, wsPers, '개인고객');
+  X.utils.book_append_sheet(wb, wg,     '작성안내');
   const ts = new Date().toISOString().slice(0,10);
-  XLSX.writeFile(wb, `방문기록_양식_${ts}.xlsx`);
-  toast('방문기록 엑셀 양식을 다운로드했습니다.');
+  X.writeFile(wb, `방문기록_양식_${ts}.xlsx`);
+  toast('방문기록 엑셀 양식을 다운로드했습니다.' + (styled ? '' : ' (헤더 색상은 오프라인이라 생략됨)'));
 }
 
 // 방문일 정규화 — 엑셀 날짜셀·2026.8.5·2026/8/5·20260805 → 2026-08-05
@@ -7029,14 +7092,6 @@ function gjxNormDate(v){
   m = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);         if(m) return m[1] + '-' + z(m[2]) + '-' + z(m[3]);
   return s;
 }
-// 방문결과 정규화 — 동의어/공백 보정, 없으면 원문 유지
-function gjxNormResult(v){
-  const s = String(v == null ? '' : v).replace(/\s/g, '');
-  if(!s) return '';
-  const map = { '완료':'완료', '재방문필요':'재방문필요', '재방':'재방문필요', '재방문':'재방문필요',
-    '부재':'부재', '거절':'거절', '취소':'취소', '가벼운터치':'가벼운터치', '터치':'가벼운터치' };
-  return map[s] || String(v).trim();
-}
 
 function importJournalExcel(e){
   const file = e.target.files && e.target.files[0];
@@ -7049,85 +7104,97 @@ function importJournalExcel(e){
   reader.readAsArrayBuffer(file);
 }
 function _parseJournalExcel(buffer){
-  {
-    let wb;
-    try { wb = XLSX.read(new Uint8Array(buffer), { type:'array', cellDates:true }); }
-    catch(err){ toast('엑셀 파일을 읽지 못했습니다.'); return; }
-    const sheet = wb.Sheets['방문기록'] || wb.Sheets[wb.SheetNames[0]];
-    if(!sheet){ toast('시트를 찾지 못했습니다.'); return; }
-    const rows = XLSX.utils.sheet_to_json(sheet, { defval:'' });
-    if(!rows.length){ toast('추가할 데이터가 없습니다.'); return; }
+  let wb;
+  try { wb = XLSX.read(new Uint8Array(buffer), { type:'array', cellDates:true }); }
+  catch(err){ toast('파일을 읽지 못했습니다.'); return; }
 
-    const norm = v => (v instanceof Date) ? v.toISOString().slice(0,10) : String(v == null ? '' : v).trim();
-    // 헤더에 부가설명(YYYY-MM-DD 등)이 붙어 있어도 매칭되도록 부분포함으로 열을 찾는다
-    const pick = (r, keys) => {
-      for(const col of Object.keys(r)){
-        const c = col.replace(/\s/g,'');
-        for(const key of keys){ if(c.includes(key)) return r[col]; }
-      }
-      return '';
-    };
-    const userName = (appSettings.userName || '').trim();
-    const keyOf = (name, date, time) => norm(name) + '|' + norm(date) + '|' + norm(time);
-    const existKeys = new Set(journals.map(j => keyOf(j.companyName, j.visitDate, j.visitTime)));
+  const norm = v => (v instanceof Date) ? v.toISOString().slice(0,10) : String(v == null ? '' : v).trim();
+  const pick = (r, keys) => {
+    for(const col of Object.keys(r)){
+      const c = col.replace(/\s/g,'');
+      for(const key of keys){ if(c.includes(key)) return r[col]; }
+    }
+    return '';
+  };
+  const userName = (appSettings.userName || '').trim();
+  const keyOf = (name, date) => norm(name) + '|' + norm(date);
+  const existKeys = new Set(journals.map(j => keyOf(j.companyName, j.visitDate)));
 
-    let toAdd = [], skipDup = 0, skipEmpty = 0;
-    rows.forEach((r, idx) => {
-      const companyName = norm(pick(r, ['기업명','업체명','회사','고객']));
-      if(!companyName){ skipEmpty++; return; }
+  // 대상 시트 수집: 법인/사업자 + 개인고객. 시트가 없으면(CSV 등) 단일 시트를 헤더로 유형 판별.
+  const findSheet = (subs) => { const nm = wb.SheetNames.find(n => subs.some(s => n.replace(/\s/g,'').includes(s))); return nm ? wb.Sheets[nm] : null; };
+  const targets = [];
+  const comp = findSheet(['법인','사업자','기업']);
+  const pers = findSheet(['개인']);
+  if(comp) targets.push({ sheet: comp, personal:false });
+  if(pers) targets.push({ sheet: pers, personal:true });
+  if(!targets.length){
+    const only = wb.Sheets[wb.SheetNames[0]];
+    if(only){
+      const head = (XLSX.utils.sheet_to_json(only, { header:1, defval:'' })[0] || []).map(h => String(h).replace(/\s/g,''));
+      const isPers = head.some(h => h.includes('고객명'));
+      targets.push({ sheet: only, personal: isPers });
+    }
+  }
+  if(!targets.length){ toast('시트를 찾지 못했습니다.'); return; }
+
+  let toAdd = [], skipDup = 0, skipEmpty = 0, idx = 0;
+  targets.forEach(t => {
+    const rows = XLSX.utils.sheet_to_json(t.sheet, { defval:'' });
+    rows.forEach(r => {
+      const name = norm(pick(r, t.personal ? ['고객명','고객','이름'] : ['기업명','업체명','회사','상호']));
+      if(!name){ skipEmpty++; return; }
       const visitDate = gjxNormDate(pick(r, ['방문일','날짜'])) || new Date().toISOString().slice(0,10);
-      const visitTime = norm(pick(r, ['방문시간','시간']));
-      const key = keyOf(companyName, visitDate, visitTime);
-      if(existKeys.has(key)){ skipDup++; return; }
-      existKeys.add(key);
-      // 담당자(본인)는 앱 설정의 담당자 이름으로 자동 지정. 동행자만 엑셀에서 받는다.
-      const owner = userName;
+      const k = keyOf(name, visitDate);
+      if(existKeys.has(k)){ skipDup++; return; }
+      existKeys.add(k);
       const compList = norm(pick(r, ['동행자'])).split(',').map(s => s.trim()).filter(Boolean);
-      const allNames = [owner].concat(compList).filter(Boolean);
-      const visitor = allNames.join(', ');
-      // 구분(개인/법인) → custType. '개인'이면 개인고객, 그 외(법인/사업장/빈칸)는 기업.
-      const gubun = norm(pick(r, ['구분','고객구분','유형']));
-      const custType = /개인/.test(gubun) ? '개인' : '';
-      toAdd.push({
-        id: Date.now() + idx,
-        companyName,
-        custType,
-        visitDate, visitTime, visitor,
+      const allNames = [userName].concat(compList).filter(Boolean);
+      const j = {
+        id: Date.now() + (idx++),
+        companyName: name,
+        custType: t.personal ? '개인' : '',
+        visitDate, visitTime: '',
+        visitor: allNames.join(', '),
         companions: allNames.filter(n => n && n !== userName),
-        address:   norm(pick(r, ['주소'])),
-        phone:     norm(pick(r, ['전화','연락처'])),
-        ceo:       norm(pick(r, ['대표'])),
-        bizNo:     norm(pick(r, ['사업자'])),
-        industry:  norm(pick(r, ['업종'])),
-        employees: norm(pick(r, ['근로자','직원','인원'])),
-        result:    gjxNormResult(pick(r, ['방문결과','결과'])),
-        priority:  norm(pick(r, ['우선순위'])),
-        content:   norm(pick(r, ['상담내용','상담'])),
-        product:   norm(pick(r, ['상품'])),
-        premium:   norm(pick(r, ['보험료','월납'])),
-        memo:      norm(pick(r, ['메모','비고','특이사항'])),
+        address: norm(pick(r, ['주소'])),
+        phone:   norm(pick(r, ['전화','연락처'])),
+        content: norm(pick(r, ['상담내용','상담'])),
+        product: norm(pick(r, ['상품'])),
+        premium: norm(pick(r, ['보험료','월납'])),
+        memo:    norm(pick(r, ['메모','비고','특이사항'])),
         savedAt: new Date().toISOString(),
         importedFromExcel: true,
-      });
+      };
+      if(t.personal){
+        j.relation   = norm(pick(r, ['관계']));
+        j.custGender = norm(pick(r, ['성별']));
+        j.custBirth  = gjxNormDate(pick(r, ['생년월일','생일']));
+      } else {
+        j.ceo       = norm(pick(r, ['대표']));
+        j.bizNo     = norm(pick(r, ['사업자']));
+        j.industry  = norm(pick(r, ['업종']));
+        j.employees = norm(pick(r, ['근로자','직원','인원']));
+      }
+      toAdd.push(j);
     });
+  });
 
-    if(!toAdd.length){
-      toast(`추가할 새 기록이 없습니다. (중복 ${skipDup} · 기업명 없음 ${skipEmpty})`);
-      return;
-    }
-    let msg = `엑셀에서 새 방문기록 ${toAdd.length}건을 추가합니다.`;
-    const extra = [];
-    if(skipDup)   extra.push(`중복 ${skipDup}건 건너뜀`);
-    if(skipEmpty) extra.push(`기업명 없는 ${skipEmpty}행 제외`);
-    if(extra.length) msg += ` (${extra.join(' · ')})`;
-    msg += ' 기존 기록은 유지됩니다. 계속할까요?';
-    showConfirm('엑셀 방문기록 추가', msg, function(){
-      journals = toAdd.concat(journals);
-      persistJournals();
-      renderList(); renderHome();
-      toast(`${toAdd.length}건을 방문기록에 추가했습니다.`);
-    });
+  if(!toAdd.length){
+    toast(`추가할 새 기록이 없습니다. (중복 ${skipDup} · 이름 없음 ${skipEmpty})`);
+    return;
   }
+  let msg = `엑셀에서 새 방문기록 ${toAdd.length}건을 추가합니다.`;
+  const extra = [];
+  if(skipDup)   extra.push(`중복 ${skipDup}건 건너뜀`);
+  if(skipEmpty) extra.push(`이름 없는 ${skipEmpty}행 제외`);
+  if(extra.length) msg += ` (${extra.join(' · ')})`;
+  msg += ' 기존 기록은 유지됩니다. 계속할까요?';
+  showConfirm('엑셀 방문기록 추가', msg, function(){
+    journals = toAdd.concat(journals);
+    persistJournals();
+    renderList(); renderHome();
+    toast(`${toAdd.length}건을 방문기록에 추가했습니다.`);
+  });
 }
 
 function importBackup(e){
