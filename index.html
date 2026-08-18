@@ -6925,6 +6925,85 @@ function salesHooks(c){
   if(isCorp && ceoAge>=60)  hooks.push('가업승계·상속 플랜');
   return hooks.slice(0,3);
 }
+/* 정밀 코칭 — 회사 프로필(업종·인원·재무·가입여부·대표나이)에 맞춘 추천 화법 +
+   영업백과(단체보험/법인/세무/보험설계/인증/정책자금) 바로가기를 자동 구성. */
+function buildCoaching(c){
+  const num = v => { const n=Number(String(v==null?'':v).replace(/[^0-9.]/g,'')); return isNaN(n)?0:n; };
+  const isCorp = bizTypeGroup(c.기업형태)==='법인';
+  const profit = num(c.순이익), workers = num(c.최신근로자수), est = num(c.설립년도);
+  const age    = est>1900 ? (new Date().getFullYear()-est) : 0;
+  const grpN   = (c.단체보험가입여부||'').toUpperCase()==='N';
+  const corpN  = isCorp && (c.법인명의가입여부||'').toUpperCase()==='N';
+  const ceoAge = num(c.대표자나이);
+  const ind    = (c.업종세부분류||'').trim();
+  const indE   = escapeHTML(ind);
+  const risky  = /(제조|금속|화학|도금|용접|절삭|가공|주물|플라스틱|건설|기계|전기|도장|열처리)/.test(ind);
+  const eok    = v => v>0 ? ((v/100).toFixed(1).replace(/\.0$/,''))+'억' : '';   // 순이익(백만) → 억
+
+  const scripts=[]; const links=[]; const linkSet=new Set();
+  const addLink=(fn,id,label)=>{ const k=fn+id; if(linkSet.has(k))return; linkSet.add(k); links.push({fn,id,label}); };
+
+  scripts.push(`<b>[오프닝]</b> 요즘 ${indE?indE.split(' ')[0]+' ':''}쪽 대표님들이 인건비·4대보험 부담을 많이 말씀하세요. 요즘 가장 신경 쓰이는 비용이 어떤 건가요?`);
+  addLink('doc','visit10','방문 첫마디 10 — 니즈 여는 질문');
+
+  if(grpN && workers>=5){
+    scripts.push(`<b>[단체보험]</b> 근로자 ${workers}명이면 단체상해 하나로 산재 초과분까지 <b>회사 비용처리</b>로 커버됩니다. 보험료 전액 손금처리도 가능하고요.`);
+    addLink('cat','group','단체보험 코너 · 2510 가입한도 계산기');
+  }
+  if(risky && workers>=10){
+    scripts.push(`<b>[산재 리스크]</b> ${indE}은(는) 사고 시 회사 배상책임이 큽니다. 산재만으로는 부족해 단체상해로 보완하는 곳이 많습니다.`);
+    addLink('cat','group','단체보험·산재 보상 계산기');
+  }
+  if(isCorp && profit>=300){
+    scripts.push(`<b>[가지급금]</b> 이익이 꾸준한 법인(순이익 약 ${eok(profit)})은 가지급금·미처분이익이 쌓이면 세금 부담이 커집니다. 대표님 명의 정리 플랜으로 미리 준비하시는 게 좋습니다.`);
+    addLink('cat','corp','법인영업·법인전환(가지급금·승계)');
+  }
+  if(corpN && profit>=100){
+    scripts.push(`<b>[CEO플랜]</b> 법인 명의로 대표님 보장을 설계하면 보험료를 <b>회사 비용</b>으로 처리하면서 <b>퇴직금 재원</b>까지 만들 수 있습니다.`);
+    addLink('doc','brain','CEO 법인·건강보험 컨설팅');
+    addLink('cat','ins','보험 설계(CEO보장)');
+  }
+  if(isCorp && age>=10){
+    scripts.push(`<b>[경정청구]</b> 설립 ${age}년차면 과거 3년 안에 놓친 공제·과오납 세금이 있을 수 있습니다. 경정청구로 환급받은 사례가 많습니다.`);
+    addLink('cat','tax','세무·과세 기준');
+  }
+  if(isCorp && ceoAge>=60){
+    scripts.push(`<b>[승계]</b> 대표님 연세(${ceoAge}대)를 고려하면 가업승계·상속 재원 준비를 시작할 시점입니다.`);
+    addLink('cat','corp','가업승계·법인 플랜');
+  }
+  if(isCorp && risky){
+    scripts.push(`<b>[인증·정책자금]</b> 기업부설연구소·이노비즈 인증을 받으면 세액공제·정책자금에서 유리합니다. 인증 준비와 보장 설계를 함께 제안해 보세요.`);
+    addLink('cat','cert','기업 인증제도');
+    addLink('cat','fund','정책자금·지원제도');
+  }
+
+  const parts=[ isCorp?'법인':'개인기업' ];
+  if(workers>0) parts.push(`근로자 ${workers}명`);
+  if(profit>0)  parts.push(`순이익 ${eok(profit)}`);
+  parts.push(`단체보험 ${grpN?'미가입':(c.단체보험가입여부||'-')}`);
+  if(isCorp) parts.push(`법인명의 ${corpN?'미가입':(c.법인명의가입여부||'-')}`);
+  if(ind) parts.push(ind);
+  const p = prospectScore(c);
+  return { summary: parts.join(' · '), tier:p.tier, score:p.score, cls:p.cls, scripts, links };
+}
+function openCoaching(name){
+  const c = getAllCompanies().find(x=>x.기업명===name);
+  if(!c){ toast('업체 정보를 찾지 못했습니다.'); return; }
+  const c2 = applyOverride(c);
+  const co = buildCoaching(c2);
+  document.getElementById('coachTitle').textContent = '🎯 ' + (c2.기업명||'방문 코칭');
+  const linksHTML = co.links.map(l=>`<button class="coach-link" onclick="coachGoto('${l.fn}','${l.id}')">📚 ${escapeHTML(l.label)}<span class="cl-go">열기 ›</span></button>`).join('');
+  document.getElementById('coachBody').innerHTML =
+    `<div class="coach-sec"><div class="coach-summary"><span class="pscore ${co.cls}" style="margin-right:6px;">${co.tier} ${co.score}</span>${escapeHTML(co.summary)}</div></div>`
+    + `<div class="coach-sec"><div class="coach-sec-t">추천 화법 (그대로 사용 가능)</div>${co.scripts.map(s=>`<div class="coach-script">${s}</div>`).join('')}</div>`
+    + (linksHTML ? `<div class="coach-sec"><div class="coach-sec-t">영업백과 바로가기</div><div class="coach-links">${linksHTML}</div></div>` : '')
+    + `<button class="coach-link coach-toform" onclick="coachToForm('${escapeAttr(c2.기업명||'')}')">📝 이 업체로 방문일지 작성</button>`;
+  document.getElementById('coachOverlay').classList.add('show');
+}
+function closeCoaching(){ document.getElementById('coachOverlay').classList.remove('show'); }
+function coachGoto(fn,id){ closeCoaching(); if(fn==='cat') openGuideCategory(id); else if(fn==='doc') openGuideDoc(id); }
+function coachToForm(name){ closeCoaching(); selectCompanyFromSearch(name); }
+
 // 검색결과를 가망 점수 높은 순으로 정렬 (점수는 미리 계산해 안정적으로 정렬)
 function sortByProspect(list){
   return list.map(c=>({ c, s: prospectScore(applyOverride(c)).score }))
