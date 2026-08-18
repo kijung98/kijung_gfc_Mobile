@@ -221,6 +221,11 @@ html,body{margin:0;padding:0;height:100%;color:var(--text);
 .tool-row button{flex:1;min-width:calc(50% - 4px);padding:10px 6px;border-radius:10px;border:1.5px solid var(--line);
   background:#fff;font-size:12.5px;font-weight:700;color:#39435a;}
 .tool-row button.on{background:var(--navy);color:#fff;border-color:var(--navy);}
+/* 방문기록 상단 빠른 버튼 (백업 · 복원 · 접기) */
+.list-top-actions{display:flex;gap:8px;margin-bottom:12px;}
+.list-top-actions button{flex:1;border:1.5px solid var(--line);border-radius:10px;padding:12px 6px;
+  font-size:13.5px;font-weight:800;background:#fff;color:var(--navy);}
+.list-top-actions .lta-backup{background:linear-gradient(135deg,var(--green),#128a45);color:#fff;border:none;}
 
 .j-card{background:#fff;border-radius:12px;padding:14px;margin-bottom:10px;border-left:5px solid var(--line);
   box-shadow:0 2px 8px rgba(20,30,60,.06);position:relative;display:flex;gap:10px;align-items:flex-start;}
@@ -288,6 +293,20 @@ html,body{margin:0;padding:0;height:100%;color:var(--text);
   box-shadow:0 1px 6px rgba(20,30,60,.05);}
 .result-item .rname{font-weight:700;font-size:14px;}
 .result-item .raddr{font-size:12px;color:var(--sub);margin-top:3px;line-height:1.5;}
+/* 가망 우선순위 점수 배지 */
+.rname-row{display:flex;align-items:center;gap:8px;}
+.rname-row .rname{flex:1;min-width:0;}
+.pscore{flex-shrink:0;font-size:11px;font-weight:800;padding:3px 9px;border-radius:999px;white-space:nowrap;}
+.pscore.p-hot{background:#fdecec;color:#c0392b;border:1px solid #f3b4ac;}
+.pscore.p-warm{background:#fff3e0;color:#b8730d;border:1px solid #f2cf9a;}
+.pscore.p-cool{background:#eef1f7;color:#5a6683;border:1px solid #dde2ee;}
+.psort-toggle{border:1.5px solid var(--line);background:#fff;color:#5a6683;border-radius:999px;
+  padding:6px 12px;font-size:12px;font-weight:700;margin-bottom:8px;}
+.psort-toggle.on{background:var(--navy);color:#fff;border-color:var(--navy);}
+/* 법인영업 대화 훅 태그 */
+.shooks{display:flex;flex-wrap:wrap;gap:6px;margin-top:7px;}
+.shook{font-size:10.5px;font-weight:700;color:#155e3a;background:#e7f6ec;
+  border:1px solid #bfe6cd;border-radius:8px;padding:3px 8px;}
 
 /* ---------- 데이터관리 ---------- */
 .summary-row{display:flex;gap:8px;margin-bottom:14px;}
@@ -383,6 +402,10 @@ select{-webkit-appearance:none;appearance:none;background-image:url("data:image/
 .dm-section{background:rgba(255,255,255,.62);border:1px solid rgba(255,255,255,.65);border-radius:16px;margin-bottom:16px;overflow:hidden;
   -webkit-backdrop-filter:saturate(180%) blur(20px);backdrop-filter:saturate(180%) blur(20px);box-shadow:0 6px 20px rgba(20,30,60,.08);}
 .dm-section-head{background:rgba(37,99,235,.10);color:var(--navy);border-bottom:1px solid rgba(37,99,235,.14);padding:14px 16px;font-size:15px;font-weight:800;display:flex;align-items:center;gap:8px;}
+.dm-section-head.toggle{cursor:pointer;}
+.dm-caret{font-size:12px;color:var(--navy);flex-shrink:0;margin-left:auto;}
+.dm-section.collapsed .dm-section-body{display:none;}
+.dm-section.collapsed .dm-section-head{border-bottom:none;}
 .dm-section-body{padding:14px 14px 16px;}
 .dm-section-note{font-size:12.5px;color:var(--sub);line-height:1.55;margin-bottom:12px;}
 
@@ -496,6 +519,19 @@ select{-webkit-appearance:none;appearance:none;background-image:url("data:image/
 .backup-btns .b-up{background:#fff;color:var(--navy);border:1.5px solid var(--line);}
 .backup-warn{background:#fef3f3;border:1px solid #f5c6c6;border-radius:10px;padding:10px 12px;
   font-size:11.5px;color:#8a2a2a;margin-top:10px;line-height:1.5;}
+/* 휴지통 */
+.trash-item{display:flex;align-items:center;gap:10px;background:#fff;border:1.5px solid var(--line);
+  border-radius:10px;padding:10px 12px;margin-bottom:8px;cursor:pointer;}
+.trash-item.on{border-color:var(--navy);background:#f5f7fc;}
+.trash-item input{width:18px;height:18px;flex-shrink:0;}
+.trash-item .ti-name{font-size:13.5px;font-weight:700;color:#26324c;}
+.trash-item .ti-sub{font-size:11.5px;color:var(--sub);margin-top:2px;}
+.trash-empty{font-size:12.5px;color:var(--sub);padding:10px 2px;}
+.trash-btns{display:flex;gap:8px;margin-top:6px;}
+.trash-btns button{flex:1;border:none;border-radius:10px;padding:12px 6px;font-size:12.5px;font-weight:800;}
+.trash-btns .tb-restore{background:linear-gradient(135deg,var(--green),#128a45);color:#fff;}
+.trash-btns .tb-del{background:#fff;color:#8a2a2a;border:1.5px solid #f5c6c6;}
+.trash-btns .tb-empty{background:#fff;color:#39435a;border:1.5px solid var(--line);}
 .backup-steps{background:#f0f5ff;border-radius:10px;padding:10px 12px;font-size:12px;color:#39435a;
   margin-bottom:12px;line-height:1.6;}
 
@@ -882,14 +918,19 @@ select{-webkit-appearance:none;appearance:none;background-image:url("data:image/
 
     <!-- ===================== 방문기록(LIST) : PC "📂 방문 기록 관리" 와 동일 구성 ===================== -->
     <section class="screen" id="screen-list">
-      <div class="page-title"><span>📂</span> 방문 기록 관리</div>
-      <div class="stats-row" id="statsRow"></div>
+      <div class="list-top-actions">
+        <button class="lta-backup" onclick="backupFromList()">💾 백업</button>
+        <button onclick="document.getElementById('restoreFile').click()">📤 복원</button>
+        <button onclick="collapseAllFolders()">🔼 접기</button>
+      </div>
       <div class="filter-row-scroll" id="resultFilterRow"></div>
       <div id="journalList"></div>
       <div class="list-search">
         <input type="text" id="listSearchInput" placeholder="🔍 기업명·방문자·주소·상담내용·상품 검색" oninput="setListSearch(this.value)">
         <button type="button" class="ls-clear" id="lsClearBtn" style="display:none;" onclick="clearListSearch()">✕</button>
       </div>
+      <div class="page-title"><span>📂</span> 방문 기록 관리</div>
+      <div class="stats-row" id="statsRow"></div>
       <div class="tool-row">
         <button id="btnFolderView" class="on" onclick="toggleFolderView()">📁 지역별 보기</button>
         <button id="btnCollapseAll" onclick="collapseAllFolders()">🔼 모두 접기</button>
@@ -930,10 +971,24 @@ select{-webkit-appearance:none;appearance:none;background-image:url("data:image/
 
       <!-- ② 현재 업체 데이터 소스 (지역별) -->
       <div class="dm-section">
-        <div class="dm-section-head"><span>📁</span> 현재 업체 데이터 소스 (지역별) <span id="totalCompBadge" style="margin-left:auto;font-size:11.5px;background:rgba(15,31,61,.10);color:var(--navy);padding:3px 9px;border-radius:10px;font-weight:700;"></span></div>
+        <div class="dm-section-head"><span>📁</span> 현재 업체 데이터 소스 (지역별) <span id="totalCompBadge" style="margin-left:6px;font-size:11.5px;background:rgba(15,31,61,.10);color:var(--navy);padding:3px 9px;border-radius:10px;font-weight:700;"></span></div>
         <div class="dm-section-body">
           <div class="dm-section-note">토글을 켜둔 지역만 검색·일지작성에 사용됩니다. 이름변경 버튼으로 지역명을 정해두면 다음에 다시 첨부하지 않아도 바로 전환해 쓸 수 있어요.</div>
           <div id="srcList"></div>
+        </div>
+      </div>
+
+      <!-- ③-B 휴지통 (삭제한 방문기록 임시 보관 · 복원 가능 · 접기/펴기) -->
+      <div class="dm-section collapsed" id="trashSection">
+        <div class="dm-section-head"><span>🗑️</span> 휴지통 <span id="trashBadge" style="margin-left:6px;font-size:11.5px;background:rgba(15,31,61,.10);color:var(--navy);padding:3px 9px;border-radius:10px;font-weight:700;"></span></div>
+        <div class="dm-section-body">
+          <div class="dm-section-note">방문기록에서 삭제한 항목이 여기로 옮겨집니다. 실수로 지웠어도 <b>선택 복원</b>으로 되살릴 수 있어요. 완전히 지우려면 <b>선택 삭제·전체 삭제</b>를 누르세요. (전체 삭제 전까지 계속 보관됩니다)</div>
+          <div id="trashList"></div>
+          <div class="trash-btns">
+            <button class="tb-restore" onclick="restoreTrashSelected()">↩️ 선택 복원</button>
+            <button class="tb-del" onclick="deleteTrashSelected()">🗑️ 선택 삭제</button>
+            <button class="tb-empty" onclick="emptyTrash()">🧹 전체 삭제</button>
+          </div>
         </div>
       </div>
 
@@ -1591,6 +1646,7 @@ select{-webkit-appearance:none;appearance:none;background-image:url("data:image/
     <div class="picker-section" style="margin-bottom:0;">
       <div class="picker-section-title"><span>결과</span><span class="picker-reset-link" onclick="resetRegionFilters()">필터 초기화</span></div>
       <div class="result-count" id="regionCount"></div>
+      <button type="button" class="psort-toggle on" id="psortToggle" onclick="togglePsort()">🎯 가망순 정렬</button>
       <div id="regionResults"></div>
     </div>
   </div>
@@ -1790,7 +1846,7 @@ select{-webkit-appearance:none;appearance:none;background-image:url("data:image/
    방문영업일지 모바일 v3 — v39 PC버전의 실제 방문결과/우선순위/지역 필터 값과
    버튼 스타일을 그대로 이식하고, 모바일 화면에 맞춰 세로 배치로 재구성했습니다.
    ========================================================= */
-const BACKUP_KEYS = ['visitJournals','extraSources','companyOverrides','manualCompanies',
+const BACKUP_KEYS = ['visitJournals','trashedJournals','extraSources','companyOverrides','manualCompanies',
   'builtinDeleted','builtinActive','builtinName','riGeoCache','addrGeoCache','appSettings','companyMeta'];
 
 // PC버전과 동일한 "리(里)" 추출 로직
@@ -1826,6 +1882,10 @@ const RESULT_DEFS = [
 let journals = [];
 try { journals = JSON.parse(localStorage.getItem('visitJournals') || '[]'); } catch(e){ journals = []; }
 
+// 휴지통 — 삭제한 방문기록을 임시 보관(복원 가능). 여기 있는 항목은 목록·통계·폴더에서 제외된다.
+let trashedJournals = [];
+try { trashedJournals = JSON.parse(localStorage.getItem('trashedJournals') || '[]'); } catch(e){ trashedJournals = []; }
+
 let manualCompanies = [];
 try { manualCompanies = JSON.parse(localStorage.getItem('manualCompanies') || '[]'); } catch(e){ manualCompanies = []; }
 
@@ -1850,6 +1910,18 @@ function getBuiltinName(){
 }
 
 function persistJournals(){ localStorage.setItem('visitJournals', JSON.stringify(journals)); }
+function persistTrash(){ localStorage.setItem('trashedJournals', JSON.stringify(trashedJournals)); }
+// 방문기록 삭제 = 완전 삭제가 아니라 휴지통으로 이동(최근 삭제가 위로). 사진은 휴지통에서 계속 참조하므로 정리하지 않는다.
+function moveJournalsToTrash(ids){
+  const set = new Set(ids);
+  const now = new Date().toISOString();
+  const moving = journals.filter(j=>set.has(j.id));
+  moving.forEach(j=>{ j.deletedAt = now; });
+  trashedJournals = moving.concat(trashedJournals);
+  journals = journals.filter(j=>!set.has(j.id));
+  persistJournals();
+  persistTrash();
+}
 function persistManual(){ localStorage.setItem('manualCompanies', JSON.stringify(manualCompanies)); }
 function persistSettings(){ localStorage.setItem('appSettings', JSON.stringify(appSettings)); }
 function persistExtraSources(){ localStorage.setItem('extraSources', JSON.stringify(extraSources)); }
@@ -1929,11 +2001,17 @@ function showPrompt(title, msg, defaultVal, onOk){
 function closePrompt(){ document.getElementById('promptOverlay').classList.remove('show'); }
 
 /* ---------------- Confirm dialog ---------------- */
-function showConfirm(title, msg, onOk){
+function showConfirm(title, msg, onOk, opts){
+  opts = opts || {};
   document.getElementById('confirmTitle').textContent = title;
   document.getElementById('confirmMsg').textContent = msg;
   const ok = document.getElementById('confirmOkBtn');
+  const cancel = document.querySelector('#confirmOverlay .btn-cancel');
+  // 매 호출마다 라벨을 기본값으로 되돌린 뒤 필요 시 커스텀 라벨 적용(기존 호출 호환)
+  ok.textContent = opts.okLabel || '확인';
+  if(cancel) cancel.textContent = opts.cancelLabel || '취소';
   ok.onclick = function(){ closeConfirm(); onOk(); };
+  if(cancel) cancel.onclick = function(){ closeConfirm(); if(opts.onCancel) opts.onCancel(); };
   document.getElementById('confirmOverlay').classList.add('show');
 }
 function closeConfirm(){ document.getElementById('confirmOverlay').classList.remove('show'); }
@@ -4045,17 +4123,18 @@ function renderList(){
           ${favSubOpen ? `<div class="folder-body">${favList.map(x => journalCardHTML(x.j, true, x.idx)).join('')}</div>` : ''}
         </div>` : '';
       const regionsHTML = cg.regions.map(g=>{
-        const isOpen = !!openFolders[g.key];
+        const fkey = g.uiKey || g.key;   // 동행자별 독립 폴더 키(펼침·이름변경용)
+        const isOpen = !!openFolders[fkey];
         const inner = isOpen
           ? `<div class="folder-body">${g.items.map(x => journalCardHTML(x.j, true, x.idx)).join('')}</div>`
           : '';
         return `<div class="region-folder sub ${isOpen?'open':''}">
-          <div class="folder-head" style="background:${g.color};" onclick="toggleFolder('${escapeAttr(g.key)}')">
+          <div class="folder-head" style="background:${g.color};" onclick="toggleFolder('${escapeAttr(fkey)}')">
             <span class="folder-caret">${isOpen?'▼':'▶'}</span>
             <span class="folder-icon">${isOpen?'📂':'📁'}</span>
             <span class="folder-name">${escapeHTML(g.labelShort)}</span>
             <span class="folder-count">${g.items.length}</span>
-            <button type="button" class="folder-edit" onclick="event.stopPropagation();renameFolder('${escapeAttr(g.key)}')">✏️</button>
+            <button type="button" class="folder-edit" onclick="event.stopPropagation();renameFolder('${escapeAttr(fkey)}')">✏️</button>
           </div>
           ${inner}
         </div>`;
@@ -4202,13 +4281,14 @@ function collapseAllFolders(){
   toast('모든 폴더를 접었습니다.');
 }
 
-function renameFolder(regionKey){
-  // 현재 화면에 보이는 전체 라벨(지역 + 방문자)을 기본값으로 제시
+function renameFolder(folderKey){
+  // 같은 지역이라도 동행자마다 독립된 폴더 키(reg::동행자::지역)로 저장하므로,
+  // 한 폴더 이름을 바꿔도 같은 지역의 다른 동행자 폴더는 영향받지 않는다.
   // iOS 설치형(PWA)에서는 native prompt()가 차단되므로 커스텀 모달을 사용한다.
-  const grp = (window._lastGroups || []).find(g => g.key === regionKey);
-  const cur = grp ? grp.label : folderLabel(regionKey);
+  const grp = (window._lastGroups || []).find(g => (g.uiKey || g.key) === folderKey);
+  const cur = grp ? grp.labelShort : '';
   showPrompt('폴더 이름 변경', '이 폴더에 표시할 이름을 입력하세요.', cur, function(v){
-    folderRenames[regionKey] = v.trim();
+    folderRenames[folderKey] = v.trim();
     persistFolderState();
     renderList();
   });
@@ -4258,8 +4338,11 @@ function groupJournalsByCompanion(list){
     cg.regions = groupJournalsByRegion(cg.items);   // 동행자 내부의 지역 폴더
     // 상위가 이미 동행자이므로, 하위 지역 라벨에서는 "· 동행자"를 빼고 지역만 표시(이름 변경분은 존중)
     cg.regions.forEach(r=>{
-      r.labelShort = (folderRenames[r.key] !== undefined)
-        ? folderRenames[r.key]
+      // 같은 지역이라도 동행자마다 폴더가 독립되도록 UI 키를 "동행자+지역"으로 구성.
+      // (예전엔 지역 키만 써서, 한 동행자 폴더 이름을 바꾸면 같은 지역의 다른 동행자 폴더까지 함께 바뀌었음)
+      r.uiKey = 'reg::' + cg.key + '::' + r.key;
+      r.labelShort = (folderRenames[r.uiKey] !== undefined)
+        ? folderRenames[r.uiKey]
         : (r.sigungu ? `${r.sigungu} ${r.key}` : r.key);
     });
   });
@@ -4325,13 +4408,11 @@ function toggleCheck(id){
 }
 function bulkDelete(){
   if(!selectedIds.size){ toast('삭제할 항목을 선택해주세요.'); return; }
-  showConfirm('선택 항목 삭제', `${selectedIds.size}건의 방문일지를 삭제합니다. 되돌릴 수 없습니다.`, function(){
-    journals = journals.filter(j=>!selectedIds.has(j.id));
-    persistJournals();
-    cleanupOrphanPhotos();   // 삭제된 일지의 사진을 IndexedDB에서 함께 정리
+  showConfirm('선택 항목 삭제', `${selectedIds.size}건을 휴지통으로 옮깁니다. 데이터관리 > 휴지통에서 다시 복원할 수 있어요.`, function(){
+    moveJournalsToTrash(Array.from(selectedIds));
     selectedIds.clear();
     selectMode = false;
-    toast('삭제되었습니다.');
+    toast('휴지통으로 옮겼습니다.');
     renderList(); renderHome();
   });
 }
@@ -5320,6 +5401,104 @@ function renderDataScreen(){
   const badge = document.getElementById('totalCompBadge');
   if(badge) badge.textContent = totalNow.toLocaleString() + '개 활성';
   renderSrcList();
+  renderTrash();               // 휴지통 목록
+  initDmSections();            // 모든 코너 접기/펴기 활성화(최초 1회)
+}
+
+/* ---------------- 휴지통 (삭제한 방문기록 임시 보관 · 복원/영구삭제) ---------------- */
+let trashSelected = new Set();
+// 데이터관리 코너 접기/펴기 — 모든 .dm-section 헤더를 누르면 그 코너가 접혔다 펴진다.
+// (처음 한 번만 헤더에 캐럿과 클릭 동작을 붙인다. 미리 collapsed 클래스가 있으면 접힌 상태로 시작)
+let _dmSectionsInit = false;
+function initDmSections(){
+  if(_dmSectionsInit) return;
+  _dmSectionsInit = true;
+  document.querySelectorAll('#screen-data .dm-section').forEach(sec=>{
+    const head = sec.querySelector('.dm-section-head');
+    if(!head) return;
+    head.classList.add('toggle');
+    sec.classList.add('collapsed');   // 모든 코너를 처음엔 접힌 상태로 시작
+
+    if(!head.querySelector('.dm-caret')){
+      const caret = document.createElement('span');
+      caret.className = 'dm-caret';
+      caret.textContent = sec.classList.contains('collapsed') ? '▶' : '▼';
+      head.appendChild(caret);
+    }
+    head.addEventListener('click', function(){
+      sec.classList.toggle('collapsed');
+      const c = head.querySelector('.dm-caret');
+      if(c) c.textContent = sec.classList.contains('collapsed') ? '▶' : '▼';
+    });
+  });
+}
+function renderTrash(){
+  const wrap = document.getElementById('trashList');
+  const badge = document.getElementById('trashBadge');
+  if(!wrap) return;
+  if(badge) badge.textContent = trashedJournals.length ? `${trashedJournals.length}건` : '비어 있음';
+  if(!trashedJournals.length){
+    trashSelected.clear();
+    wrap.innerHTML = '<div class="trash-empty">휴지통이 비어 있습니다.</div>';
+    return;
+  }
+  wrap.innerHTML = trashedJournals.map(j=>{
+    const on = trashSelected.has(j.id);
+    const region = extractSigungu(j.address) || journalRegionKey(j) || '';
+    const comps = journalCompanions(j);
+    const compStr = comps.length ? '👥 '+comps.join(', ') : '';
+    const delWhen = j.deletedAt ? String(j.deletedAt).slice(0,10) : '';
+    const sub = [compStr, j.visitDate||'', region, delWhen ? '삭제 '+delWhen : ''].filter(Boolean).join(' · ');
+    return `<label class="trash-item ${on?'on':''}">
+      <input type="checkbox" ${on?'checked':''} onclick="toggleTrashSel(${j.id})">
+      <div class="ti-body">
+        <div class="ti-name">${escapeHTML(j.companyName||'(기업명 없음)')}</div>
+        <div class="ti-sub">${escapeHTML(sub)}</div>
+      </div>
+    </label>`;
+  }).join('');
+}
+function toggleTrashSel(id){
+  if(trashSelected.has(id)) trashSelected.delete(id); else trashSelected.add(id);
+  renderTrash();
+}
+// 선택한 항목을 방문기록으로 복원 (deletedAt 제거)
+function restoreTrashSelected(){
+  if(!trashSelected.size){ toast('복원할 항목을 선택해주세요.'); return; }
+  const set = new Set(trashSelected);
+  const moving = trashedJournals.filter(j=>set.has(j.id));
+  moving.forEach(j=>{ delete j.deletedAt; });
+  journals = moving.concat(journals);
+  trashedJournals = trashedJournals.filter(j=>!set.has(j.id));
+  trashSelected.clear();
+  persistJournals(); persistTrash();
+  toast(`${moving.length}건을 복원했습니다.`);
+  renderTrash(); renderList(); renderHome();
+}
+// 선택한 항목을 영구 삭제 (사진도 함께 정리)
+function deleteTrashSelected(){
+  if(!trashSelected.size){ toast('삭제할 항목을 선택해주세요.'); return; }
+  showConfirm('휴지통 영구 삭제', `${trashSelected.size}건을 완전히 삭제합니다. 이 작업은 되돌릴 수 없습니다.`, function(){
+    const set = new Set(trashSelected);
+    trashedJournals = trashedJournals.filter(j=>!set.has(j.id));
+    trashSelected.clear();
+    persistTrash();
+    cleanupOrphanPhotos();
+    toast('영구 삭제되었습니다.');
+    renderTrash();
+  });
+}
+// 휴지통 전체 비우기
+function emptyTrash(){
+  if(!trashedJournals.length){ toast('휴지통이 비어 있습니다.'); return; }
+  showConfirm('휴지통 전체 삭제', `휴지통의 ${trashedJournals.length}건을 모두 완전히 삭제합니다. 이 작업은 되돌릴 수 없습니다.`, function(){
+    trashedJournals = [];
+    trashSelected.clear();
+    persistTrash();
+    cleanupOrphanPhotos();
+    toast('휴지통을 비웠습니다.');
+    renderTrash();
+  });
 }
 
 function renderSrcList(){
@@ -5559,11 +5738,9 @@ function editFromDetail(){
 }
 
 function deleteFromDetail(){
-  showConfirm('방문일지 삭제', '이 방문일지를 삭제하시겠습니까? 삭제 후에는 복구할 수 없습니다.', function(){
-    journals = journals.filter(x=>x.id!==detailId);
-    persistJournals();
-    cleanupOrphanPhotos();   // 삭제된 일지의 사진을 IndexedDB에서 함께 정리
-    toast('삭제되었습니다.');
+  showConfirm('방문일지 삭제', '이 방문일지를 휴지통으로 옮깁니다. 데이터관리 > 휴지통에서 다시 복원할 수 있어요.', function(){
+    moveJournalsToTrash([detailId]);
+    toast('휴지통으로 옮겼습니다.');
     history.back();
     setTimeout(()=>{ renderList(); renderHome(); }, 50);
   });
@@ -6133,6 +6310,8 @@ async function cleanupOrphanPhotos(){
   try{
     const used = new Set();
     journals.forEach(j => getJournalAttachmentIds(j).forEach(id => used.add(id)));
+    // 휴지통에 있는 항목의 사진도 복원 대비 보존 (영구 삭제 시에만 실제로 정리됨)
+    trashedJournals.forEach(j => getJournalAttachmentIds(j).forEach(id => used.add(id)));
     const all = await idbAllPhotos();
     for(const id of Object.keys(all)){
       if(!used.has(id)){ await idbDeletePhoto(id); photoCache.delete(id); }
@@ -6683,6 +6862,83 @@ function bizTypeGroup(t){
   return '기타';
 }
 
+/* ---------------- 가망 우선순위 점수 ----------------
+   삼성생명 GFC 법인영업 관점에서 "지금 공략할 가치"를 0~100으로 환산.
+   ① 미가입(기회): 단체보험 N / 법인명의 N  ② 재무여력: 순이익  ③ 규모: 근로자·매출
+   ④ 법인 여부·업력. 데이터가 비어 있으면 그 항목은 점수에 넣지 않는다. */
+function prospectScore(c){
+  const num = v => { const n = Number(String(v==null?'':v).replace(/[^0-9.]/g,'')); return isNaN(n)?0:n; };
+  const isCorp  = bizTypeGroup(c.기업형태) === '법인';
+  const profit  = num(c.순이익);          // 백만원 단위
+  const sales   = num(c.매출);            // 백만원 단위
+  const workers = num(c.최신근로자수);
+  const est     = num(c.설립년도);
+  const grp     = (c.단체보험가입여부||'').toUpperCase();
+  const corp    = (c.법인명의가입여부||'').toUpperCase();
+
+  let s = 0; const reasons = [];
+  // ① 미가입 = 기회 (Y=이미가입 0점 / N=명확한 기회 / 빈값=정보없음은 절반)
+  if(grp === 'N'){ s += 25; reasons.push('단체보험 미가입'); }
+  else if(grp === ''){ s += 12; }
+  if(isCorp){
+    if(corp === 'N'){ s += 20; reasons.push('법인명의 미가입'); }
+    else if(corp === ''){ s += 10; }
+  }
+  // ② 재무 여력 (순이익)
+  const ps = profit>=1000?20:profit>=500?15:profit>=200?10:profit>=50?5:0;
+  s += ps; if(ps>=15) reasons.push('순이익 우수'); else if(ps>=10) reasons.push('순이익 양호');
+  // ③ 규모 — 근로자수 / 매출
+  const ws = workers>=50?15:workers>=20?12:workers>=10?8:workers>=5?4:workers>0?2:0;
+  s += ws; if(ws>=12) reasons.push('근로자 많음');
+  s += sales>=30000?10:sales>=10000?7:sales>=3000?4:sales>0?2:0;
+  // ④ 법인 여부 + 업력
+  if(isCorp) s += 5;
+  if(est>1900){ const age = new Date().getFullYear()-est; const as = age>=20?5:age>=10?3:0; s += as; if(as>=5) reasons.push('업력 20년+'); }
+
+  s = Math.max(0, Math.min(100, Math.round(s)));
+  let tier, cls;
+  if(s>=70){ tier='최우선'; cls='p-hot'; }
+  else if(s>=45){ tier='우선'; cls='p-warm'; }
+  else { tier='일반'; cls='p-cool'; }
+  return { score:s, tier, cls, reasons: reasons.slice(0,3) };
+}
+/* 법인영업 대화 훅 — 재무·기본정보에서 "먼저 꺼낼 이야깃거리"를 자동 도출.
+   경정청구·가지급금·CEO플랜·단체보험·산재·승계 등. 근거가 없으면 넣지 않는다. */
+function salesHooks(c){
+  const num = v => { const n = Number(String(v==null?'':v).replace(/[^0-9.]/g,'')); return isNaN(n)?0:n; };
+  const isCorp  = bizTypeGroup(c.기업형태) === '법인';
+  const profit  = num(c.순이익);          // 백만원
+  const workers = num(c.최신근로자수);
+  const est     = num(c.설립년도);
+  const age     = est>1900 ? (new Date().getFullYear()-est) : 0;
+  const grpN    = (c.단체보험가입여부||'').toUpperCase()==='N';
+  const corpN   = isCorp && (c.법인명의가입여부||'').toUpperCase()==='N';
+  const ceoAge  = num(c.대표자나이);       // "70대 초반" → 70
+  const risky   = /(제조|금속|화학|도금|용접|절삭|가공|주물|플라스틱|건설|기계|전기|도장|열처리)/.test(c.업종세부분류||'');
+
+  const hooks = [];
+  if(isCorp && profit>=300) hooks.push('가지급금·미처분이익 정리');
+  if(isCorp && age>=10)     hooks.push('경정청구(과거 3년) 검토');
+  if(corpN && profit>=100)  hooks.push('CEO플랜(법인계약) 여지');
+  if(grpN && workers>=5)    hooks.push('단체보험 미가입 · 복리후생 제안');
+  if(risky && workers>=10)  hooks.push('산재 리스크 · 단체상해 제안');
+  if(isCorp && ceoAge>=60)  hooks.push('가업승계·상속 플랜');
+  return hooks.slice(0,3);
+}
+// 검색결과를 가망 점수 높은 순으로 정렬 (점수는 미리 계산해 안정적으로 정렬)
+function sortByProspect(list){
+  return list.map(c=>({ c, s: prospectScore(applyOverride(c)).score }))
+             .sort((a,b)=> b.s - a.s)
+             .map(x=>x.c);
+}
+let regionSortByScore = true;   // 지역검색 기본: 가망순 정렬 ON
+function togglePsort(){
+  regionSortByScore = !regionSortByScore;
+  const b = document.getElementById('psortToggle');
+  if(b){ b.classList.toggle('on', regionSortByScore); b.textContent = regionSortByScore ? '🎯 가망순 정렬' : '↕️ 기본순'; }
+  runRegionSearch();
+}
+
 function runRegionSearch(){
   const kw = document.getElementById('region-kw').value.trim();
   let list = sourceFilteredCompanies();
@@ -6706,6 +6962,8 @@ function runRegionSearch(){
   if(pickerFilters.profit !== 'all') list = list.filter(c=>inRange(c.순이익, pickerFilters.profit));
   if(kw) list = list.filter(c => (c.기업명&&c.기업명.includes(kw)) || (c.업종세부분류&&c.업종세부분류.includes(kw)));
 
+  if(regionSortByScore) list = sortByProspect(list);
+
   lastRegionFullList = list;
   const countEl = document.getElementById('regionCount');
   countEl.textContent = list.length.toLocaleString() + '개 업체';
@@ -6722,9 +6980,18 @@ function resultItemHTML(c){
   const c2 = applyOverride(c);
   // 업체명을 JS 문자열로 직접 넣으면 따옴표(')가 든 이름에서 onclick이 깨진다.
   // data 속성(HTML 이스케이프)에 담고 클릭 시 dataset에서 안전하게 읽는다.
+  const p = prospectScore(c2);
+  const reasonStr = p.reasons.length ? ' · ' + p.reasons.join(' · ') : '';
+  const hooks = salesHooks(c2);
+  const hooksHTML = hooks.length
+    ? `<div class="shooks">${hooks.map(h=>`<span class="shook">💡 ${escapeHTML(h)}</span>`).join('')}</div>` : '';
   return `<div class="result-item" data-name="${escapeHTML(c2.기업명||'')}" onclick="selectCompanyFromSearch(this.dataset.name)">
-    <div class="rname">${escapeHTML(c2.기업명||'')}</div>
-    <div class="raddr">${escapeHTML(c2.통합주소||'-')}<br>${escapeHTML(c2.본사전화번호||'-')} · 근로자 ${c2.최신근로자수?escapeHTML(c2.최신근로자수)+'명':'-'} · 단체보험 ${escapeHTML(c2.단체보험가입여부||'-')} · 법인명의 ${escapeHTML(c2.법인명의가입여부||'-')}</div>
+    <div class="rname-row">
+      <div class="rname">${escapeHTML(c2.기업명||'')}</div>
+      <span class="pscore ${p.cls}" title="가망 우선순위 점수 ${p.score}/100">${p.tier} ${p.score}</span>
+    </div>
+    <div class="raddr">${escapeHTML(c2.통합주소||'-')}<br>${escapeHTML(c2.본사전화번호||'-')} · 근로자 ${c2.최신근로자수?escapeHTML(c2.최신근로자수)+'명':'-'} · 단체보험 ${escapeHTML(c2.단체보험가입여부||'-')} · 법인명의 ${escapeHTML(c2.법인명의가입여부||'-')}${reasonStr}</div>
+    ${hooksHTML}
   </div>`;
 }
 
@@ -6749,7 +7016,7 @@ function runNameSearch(){
   const kw = document.getElementById('name-kw').value.trim();
   const wrap = document.getElementById('nameResults');
   if(!kw){ wrap.innerHTML = '<div class="empty-hint">업체명을 입력해주세요.</div>'; return; }
-  const list = getAllCompanies().filter(c=>c.기업명 && c.기업명.includes(kw)).slice(0,30);
+  const list = sortByProspect(getAllCompanies().filter(c=>c.기업명 && c.기업명.includes(kw))).slice(0,30);
   if(!list.length){
     wrap.innerHTML = `<div class="empty-hint">"${escapeHTML(kw)}" 검색 결과가 없습니다.<br>직접입력으로 새로 기록할 수 있습니다.</div>
       <button class="big-btn primary" data-name="${escapeHTML(kw)}" onclick="openFormNewCompany(this.dataset.name)">
@@ -6946,10 +7213,16 @@ async function buildBackupJSON(){
 }
 
 async function shareBackup(){
+  const encChk = document.getElementById('encFullBackup');
+  await runBackup(!!(encChk && encChk.checked));
+}
+
+// 전체 백업 실제 수행 — encrypt=true면 비밀번호를 받아 암호화 저장, 아니면 평문 저장.
+// (데이터관리의 암호화 체크박스, 방문기록 상단 "백업" 버튼이 공통으로 사용)
+async function runBackup(encrypt){
   const json = await buildBackupJSON();
   const ts = new Date().toISOString().slice(0,10);
-  const encChk = document.getElementById('encFullBackup');
-  if(encChk && encChk.checked){
+  if(encrypt){
     showPrompt('백업 비밀번호', '이 백업 파일을 열 때 필요한 비밀번호를 정하세요. (분실 시 복구 불가)', '', async function(pw){
       const enc = await encryptJSON(json, pw);
       await shareOrDownloadJSON(enc, `세일즈맵_백업_암호화_${ts}.json`,
@@ -6959,6 +7232,15 @@ async function shareBackup(){
   }
   await shareOrDownloadJSON(json, `세일즈맵_백업_${ts}.json`,
     '세일즈맵 백업', '세일즈맵 백업 파일입니다. 카카오톡으로 보내려면 공유 목록에서 카카오톡을 선택해주세요.');
+}
+
+// 방문기록 상단 "백업" 버튼 — 암호화(비밀번호) 사용 여부를 먼저 물어본 뒤 전체 백업을 내려받는다.
+// (데이터관리의 "백업 파일 다운로드"와 동일 기능 · 동일 보안 수준)
+function backupFromList(){
+  showConfirm('백업 파일 다운로드',
+    '백업 파일을 비밀번호로 암호화해서 저장할까요? (다른 사람과 공유할 때 권장)',
+    function(){ runBackup(true); },
+    { okLabel:'🔒 암호화 저장', cancelLabel:'그냥 저장', onCancel:function(){ runBackup(false); } });
 }
 
 /* ---------------- 방문기록 엑셀 양식 다운로드 / 업로드 추가 (안 B: 중복방지 추가) ----------------
@@ -7627,7 +7909,7 @@ function confirmReset(){
   showConfirm('전체 데이터 초기화', '저장된 방문일지와 추가한 업체 데이터가 모두 삭제됩니다. (담당자·동행자·인쇄 설정은 유지됩니다) 이 작업은 되돌릴 수 없습니다. 계속하시겠습니까?', function(){
     // 방문일지 + 추가 업체소스 + 폴더/수정본/캐시 + 기본데이터 on·off 상태까지 깨끗이 초기화
     // (담당자·인쇄 설정인 appSettings 는 일부러 남겨둔다)
-    ['visitJournals','manualCompanies','extraSources','companyOverrides','companyMeta',
+    ['visitJournals','trashedJournals','manualCompanies','extraSources','companyOverrides','companyMeta',
      'folderRenames','openFolders','riGeoCache','addrGeoCache',
      'builtinDeleted','builtinActive','builtinName'].forEach(k=>{
       try{ localStorage.removeItem(k); }catch(e){}
