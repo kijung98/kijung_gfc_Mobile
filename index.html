@@ -424,6 +424,9 @@ select{-webkit-appearance:none;appearance:none;background-image:url("data:image/
 .qr-share-btn.alt{color:#6b520a;border-color:rgba(201,162,39,.5);
   background:linear-gradient(135deg,rgba(201,162,39,.30),rgba(201,162,39,.10));
   box-shadow:0 8px 22px rgba(201,162,39,.18), inset 0 1px 0 rgba(255,255,255,.7);}
+.qr-share-btn.save{color:#0f5132;border-color:rgba(16,185,129,.45);
+  background:linear-gradient(135deg,rgba(16,185,129,.28),rgba(16,185,129,.10));
+  box-shadow:0 8px 22px rgba(16,185,129,.18), inset 0 1px 0 rgba(255,255,255,.7);}
 .qr-share-btn:active{transform:scale(.97);}
 /* QR 오버레이 닫기 — 작은 아이콘 버튼 (흰 글자/아이콘으로 명확하게) */
 .qr-close-row{display:flex;justify-content:center;margin-top:16px;}
@@ -1295,8 +1298,9 @@ select{-webkit-appearance:none;appearance:none;background-image:url("data:image/
     </div>
 
     <div class="qr-btn-row">
-      <button type="button" class="qr-share-btn" onclick="showCompanyQR()"><span class="qr-ico">📲</span><span>휴대폰에<br>연락처 저장</span></button>
-      <button type="button" class="qr-share-btn alt" onclick="showJournalQR()"><span class="qr-ico">🗂</span><span>세일즈맵에<br>저장 (동행자)</span></button>
+      <button type="button" class="qr-share-btn" onclick="showCompanyQR()"><span class="qr-ico">📲</span><span>연락처<br>QR</span></button>
+      <button type="button" class="qr-share-btn alt" onclick="showJournalQR()"><span class="qr-ico">🗂</span><span>세일즈맵<br>QR</span></button>
+      <button type="button" class="qr-share-btn save" onclick="saveCompanyToPhone()"><span class="qr-ico">💾</span><span>내폰<br>저장</span></button>
     </div>
 
     <div class="section-title" id="custInfoTitle" style="display:none;">개인 고객 정보</div>
@@ -7163,6 +7167,51 @@ function buildCompanyVCard(name, phone, addr){
   lines.push('NOTE:'+esc('세일즈맵에서 공유한 업체 정보'));
   lines.push('END:VCARD');
   return lines.join('\r\n');
+}
+
+// 현재 폼의 업체 정보를 내 휴대폰 연락처에 저장 (vCard 파일 공유/다운로드).
+// 기업명·대표자·전화·주소·업종·상담내용을 담습니다. 아이폰·갤럭시 모두 연락처 추가로 이어집니다.
+function saveCompanyToPhone(){
+  const val = id => (document.getElementById(id)||{}).value || '';
+  const name = val('f-company').trim();
+  if(!name){ toast('먼저 기업명을 입력해주세요.'); return; }
+  const esc = s => String(s||'').replace(/([\\;,])/g,'\\$1').replace(/\n/g,'\\n');
+  const tel  = val('f-phone').trim().replace(/\s+/g,'-');
+  const addr = val('f-address').trim();
+  const ceo  = val('f-ceo').trim();
+  const ind  = val('f-industry').trim();
+  const content = val('f-content').trim();
+  const noteParts = [];
+  if(ceo) noteParts.push('대표자: ' + ceo);
+  if(ind) noteParts.push('업종: ' + ind);
+  if(content) noteParts.push('상담내용: ' + content);
+  noteParts.push('· 세일즈맵 저장');
+  const lines = ['BEGIN:VCARD','VERSION:3.0'];
+  lines.push('N:'+esc(name)+';;;;');
+  lines.push('FN:'+esc(name));
+  lines.push('ORG:'+esc(name));
+  if(ceo) lines.push('TITLE:'+esc('대표 ' + ceo));
+  if(tel) lines.push('TEL;TYPE=WORK,VOICE:'+tel);
+  if(addr) lines.push('ADR;TYPE=WORK:;;'+esc(addr)+';;;;');
+  lines.push('NOTE:'+esc(noteParts.join('\n')));
+  lines.push('END:VCARD');
+  const vcf = lines.join('\r\n');
+  const filename = name.replace(/[\\/:*?"<>|]/g,'_') + '.vcf';
+  const blob = new Blob([vcf], { type:'text/vcard;charset=utf-8' });
+  const file = new File([blob], filename, { type:'text/vcard' });
+  if(navigator.canShare && navigator.canShare({ files:[file] })){
+    navigator.share({ files:[file], title: name })
+      .then(()=>toast('연락처 앱에서 "추가"를 누르면 저장됩니다.'))
+      .catch(()=>{}); // 사용자가 취소한 경우 무시
+    return;
+  }
+  // 폴백: 파일 다운로드 → 파일을 열면 연락처 추가 화면
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click(); a.remove();
+  URL.revokeObjectURL(url);
+  toast('연락처 파일을 저장했습니다. 파일을 열면 연락처에 추가됩니다.');
 }
 function showCompanyQR(){
   const nameEl = document.getElementById('f-company');
