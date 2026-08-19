@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5, user-scalable=yes, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="세일즈맵">
@@ -350,6 +350,16 @@ select{-webkit-appearance:none;appearance:none;background-image:url("data:image/
 .hint-inline{font-size:11.5px;color:var(--sub);margin-top:6px;line-height:1.5;}
 .biz-kind-row{display:flex;gap:8px;margin-bottom:8px;}
 .custtype-row{display:flex;gap:8px;margin-bottom:12px;}
+/* 글자 크기 조절 컨트롤 */
+.font-scale-ctl{display:flex;align-items:center;gap:10px;margin-top:8px;}
+.fs-btn{flex:0 0 auto;width:56px;height:46px;border:1.5px solid var(--line);border-radius:12px;background:#fff;color:var(--navy);font-size:18px;font-weight:800;cursor:pointer;}
+.fs-btn.plus{background:var(--navy);color:#fff;border-color:var(--navy);}
+.fs-btn:active{opacity:.85;}
+.fs-label{flex:1;text-align:center;font-size:15px;font-weight:800;color:var(--navy);}
+.form-font-bar{display:flex;align-items:center;gap:8px;margin-bottom:10px;}
+.form-font-bar .ffb-hint{margin-right:auto;font-size:12.5px;color:var(--sub);font-weight:700;}
+.form-font-bar .fs-btn{width:46px;height:36px;font-size:15px;border-radius:10px;}
+.fs-mini{min-width:44px;text-align:center;font-size:13px;font-weight:800;color:var(--navy);}
 .custtype-btn{flex:1;padding:12px;border:1.5px solid var(--line);background:#fff;border-radius:12px;font-size:14px;font-weight:800;color:#39435a;touch-action:manipulation;}
 .custtype-btn.on{background:var(--navy);color:#fff;border-color:var(--navy);}
 .add-companion-row{display:flex;gap:8px;}
@@ -402,11 +412,26 @@ select{-webkit-appearance:none;appearance:none;background-image:url("data:image/
 
 /* ---------- QR 동행자 전송 ---------- */
 .qr-btn-row{display:flex;gap:10px;margin:0 0 16px;}
-.qr-share-btn{flex:1;display:flex;align-items:center;justify-content:center;text-align:center;gap:6px;width:100%;padding:14px 10px;
-  border:none;border-radius:12px;background:var(--navy);color:#fff;font-size:13.5px;font-weight:800;line-height:1.35;cursor:pointer;
-  box-shadow:0 4px 14px rgba(15,31,61,.18);}
-.qr-share-btn.alt{background:var(--gold);color:#3a2e05;box-shadow:0 4px 14px rgba(201,162,39,.28);}
-.qr-share-btn:active{opacity:.85;}
+/* 리퀴드 글래스(반투명) 버튼 */
+.qr-share-btn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:5px;
+  width:100%;padding:14px 10px;cursor:pointer;
+  border:1px solid rgba(255,255,255,.7);border-radius:18px;
+  background:linear-gradient(135deg,rgba(255,255,255,.55),rgba(255,255,255,.22));
+  -webkit-backdrop-filter:saturate(180%) blur(16px);backdrop-filter:saturate(180%) blur(16px);
+  color:var(--navy);font-size:12.5px;font-weight:800;line-height:1.35;
+  box-shadow:0 8px 22px rgba(20,30,60,.12), inset 0 1px 0 rgba(255,255,255,.85);}
+.qr-share-btn .qr-ico{font-size:22px;line-height:1;}
+.qr-share-btn.alt{color:#6b520a;border-color:rgba(201,162,39,.5);
+  background:linear-gradient(135deg,rgba(201,162,39,.30),rgba(201,162,39,.10));
+  box-shadow:0 8px 22px rgba(201,162,39,.18), inset 0 1px 0 rgba(255,255,255,.7);}
+.qr-share-btn:active{transform:scale(.97);}
+/* QR 오버레이 닫기 — 작은 아이콘 버튼 (흰 글자/아이콘으로 명확하게) */
+.qr-close-row{display:flex;justify-content:center;margin-top:16px;}
+.qr-close-btn{display:inline-flex;align-items:center;gap:6px;padding:9px 20px;cursor:pointer;
+  border:none;border-radius:22px;background:var(--navy);color:#fff;font-size:13.5px;font-weight:800;
+  box-shadow:0 4px 12px rgba(15,31,61,.25);}
+.qr-close-btn svg{width:16px;height:16px;stroke:#fff;fill:none;stroke-width:2.4;stroke-linecap:round;}
+.qr-close-btn:active{opacity:.85;}
 
 /* 인앱 QR 스캐너 */
 .qr-scan-overlay{position:fixed;inset:0;z-index:400;background:#000;display:none;flex-direction:column;}
@@ -926,6 +951,10 @@ select{-webkit-appearance:none;appearance:none;background-image:url("data:image/
         <div class="ico tile blue"><svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/></svg></div>
         <div><div>직접입력</div><div class="desc">지금 방문 중인 업체를 바로 기록</div></div>
       </button>
+      <button class="big-btn outline" onclick="openQRScanner()">
+        <div class="ico tile navy"><svg viewBox="0 0 24 24"><path d="M4 8V5a1 1 0 0 1 1-1h3"/><path d="M16 4h3a1 1 0 0 1 1 1v3"/><path d="M20 16v3a1 1 0 0 1-1 1h-3"/><path d="M8 20H5a1 1 0 0 1-1-1v-3"/><path d="M4 12h16"/></svg></div>
+        <div><div>QR 스캔으로 방문기록 받기</div><div class="desc">동행자의 QR을 촬영해 내 방문기록에 저장</div></div>
+      </button>
       <button class="big-btn outline" onclick="openRegionSearch()">
         <div class="ico tile green"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.6"/></svg></div>
         <div><div>지역·조건으로 찾기</div><div class="desc">리(里)/보험가입여부/근로자수 등으로 찾기</div></div>
@@ -1079,27 +1108,23 @@ select{-webkit-appearance:none;appearance:none;background-image:url("data:image/
         </div>
       </div>
 
-      <!-- ⑤ QR로 방문기록 받기 (동행자에게 QR로 즉석 전달받기) -->
-      <div class="dm-section">
-        <div class="dm-section-head"><span>📷</span> QR 스캔으로 방문기록 받기</div>
-        <div class="dm-section-body">
-          <div class="backup-steps">
-            <strong>💡 사용법</strong><br>
-            ① 동행자가 자기 세일즈맵의 업체 화면에서 <strong>"🗂 세일즈맵에 저장 (동행자)"</strong> 버튼으로 QR을 띄웁니다<br>
-            ② 아래 <strong>"QR 스캔으로 받기"</strong>를 눌러 그 QR을 카메라로 비추면<br>
-            ③ 방문일·기업명·주소·상담내용 등이 내 <strong>방문기록</strong>에 바로 저장됩니다
-          </div>
-          <div class="backup-btns">
-            <button class="b-up" style="width:100%;" onclick="openQRScanner()">📷 QR 스캔으로 받기</button>
-          </div>
-          <div class="backup-steps" style="background:#eefaf0;color:#166534;">✅ 카메라로 촬영해 앱에 직접 저장하므로 아이폰·갤럭시 모두 동작합니다. 처음 사용 시 카메라 권한을 허용해주세요.</div>
-        </div>
-      </div>
-
     </section>
 
     <!-- ===================== SETTINGS ===================== -->
     <section class="screen" id="screen-settings">
+      <div class="section-title">🔎 글자 크기</div>
+      <div class="card">
+        <div class="field" style="margin-bottom:0;">
+          <label>화면 글자 크기 (전체 확대/축소)</label>
+          <div class="font-scale-ctl">
+            <button type="button" class="fs-btn" onclick="bumpFontScale(-1)">A−</button>
+            <div class="fs-label" id="fontScaleLabel">보통 (100%)</div>
+            <button type="button" class="fs-btn plus" onclick="bumpFontScale(1)">A+</button>
+          </div>
+          <div class="hint-inline">글씨가 작게 느껴지면 <b>A+</b>를 누르세요. 설정은 저장되어 계속 유지됩니다. 두 손가락으로 화면을 확대(핀치줌)할 수도 있습니다.</div>
+        </div>
+      </div>
+
       <div class="section-title">담당자 / 동행자 정보</div>
       <div class="card">
         <div class="field" style="margin-bottom:0;">
@@ -1204,6 +1229,12 @@ select{-webkit-appearance:none;appearance:none;background-image:url("data:image/
 
   <!-- ===================== SUB SCREEN: 방문일지 작성 ===================== -->
   <div class="sub-screen" id="screen-form">
+    <div class="form-font-bar">
+      <span class="ffb-hint">글자 크기</span>
+      <button type="button" class="fs-btn" onclick="bumpFontScale(-1)">A−</button>
+      <span class="fs-mini" id="fontMiniLabel">100%</span>
+      <button type="button" class="fs-btn plus" onclick="bumpFontScale(1)">A+</button>
+    </div>
     <div class="custtype-row">
       <button type="button" class="custtype-btn on" id="ct-corp" onclick="setCustType('법인')">🏢 법인/사업장</button>
       <button type="button" class="custtype-btn" id="ct-personal" onclick="setCustType('개인')">👤 개인고객</button>
@@ -1264,8 +1295,8 @@ select{-webkit-appearance:none;appearance:none;background-image:url("data:image/
     </div>
 
     <div class="qr-btn-row">
-      <button type="button" class="qr-share-btn" onclick="showCompanyQR()">📲 휴대폰에<br>연락처 저장</button>
-      <button type="button" class="qr-share-btn alt" onclick="showJournalQR()">🗂 세일즈맵에<br>저장 (동행자)</button>
+      <button type="button" class="qr-share-btn" onclick="showCompanyQR()"><span class="qr-ico">📲</span><span>휴대폰에<br>연락처 저장</span></button>
+      <button type="button" class="qr-share-btn alt" onclick="showJournalQR()"><span class="qr-ico">🗂</span><span>세일즈맵에<br>저장 (동행자)</span></button>
     </div>
 
     <div class="section-title" id="custInfoTitle" style="display:none;">개인 고객 정보</div>
@@ -1896,8 +1927,10 @@ select{-webkit-appearance:none;appearance:none;background-image:url("data:image/
     <p class="qr-sub" id="qrSub">동행자가 <b>휴대폰 카메라</b>로 아래 QR을 비추면<br>연락처 추가 화면이 떠서 바로 저장할 수 있어요.<br>(아이폰·갤럭시 모두 지원)</p>
     <div class="qr-canvas-wrap"><canvas id="qrCanvas"></canvas></div>
     <div class="qr-name" id="qrName"></div>
-    <div class="btns" style="margin-top:16px;">
-      <button class="btn-ok" style="background:var(--navy);width:100%;" onclick="closeQR()">닫기</button>
+    <div class="qr-close-row">
+      <button type="button" class="qr-close-btn" onclick="closeQR()">
+        <svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6l-12 12"/></svg><span>닫기</span>
+      </button>
     </div>
   </div>
 </div>
@@ -1994,6 +2027,47 @@ function moveJournalsToTrash(ids){
 function persistManual(){ localStorage.setItem('manualCompanies', JSON.stringify(manualCompanies)); }
 function persistSettings(){ localStorage.setItem('appSettings', JSON.stringify(appSettings)); }
 function persistExtraSources(){ localStorage.setItem('extraSources', JSON.stringify(extraSources)); }
+
+/* ---------------- 글자 크기(화면 전체 확대) ---------------- */
+// px 기반 글꼴이 많아 CSS zoom 으로 화면 전체를 확대합니다(레이아웃 유지). 설정은 저장되어 계속 적용됩니다.
+const FONT_STEPS = [1.0, 1.15, 1.3, 1.5, 1.75];
+const FONT_LABELS = ['보통', '크게', '더 크게', '아주 크게', '최대'];
+function currentFontScale(){
+  const s = Number(appSettings.fontScale);
+  return (s && s >= 1 && s <= 2) ? s : 1;
+}
+function nearestFontIndex(s){
+  let idx = 0, best = Infinity;
+  FONT_STEPS.forEach((v, i) => { const d = Math.abs(v - s); if(d < best){ best = d; idx = i; } });
+  return idx;
+}
+function applyFontScale(){
+  document.documentElement.style.zoom = currentFontScale();
+  updateFontScaleUI();
+}
+function setFontScaleByIndex(i){
+  i = Math.max(0, Math.min(FONT_STEPS.length - 1, i));
+  appSettings.fontScale = FONT_STEPS[i];
+  persistSettings();
+  applyFontScale();
+}
+function bumpFontScale(dir){
+  const cur = nearestFontIndex(currentFontScale());
+  const next = cur + dir;
+  if(next < 0 || next > FONT_STEPS.length - 1){
+    toast(dir > 0 ? '이미 가장 큰 글자 크기입니다.' : '이미 기본 글자 크기입니다.');
+    return;
+  }
+  setFontScaleByIndex(next);
+}
+function updateFontScaleUI(){
+  const i = nearestFontIndex(currentFontScale());
+  const pct = Math.round(FONT_STEPS[i] * 100);
+  const lbl = document.getElementById('fontScaleLabel');
+  if(lbl) lbl.textContent = FONT_LABELS[i] + ' (' + pct + '%)';
+  const mini = document.getElementById('fontMiniLabel');
+  if(mini) mini.textContent = pct + '%';
+}
 
 function getBaseCompanies(){ return (typeof COMPANIES !== 'undefined') ? COMPANIES : []; }
 
@@ -7152,8 +7226,8 @@ function showJournalQR(){
   SalesMapQR.drawCanvas(matrix, document.getElementById('qrCanvas'), { maxSize: 640, border: 4 });
   document.getElementById('qrTitle').textContent = '🗂 세일즈맵에 저장 (동행자용)';
   document.getElementById('qrSub').innerHTML = ver > 22
-    ? '⚠️ QR이 촘촘합니다. 화면 밝기를 높이고, 동행자가 <b>세일즈맵 › 데이터관리 › QR 스캔으로 받기</b>로 촬영하세요.'
-    : '동행자가 <b>세일즈맵 › 데이터관리 › QR 스캔으로 받기</b>로<br>이 QR을 촬영하면 방문기록에 저장됩니다.';
+    ? '⚠️ QR이 촘촘합니다. 화면 밝기를 높이고, 동행자가 <b>세일즈맵 홈 › QR 스캔으로 방문기록 받기</b>로 촬영하세요.'
+    : '동행자가 <b>세일즈맵 홈 › QR 스캔으로 방문기록 받기</b>로<br>이 QR을 촬영하면 방문기록에 저장됩니다.';
   document.getElementById('qrName').textContent = name + ' · 방문기록';
   document.getElementById('qrOverlay').classList.add('show');
 }
@@ -8254,6 +8328,7 @@ async function init(){
   // 이전 버전에서 manualCompanies에 저장된 엑셀 데이터가 있으면 extraSources로 자동 이관
   migrateManualToExtraSources();
   fillSettings();
+  applyFontScale();
   const today = new Date();
   document.getElementById('todayStr').textContent = `${today.getMonth()+1}월 ${today.getDate()}일`;
   setupChipHandlers();
