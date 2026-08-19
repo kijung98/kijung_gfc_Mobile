@@ -12,6 +12,8 @@
 <link rel="apple-touch-icon" href="icon-180.png">
 <title>세일즈맵 · 방문영업 CRM</title>
 <script src="companies-data.js"></script>
+<script src="qrcode.js"></script>
+<script src="jsqr.js"></script>
 <style>
 :root{
   --navy:#0f1f3d; --navy2:#16294f; --gold:#c9a227; --gold-soft:#e9d9a8;
@@ -397,6 +399,31 @@ select{-webkit-appearance:none;appearance:none;background-image:url("data:image/
 .confirm-box .btn-cancel{background:#eef1f7;color:#444;}
 .confirm-box .btn-ok{background:var(--red);color:#fff;}
 .hint-box{background:#fff8e6;border:1px solid var(--gold-soft);border-radius:10px;padding:10px 12px;font-size:12px;color:#7a5f10;margin-bottom:12px;line-height:1.5;}
+
+/* ---------- QR 동행자 전송 ---------- */
+.qr-btn-row{display:flex;gap:10px;margin:0 0 16px;}
+.qr-share-btn{flex:1;display:flex;align-items:center;justify-content:center;text-align:center;gap:6px;width:100%;padding:14px 10px;
+  border:none;border-radius:12px;background:var(--navy);color:#fff;font-size:13.5px;font-weight:800;line-height:1.35;cursor:pointer;
+  box-shadow:0 4px 14px rgba(15,31,61,.18);}
+.qr-share-btn.alt{background:var(--gold);color:#3a2e05;box-shadow:0 4px 14px rgba(201,162,39,.28);}
+.qr-share-btn:active{opacity:.85;}
+
+/* 인앱 QR 스캐너 */
+.qr-scan-overlay{position:fixed;inset:0;z-index:400;background:#000;display:none;flex-direction:column;}
+.qr-scan-overlay.show{display:flex;}
+.qr-scan-video{flex:1;width:100%;height:100%;object-fit:cover;background:#000;}
+.qr-scan-frame{position:absolute;top:0;left:0;right:0;bottom:0;display:flex;align-items:center;justify-content:center;pointer-events:none;}
+.qr-scan-frame .box{width:min(66vw,300px);aspect-ratio:1;border:3px solid rgba(255,255,255,.9);border-radius:20px;box-shadow:0 0 0 100vmax rgba(0,0,0,.45);}
+.qr-scan-top{position:absolute;top:0;left:0;right:0;padding:calc(14px + var(--safe-top,0px)) 16px 14px;color:#fff;text-align:center;
+  font-size:14px;font-weight:700;line-height:1.5;background:linear-gradient(180deg,rgba(0,0,0,.55),transparent);z-index:2;}
+.qr-scan-close{position:absolute;left:0;right:0;bottom:calc(20px + var(--safe-bottom));display:flex;justify-content:center;z-index:2;}
+.qr-scan-close button{padding:14px 40px;border:none;border-radius:30px;background:#fff;color:var(--navy);font-size:15px;font-weight:800;}
+.qr-box{background:#fff;width:100%;max-width:480px;border-radius:18px 18px 0 0;padding:22px 20px calc(20px + var(--safe-bottom));text-align:center;}
+.qr-box h3{margin:0 0 6px;font-size:17px;}
+.qr-box .qr-sub{margin:0 0 16px;font-size:13px;color:var(--sub);line-height:1.55;}
+.qr-canvas-wrap{display:flex;justify-content:center;padding:14px;background:#fff;border:1px solid var(--line);border-radius:14px;}
+.qr-canvas-wrap canvas{width:min(280px,72vw);height:auto;image-rendering:pixelated;}
+.qr-name{margin-top:12px;font-size:15px;font-weight:800;color:var(--navy);}
 
 /* ---------- 데이터관리 (PC버전 데이터 소스 관리 스타일 이식) ---------- */
 .dm-section{background:rgba(255,255,255,.62);border:1px solid rgba(255,255,255,.65);border-radius:16px;margin-bottom:16px;overflow:hidden;
@@ -1052,6 +1079,23 @@ select{-webkit-appearance:none;appearance:none;background-image:url("data:image/
         </div>
       </div>
 
+      <!-- ⑤ QR로 방문기록 받기 (동행자에게 QR로 즉석 전달받기) -->
+      <div class="dm-section">
+        <div class="dm-section-head"><span>📷</span> QR 스캔으로 방문기록 받기</div>
+        <div class="dm-section-body">
+          <div class="backup-steps">
+            <strong>💡 사용법</strong><br>
+            ① 동행자가 자기 세일즈맵의 업체 화면에서 <strong>"🗂 세일즈맵에 저장 (동행자)"</strong> 버튼으로 QR을 띄웁니다<br>
+            ② 아래 <strong>"QR 스캔으로 받기"</strong>를 눌러 그 QR을 카메라로 비추면<br>
+            ③ 방문일·기업명·주소·상담내용 등이 내 <strong>방문기록</strong>에 바로 저장됩니다
+          </div>
+          <div class="backup-btns">
+            <button class="b-up" style="width:100%;" onclick="openQRScanner()">📷 QR 스캔으로 받기</button>
+          </div>
+          <div class="backup-steps" style="background:#eefaf0;color:#166534;">✅ 카메라로 촬영해 앱에 직접 저장하므로 아이폰·갤럭시 모두 동작합니다. 처음 사용 시 카메라 권한을 허용해주세요.</div>
+        </div>
+      </div>
+
     </section>
 
     <!-- ===================== SETTINGS ===================== -->
@@ -1217,6 +1261,11 @@ select{-webkit-appearance:none;appearance:none;background-image:url("data:image/
         </div>
         <div class="hint-inline">남·여를 입력하면 총 인원이 자동 계산되며, 총 인원은 직접 입력·수정도 가능합니다.</div>
       </div>
+    </div>
+
+    <div class="qr-btn-row">
+      <button type="button" class="qr-share-btn" onclick="showCompanyQR()">📲 휴대폰에<br>연락처 저장</button>
+      <button type="button" class="qr-share-btn alt" onclick="showJournalQR()">🗂 세일즈맵에<br>저장 (동행자)</button>
     </div>
 
     <div class="section-title" id="custInfoTitle" style="display:none;">개인 고객 정보</div>
@@ -1839,6 +1888,26 @@ select{-webkit-appearance:none;appearance:none;background-image:url("data:image/
       <button class="btn-cancel" onclick="closeMoveFolder()">취소</button>
     </div>
   </div>
+</div>
+
+<div class="confirm-overlay" id="qrOverlay">
+  <div class="qr-box">
+    <h3 id="qrTitle">📲 업체 정보 QR 전송</h3>
+    <p class="qr-sub" id="qrSub">동행자가 <b>휴대폰 카메라</b>로 아래 QR을 비추면<br>연락처 추가 화면이 떠서 바로 저장할 수 있어요.<br>(아이폰·갤럭시 모두 지원)</p>
+    <div class="qr-canvas-wrap"><canvas id="qrCanvas"></canvas></div>
+    <div class="qr-name" id="qrName"></div>
+    <div class="btns" style="margin-top:16px;">
+      <button class="btn-ok" style="background:var(--navy);width:100%;" onclick="closeQR()">닫기</button>
+    </div>
+  </div>
+</div>
+
+<div class="qr-scan-overlay" id="qrScanOverlay">
+  <video class="qr-scan-video" id="qrScanVideo" muted playsinline></video>
+  <canvas id="qrScanCanvas" style="display:none;"></canvas>
+  <div class="qr-scan-frame"><div class="box"></div></div>
+  <div class="qr-scan-top">📷 동행자의 <b>세일즈맵 저장용 QR</b>을<br>사각형 안에 맞춰 비춰주세요</div>
+  <div class="qr-scan-close"><button type="button" onclick="closeQRScanner()">닫기</button></div>
 </div>
 
 <script>
@@ -7003,6 +7072,178 @@ function openCoaching(name){
 function closeCoaching(){ document.getElementById('coachOverlay').classList.remove('show'); }
 function coachGoto(fn,id){ closeCoaching(); if(fn==='cat') openGuideCategory(id); else if(fn==='doc') openGuideDoc(id); }
 function coachToForm(name){ closeCoaching(); selectCompanyFromSearch(name); }
+
+/* ---------------- QR 동행자 전송 ---------------- */
+// 현재 방문일지 폼의 기업명·주소·전화로 vCard를 만들어 QR로 표시합니다.
+// vCard는 아이폰·갤럭시 기본 카메라가 인식해 "연락처 추가"를 띄웁니다.
+function buildCompanyVCard(name, phone, addr){
+  function esc(s){ return String(s||'').replace(/([\\;,])/g,'\\$1').replace(/\n/g,'\\n'); }
+  const lines = ['BEGIN:VCARD','VERSION:3.0'];
+  lines.push('N:'+esc(name)+';;;;');
+  lines.push('FN:'+esc(name));
+  lines.push('ORG:'+esc(name));
+  const tel = String(phone||'').trim().replace(/\s+/g,'-');
+  if(tel) lines.push('TEL;TYPE=WORK,VOICE:'+tel);
+  const a = String(addr||'').trim();
+  if(a) lines.push('ADR;TYPE=WORK:;;'+esc(a)+';;;;');
+  lines.push('NOTE:'+esc('세일즈맵에서 공유한 업체 정보'));
+  lines.push('END:VCARD');
+  return lines.join('\r\n');
+}
+function showCompanyQR(){
+  const nameEl = document.getElementById('f-company');
+  const name = (nameEl ? nameEl.value : '').trim();
+  if(!name){ toast('먼저 기업명을 입력해주세요.'); return; }
+  if(!window.SalesMapQR){ toast('QR 기능을 불러오지 못했습니다.'); return; }
+  const phone = (document.getElementById('f-phone')||{}).value || '';
+  const addr  = (document.getElementById('f-address')||{}).value || '';
+  const vcard = buildCompanyVCard(name, phone, addr);
+  try{
+    const matrix = SalesMapQR.encode(vcard, 'M');
+    // maxSize를 크게 잡아 고해상도로 그리고 CSS로 축소 표시 → 화면이 선명해 스캔이 잘 됩니다.
+    SalesMapQR.drawCanvas(matrix, document.getElementById('qrCanvas'), { maxSize: 560, border: 4 });
+  }catch(e){
+    toast('QR 생성에 실패했습니다. 정보가 너무 길 수 있어요.');
+    return;
+  }
+  document.getElementById('qrTitle').textContent = '📲 휴대폰에 연락처 저장';
+  document.getElementById('qrSub').innerHTML = '동행자가 <b>휴대폰 카메라</b>로 아래 QR을 비추면<br>연락처 추가 화면이 떠서 바로 저장할 수 있어요.<br>(아이폰·갤럭시 모두 지원)';
+  document.getElementById('qrName').textContent = name;
+  document.getElementById('qrOverlay').classList.add('show');
+}
+function closeQR(){ document.getElementById('qrOverlay').classList.remove('show'); }
+
+// 방문일지 폼의 주요 항목을 QR에 담아 동행자에게 전달 → 동행자는 인앱 스캐너로 받아 방문기록에 저장.
+// 우리 앱끼리 주고받으므로 원본 JSON(마커 _smap)을 그대로 인코딩합니다.
+function showJournalQR(){
+  const nameEl = document.getElementById('f-company');
+  const name = (nameEl ? nameEl.value : '').trim();
+  if(!name){ toast('먼저 기업명을 입력해주세요.'); return; }
+  if(!window.SalesMapQR){ toast('QR 기능을 불러오지 못했습니다.'); return; }
+  const val = id => (document.getElementById(id)||{}).value || '';
+  // 짧은 키로 압축해 QR 용량을 아낍니다.
+  const raw = {
+    cn: name,
+    vd: val('f-date').trim(),
+    ad: val('f-address').trim(),
+    ph: val('f-phone').trim(),
+    in: val('f-industry').trim(),
+    ty: val('f-type'),
+    emp: val('f-employees').trim(),
+    ceo: val('f-ceo').trim(),
+    sl: val('f-sales').trim(),
+    ct: val('f-content').trim(),
+    me: val('f-memo').trim(),
+    rs: (selectedChips && selectedChips.result) || '',
+    pr: val('f-product').trim(),
+    pm: val('f-premium').trim()
+  };
+  const d = {};
+  Object.keys(raw).forEach(k => { if(raw[k]) d[k] = raw[k]; }); // 빈 값은 제외
+  const payload = JSON.stringify({ _smap: 1, t: 'journal', d: d });
+  let matrix;
+  try{
+    matrix = SalesMapQR.encode(payload, 'M');
+  }catch(e){
+    toast('상담내용이 너무 깁니다. 내용을 줄인 뒤 다시 시도해주세요.');
+    return;
+  }
+  const ver = (matrix.length - 17) / 4;
+  SalesMapQR.drawCanvas(matrix, document.getElementById('qrCanvas'), { maxSize: 640, border: 4 });
+  document.getElementById('qrTitle').textContent = '🗂 세일즈맵에 저장 (동행자용)';
+  document.getElementById('qrSub').innerHTML = ver > 22
+    ? '⚠️ QR이 촘촘합니다. 화면 밝기를 높이고, 동행자가 <b>세일즈맵 › 데이터관리 › QR 스캔으로 받기</b>로 촬영하세요.'
+    : '동행자가 <b>세일즈맵 › 데이터관리 › QR 스캔으로 받기</b>로<br>이 QR을 촬영하면 방문기록에 저장됩니다.';
+  document.getElementById('qrName').textContent = name + ' · 방문기록';
+  document.getElementById('qrOverlay').classList.add('show');
+}
+
+/* ---------------- QR 스캔으로 받기 (인앱 카메라) ---------------- */
+// 모든 방문일지 필드를 기본값으로 채운 템플릿 — 가져온 일지가 기존 저장 형식과 같아 렌더링이 깨지지 않게 합니다.
+function emptyJournalTemplate(){
+  return {
+    id:0, companyName:'', bizKind:'법인', visitDate:'', visitTime:'', visitor:'', companions:[],
+    address:'', phone:'', companyType:'', employees:'', empMale:'', empFemale:'', ceo:'', bizNo:'',
+    industry:'', age:'', groupIns:'', sales:'', profit:'', netProfit:'', memo:'',
+    firstImpression:'', result:'', priority:'', stage:'', product:'', premium:'',
+    contractDate:'', expiryDate:'', renewDate:'', custType:'법인', relation:'', custGender:'',
+    custBirth:'', family:'', coverage:'', jumin:'', carrier:'', job:'', meds:[], medsEtc:'',
+    height:'', weight:'', bank:'', account:'', payday:'', interest:'', content:'',
+    materialsDelivered:[], currentInsurers:[], visit1:'', visit2:'', visit3:'', visit4:'',
+    attachments:[], attachment:null, savedAt:''
+  };
+}
+
+let qrScanStream = null, qrScanRAF = null, qrScanBusy = false;
+async function openQRScanner(){
+  if(!window.jsQR){ toast('QR 스캔 기능을 불러오지 못했습니다. 앱을 다시 열어보세요.'); return; }
+  if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){ toast('이 기기에서는 카메라 스캔을 지원하지 않습니다.'); return; }
+  const overlay = document.getElementById('qrScanOverlay');
+  const video = document.getElementById('qrScanVideo');
+  overlay.classList.add('show');
+  qrScanBusy = false;
+  try{
+    qrScanStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' }, audio: false });
+  }catch(e){
+    closeQRScanner();
+    toast('카메라를 사용할 수 없습니다. 설정에서 카메라 권한을 허용해주세요.');
+    return;
+  }
+  video.srcObject = qrScanStream;
+  try{ await video.play(); }catch(e){}
+  const canvas = document.getElementById('qrScanCanvas');
+  const ctx = canvas.getContext('2d', { willReadFrequently: true });
+  function tick(){
+    if(!qrScanStream) return;
+    if(!qrScanBusy && video.readyState === video.HAVE_ENOUGH_DATA && video.videoWidth){
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+      const img = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      const code = jsQR(img.data, img.width, img.height, { inversionAttempts: 'dontInvert' });
+      if(code && code.data){
+        let payload = null;
+        try{ payload = JSON.parse(code.data); }catch(_){}
+        if(payload && payload._smap === 1 && payload.t === 'journal'){
+          qrScanBusy = true;
+          stopQRScan();
+          document.getElementById('qrScanOverlay').classList.remove('show');
+          importJournalPayload(payload);
+          return;
+        }
+        // 세일즈맵 QR이 아니면 계속 스캔
+      }
+    }
+    qrScanRAF = requestAnimationFrame(tick);
+  }
+  qrScanRAF = requestAnimationFrame(tick);
+}
+function stopQRScan(){
+  if(qrScanRAF){ cancelAnimationFrame(qrScanRAF); qrScanRAF = null; }
+  if(qrScanStream){ qrScanStream.getTracks().forEach(t => t.stop()); qrScanStream = null; }
+  const video = document.getElementById('qrScanVideo');
+  if(video) video.srcObject = null;
+}
+function closeQRScanner(){ stopQRScan(); document.getElementById('qrScanOverlay').classList.remove('show'); }
+
+function importJournalPayload(payload){
+  const d = payload.d || {};
+  const map = { cn:'companyName', vd:'visitDate', ad:'address', ph:'phone', in:'industry',
+    ty:'companyType', emp:'employees', ceo:'ceo', sl:'sales', ct:'content', me:'memo',
+    rs:'result', pr:'product', pm:'premium', pri:'priority', stg:'stage' };
+  const j = emptyJournalTemplate();
+  Object.keys(map).forEach(k => { if(d[k] != null && d[k] !== '') j[map[k]] = d[k]; });
+  j.id = Date.now();
+  j.savedAt = new Date().toISOString();
+  if(!j.visitDate) j.visitDate = new Date().toISOString().slice(0,10);
+  const cname = j.companyName || '(기업명 없음)';
+  showConfirm('방문기록에 저장', `"${cname}" 방문기록을 내 세일즈맵에 저장할까요?`, function(){
+    journals.unshift(j);
+    persistJournals();
+    toast('방문기록에 저장되었습니다. 목록을 새로고침합니다...');
+    setTimeout(()=>location.reload(), 1000);
+  });
+}
 
 // 검색결과를 가망 점수 높은 순으로 정렬 (점수는 미리 계산해 안정적으로 정렬)
 function sortByProspect(list){
